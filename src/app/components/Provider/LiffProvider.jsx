@@ -33,6 +33,7 @@ export function LiffProvider({ children }) {
       displayName: "Long👁️‍🗨️",
       pictureUrl:
         "https://profile.line-scdn.net/0hPsTql5LvD1x5CB7EtsVxYglYDDZaeVZOVjxHahgOUGhMPU9ZVDxIORwJAj5BOhxZAWxBakoIV21bTUB3DWgHYz9BU24mUxsKPhhEezdwJwJNQTdDFRZGXRB2BRAsbhxKUDFHXDVTUDIMbD5jU2oBcTpMFWpFQCxrN19jCnw6Yd8WCngJVG9GOE4BU2_M",
+      email: "long@example.com",
     };
     const thirdProfile = {
       userId: "U87dc3cebcbaecb31cf42e2efd55af2cc",

@@ -16,7 +16,7 @@ const modalVariants = {
   exit: { y: "50vh", opacity: 0 },
 };
 
-export default function ProfileModal({ isOpen, onClose, profile }) {
+export default function ProfileModal({ isOpen, onClose, profile, customer }) {
   if (!profile) return null;
 
   return (
@@ -63,19 +63,25 @@ export default function ProfileModal({ isOpen, onClose, profile }) {
               <div className="w-full text-left space-y-4">
                 <div className="flex items-center">
                   <User className="w-5 h-5 mr-3 text-blue-600" />
-                  <span>{profile.displayName}</span>
+                  <span>{customer?.fullname || profile.displayName}</span>
                 </div>
                 <div className="flex items-center">
                   <Phone className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-400 italic">เบอร์โทรศัพท์ (ไม่ได้ระบุ)</span>
+                  <span className={customer?.phone ? "text-gray-800" : "text-gray-400 italic"}>
+                    {customer?.phone || "เบอร์โทรศัพท์ (ไม่ได้ระบุ)"}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Mail className="w-5 h-5 mr-3 text-blue-600" />
-                  <span className="text-gray-400 italic">อีเมล (ไม่ได้ระบุ)</span>
+                  <span className={customer?.email ? "text-gray-800" : "text-gray-400 italic"}>
+                    {customer?.email || "อีเมล (ไม่ได้ระบุ)"}
+                  </span>
                 </div>
               </div>
               <p className="text-xs text-gray-400 mt-6 text-center">
-                **หมายเหตุ:** เบอร์โทรและอีเมลไม่ได้ถูกส่งมาจาก LINE โดยตรง
+                {customer?.phone || customer?.email
+                  ? "ข้อมูลจากฐานข้อมูล"
+                  : "**หมายเหตุ:** เบอร์โทรและอีเมลไม่ได้ถูกส่งมาจาก LINE โดยตรง"}
               </p>
             </div>
           </motion.div>

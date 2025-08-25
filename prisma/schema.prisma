@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/client"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGO_URL")
+}
+
+enum AppointmentType {
+  ONSITE
+  ONLINE
+  OFFSITE
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum EmployeeRole {
+  REFINANCE
+  STAFF
+  ENGINEER
+}
+
+model Employee {
+  id              String  @id @default(auto()) @map("_id") @db.ObjectId
+  code            String  @unique
+  name            String?
+  perHourCapacity Int     @default(1) // จะใช้/ไม่ใช้ก็ได้
+  isActive        Boolean @default(true)
+
+  // reverse
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Customer {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  line_display_name String?
+  fullname          String?
+  phone             String? @unique
+  line_user_id      String  @unique
+  email             String?
+  note              String?
+
+  // reverse
+  appointments Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Appointment {
+  id     String            @id @default(auto()) @map("_id") @db.ObjectId
+  type   AppointmentType
+  status AppointmentStatus @default(PENDING)
+
+  date DateTime
+
+  customer   Customer @relation(fields: [customerId], references: [id])
+  customerId String   @db.ObjectId
+
+  employee   Employee? @relation(fields: [employeeId], references: [id])
+  employeeId String?   @db.ObjectId
+
+  note String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId, date])
+}
