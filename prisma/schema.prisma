@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGO_URL")
+  url      = env("LOCAL_DATABASE_URL")
 }
 
 enum AppointmentType {
@@ -28,6 +28,12 @@ enum EmployeeRole {
   ENGINEER
 }
 
+enum EmployeeAbilityTag {
+  ENGINEER
+  REFINANCE
+  GENERAL
+}
+
 model Employee {
   id              String  @id @default(auto()) @map("_id") @db.ObjectId
   code            String  @unique
@@ -35,12 +41,28 @@ model Employee {
   perHourCapacity Int     @default(1) // จะใช้/ไม่ใช้ก็ได้
   isActive        Boolean @default(true)
 
-  // reverse
   appointments Appointment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  employeeTags EmployeeTag[]
 }
+
+model Tag {
+    id   String            @id @default(auto()) @map("_id") @db.ObjectId
+    name EmployeeAbilityTag
+
+    employeeTags EmployeeTag[]
+  }
+
+model EmployeeTag {
+    id         String   @id @default(auto()) @map("_id") @db.ObjectId
+    employee   Employee @relation(fields: [employeeId], references: [id])
+    employeeId String   @db.ObjectId
+    tag        Tag      @relation(fields: [tagId], references: [id])
+    tagId      String   @db.ObjectId
+  }
 
 model Customer {
   id                String  @id @default(auto()) @map("_id") @db.ObjectId
@@ -51,7 +73,6 @@ model Customer {
   email             String?
   note              String?
 
-  // reverse
   appointments Appointment[]
 
   createdAt DateTime @default(now())

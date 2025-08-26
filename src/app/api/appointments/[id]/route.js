@@ -2,7 +2,7 @@
 
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
-import Appointment from "@/models/appointment.model";
+import prisma from "@/lib/prisma";
 
 /**
  * @description VIEW a single appointment by ID
@@ -11,9 +11,14 @@ import Appointment from "@/models/appointment.model";
 export async function GET(request, { params }) {
   try {
     await dbConnect();
-    const { id } = params;
+    const { id } = await params;
+    const customerId = await prisma.customer.findUnique({ where: { line_user_id: id }, select: { id: true } });
 
-    const appointment = await Appointment.findById(id);
+    if (!customerId) {
+      return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
+    }
+
+    const appointment = await prisma.appointment.findUnique({ where: { customerId: customerId } });
 
     if (!appointment) {
       return NextResponse.json({ success: false, message: "Appointment not found" }, { status: 404 });

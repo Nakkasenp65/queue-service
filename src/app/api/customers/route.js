@@ -69,6 +69,7 @@ export async function GET(request) {
     if (lineUserId) {
       whereClause.line_user_id = lineUserId;
     }
+
     if (phone) {
       whereClause.phone = phone;
     }

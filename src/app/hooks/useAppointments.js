@@ -8,7 +8,10 @@ export function useAppointments(lineUserId) {
   } = useQuery({
     queryKey: ["appointments", lineUserId],
     queryFn: async () => {
-      const response = await fetch(`/api/appointments?lineUserId=${lineUserId}`);
+      const response = await fetch(`/api/appointments/${lineUserId}`);
+      if (response.status === 404) {
+        return [];
+      }
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }

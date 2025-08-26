@@ -164,7 +164,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/nakkasenputtacharoen/Documents/Code/queue-service/src/generated/client",
+      "value": "D:\\Code\\queue-service\\src\\generated\\client",
       "fromEnvVar": null
     },
     "config": {
@@ -173,12 +173,12 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "darwin-arm64",
+        "value": "windows",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/nakkasenputtacharoen/Documents/Code/queue-service/prisma/schema.prisma",
+    "sourceFilePath": "D:\\Code\\queue-service\\prisma\\schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
@@ -196,13 +196,13 @@ const config = {
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": "MONGO_URL",
+        "fromEnvVar": "LOCAL_DATABASE_URL",
         "value": null
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"MONGO_URL\")\n}\n\nenum AppointmentType {\n  ONSITE\n  ONLINE\n  OFFSITE\n}\n\nenum AppointmentStatus {\n  PENDING\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n  NO_SHOW\n}\n\nenum EmployeeRole {\n  REFINANCE\n  STAFF\n  ENGINEER\n}\n\nmodel Employee {\n  id              String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  code            String  @unique\n  name            String?\n  perHourCapacity Int     @default(1) // จะใช้/ไม่ใช้ก็ได้\n  isActive        Boolean @default(true)\n\n  // reverse\n  appointments Appointment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Customer {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  line_display_name String?\n  fullname          String?\n  phone             String? @unique\n  line_user_id      String  @unique\n  email             String?\n  note              String?\n\n  // reverse\n  appointments Appointment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Appointment {\n  id     String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  type   AppointmentType\n  status AppointmentStatus @default(PENDING)\n\n  date DateTime\n\n  customer   Customer @relation(fields: [customerId], references: [id])\n  customerId String   @db.ObjectId\n\n  employee   Employee? @relation(fields: [employeeId], references: [id])\n  employeeId String?   @db.ObjectId\n\n  note String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([customerId, date])\n}\n",
-  "inlineSchemaHash": "b8470bfeddd8daf1a0e57564777e23dc981fc4daeae270a0766538ada3aeeac9",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated/client\"\n}\n\ndatasource db {\n  provider = \"mongodb\"\n  url      = env(\"LOCAL_DATABASE_URL\")\n}\n\nenum AppointmentType {\n  ONSITE\n  ONLINE\n  OFFSITE\n}\n\nenum AppointmentStatus {\n  PENDING\n  CONFIRMED\n  COMPLETED\n  CANCELLED\n  NO_SHOW\n}\n\nenum EmployeeRole {\n  REFINANCE\n  STAFF\n  ENGINEER\n}\n\nmodel Employee {\n  id              String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  code            String  @unique\n  name            String?\n  perHourCapacity Int     @default(1) // จะใช้/ไม่ใช้ก็ได้\n  isActive        Boolean @default(true)\n\n  // reverse\n  appointments Appointment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Customer {\n  id                String  @id @default(auto()) @map(\"_id\") @db.ObjectId\n  line_display_name String?\n  fullname          String?\n  phone             String? @unique\n  line_user_id      String  @unique\n  email             String?\n  note              String?\n\n  // reverse\n  appointments Appointment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Appointment {\n  id     String            @id @default(auto()) @map(\"_id\") @db.ObjectId\n  type   AppointmentType\n  status AppointmentStatus @default(PENDING)\n\n  date DateTime\n\n  customer   Customer @relation(fields: [customerId], references: [id])\n  customerId String   @db.ObjectId\n\n  employee   Employee? @relation(fields: [employeeId], references: [id])\n  employeeId String?   @db.ObjectId\n\n  note String?\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([customerId, date])\n}\n",
+  "inlineSchemaHash": "22a05829298b78acc77a6ca0ccefe3ce24392ba2585afdca6003f6d5b2a87688",
   "copyEngine": true
 }
 config.dirname = '/'
@@ -214,7 +214,7 @@ config.compilerWasm = undefined
 
 config.injectableEdgeEnv = () => ({
   parsed: {
-    MONGO_URL: typeof globalThis !== 'undefined' && globalThis['MONGO_URL'] || typeof process !== 'undefined' && process.env && process.env.MONGO_URL || undefined
+    LOCAL_DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['LOCAL_DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.LOCAL_DATABASE_URL || undefined
   }
 })
 

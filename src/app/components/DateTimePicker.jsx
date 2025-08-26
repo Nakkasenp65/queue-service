@@ -6,11 +6,20 @@ import { th } from "date-fns/locale";
 import { addDays, format, isSameDay } from "date-fns";
 
 // Mock data and constants
+
+// ให้คิดจาก quota ของพนักงานและ condition ต่างๆ เช่น วันนั้นมี Employee Tag RF มากกว่า 1 คนก็สามารถรับได้ 3 + 1 ออนไลน์ใน 1 ชั่วโมง
+// - ให้แสดงย่อย logic เทียบในแต่ละช่องไป ว่า มีคิวที่เป็น งานซ่อมไหม
+// - มีคิวงานซ่อมก็ = ต้องดู REF ว่าเหลือ 1 คนไหม
+// - กรณีที่ REF 1 คนยังไงก็ไม่รับออนไลน์ในชั่วโมงนั้น และถ้ารับออนไลน์ไปแล้วในชั่วโมงนั้น คิวก็จะเต็มเลย
+// - งานซ่อมเป็นงานแบบ Priority: EASY | HARD
+// - งานประเภท EASY สามารถรับงานเพิ่มได้ HARD คือเต็ม
+// - ถ้ามี ENG 2 คนให้ คำนวณ Quota ตามงานที่จะเข้ามารับเลย
+
 const mockAppointments = [
-  { id: "apt001", type: "onsite", startDateTime: new Date("2025-08-25T11:00:00") },
-  { id: "apt002", type: "offsite", startDateTime: new Date("2025-08-25T09:00:00") },
-  { id: "apt003", type: "online", startDateTime: new Date("2025-08-25T11:00:00") },
-  { id: "apt004", type: "onsite", startDateTime: new Date("2025-08-25T15:00:00") },
+  { id: "apt001", type: "onsite", startDateTime: new Date("2025-08-26T11:00:00") },
+  { id: "apt002", type: "offsite", startDateTime: new Date("2025-08-26T09:00:00") },
+  { id: "apt003", type: "online", startDateTime: new Date("2025-08-26T11:00:00") },
+  { id: "apt004", type: "onsite", startDateTime: new Date("2025-08-26T15:00:00") },
 ];
 const HOURS = Array.from({ length: 9 }, (_, i) => 11 + i);
 // Services that require specific employees
@@ -31,6 +40,7 @@ const CAPACITY = {
     onsite: 5, // Can handle more customers simultaneously
   },
 };
+
 const STAFF_COUNT = 1;
 const today = new Date();
 const daysList = Array.from({ length: 7 }, (_, i) => addDays(today, i));
@@ -67,18 +77,17 @@ function buildMatricesForRange(appointments, daysList) {
 
 export default function DateTimePicker({ formData, setFormData, setAppState }) {
   if (!formData) return null;
-  const getInitialServiceType = () => {
+  const getInitialLocationType = () => {
     return formData.serviceType === "รีไฟแนนซ์" ? "onsite" : "onsite";
   };
-
-  const [serviceType, setServiceType] = useState(getInitialServiceType());
+  const [locationType, setLocationType] = useState(getInitialLocationType());
   const [selectedDate, setSelectedDate] = useState(daysList[0]);
-
   const { countsOnsite, countsOnline, offsiteDaily } = useMemo(
     () => buildMatricesForRange(mockAppointments, daysList),
     []
   );
 
+  // เรียกดูสถานะของช่อง
   const getSlotState = (day, slot) => {
     const dayIndex = daysList.findIndex((d) => isSameDay(d, day));
     const i = slot.startIndex;
@@ -100,7 +109,7 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
     const currentCapacity = getServiceCapacity();
 
     // Refinance-specific logic for offsite
-    if (formData.serviceType === "รีไฟแนนซ์" && serviceType === "offsite") {
+    if (formData.serviceType === "รีไฟแนนซ์" && locationType === "offsite") {
       const used = offsiteDaily[dayIndex] || 0;
       const cap = currentCapacity.offsite;
       return { used, cap, full: used >= cap, reason: used >= cap ? "คิวเต็มแล้ว" : "" };
@@ -114,7 +123,7 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
       const totalEmployeeBookings = relevantOnsite + relevantOnline;
 
       // Online booking for Refinance
-      if (formData.serviceType === "รีไฟแนนซ์" && serviceType === "online") {
+      if (formData.serviceType === "รีไฟแนนซ์" && locationType === "online") {
         if (i >= HOURS.length - 1) {
           return { used: 1, cap: 1, full: true, reason: "ต้องจองล่วงหน้า 2 ชั่วโมง" };
         }
@@ -145,51 +154,13 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
     }
     // For general services (no employee required)
     const generalUsed = countsOnsite[dayIndex]?.[i] || 0;
+    const generalCap = currentCapacity.onsite || 0;
     return {
       used: generalUsed,
-      cap: currentCapacity.onsite,
-      full: generalUsed >= currentCapacity.onsite,
-      reason: generalUsed >= currentCapacity.onsite ? "คิวเต็มแล้ว" : "",
+      cap: generalCap,
+      full: generalUsed >= generalCap,
+      reason: generalUsed >= generalCap ? "คิวเต็มแล้ว" : "",
     };
-
-    if (STAFF_COUNT <= 1) {
-      const totalUsedCurrent = (countsOnsite[dayIndex]?.[i] || 0) + (countsOnline[dayIndex]?.[i] || 0);
-      if (serviceType === "onsite") {
-        const cap = currentCapacity.onsite || 0;
-        const full = totalUsedCurrent >= cap;
-        return { used: totalUsedCurrent, cap, full, reason: full ? "คิวเต็มแล้ว" : "" };
-      }
-      if (serviceType === "online" && formData.serviceType === "รีไฟแนนซ์") {
-        if (i >= HOURS.length - 1) return { used: 1, cap: 1, full: true, reason: "ต้องใช้ 2 ชั่วโมง" };
-        const onlineUsed = Math.max(countsOnline[dayIndex]?.[i] || 0, countsOnline[dayIndex]?.[i + 1] || 0);
-        const onlineCap = currentCapacity.online || 0;
-        const onsiteCap = currentCapacity.onsite || 0;
-        if (onlineUsed >= onlineCap)
-          return { used: onlineUsed, cap: onlineCap, full: true, reason: "คิวออนไลน์เต็มแล้ว" };
-        const totalUsedNext = (countsOnsite[dayIndex]?.[i + 1] || 0) + (countsOnline[dayIndex]?.[i + 1] || 0);
-        if (totalUsedCurrent >= onsiteCap)
-          return { used: onlineUsed, cap: onlineCap, full: true, reason: `เวลา ${HOURS[i]}:00 ไม่ว่าง` };
-        if (totalUsedNext >= onsiteCap)
-          return { used: onlineUsed, cap: onlineCap, full: true, reason: `เวลา ${HOURS[i + 1]}:00 ไม่ว่าง` };
-        return { used: onlineUsed, cap: onlineCap, full: false, reason: "" };
-      }
-    }
-
-    // Logic for separate resources (STAFF_COUNT > 1)
-    if (serviceType === "onsite") {
-      const used = countsOnsite[dayIndex]?.[i] || 0;
-      const cap = currentCapacity.onsite || 0;
-      const full = used >= cap;
-      return { used, cap, full, reason: full ? "คิวเต็มแล้ว" : "" };
-    }
-    if (serviceType === "online" && formData.serviceType === "รีไฟแนนซ์") {
-      if (i >= HOURS.length - 1) return { used: 1, cap: 1, full: true, reason: "ต้องใช้ 2 ชั่วโมง" };
-      const used = Math.max(countsOnline[dayIndex]?.[i] || 0, countsOnline[dayIndex]?.[i + 1] || 0);
-      const cap = currentCapacity.online || 0;
-      const full = used >= cap;
-      return { used, cap, full, reason: full ? "คิวออนไลน์เต็มแล้ว" : "" };
-    }
-    return { used: 0, cap: 0, full: true, reason: "ไม่เปิดให้บริการ" };
   };
 
   const hourlySlots = useMemo(() => {
@@ -202,7 +173,7 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
       const state = getSlotState(selectedDate, slot);
       return { ...slot, state };
     });
-  }, [selectedDate, countsOnline, countsOnsite, serviceType, formData.serviceType]);
+  }, [selectedDate, countsOnline, countsOnsite, locationType, formData.serviceType]);
 
   const handleBook = (day, slot) => {
     // Calculate the actual hour from the slot
@@ -225,11 +196,11 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
     setFormData((prev) => ({
       ...prev,
       appointmentAt: appointmentDateTime.toISOString(),
-      appointmentType: serviceType,
+      appointmentType: locationType,
     }));
 
     console.log("Selected appointment details:");
-    console.log("- Service type:", serviceType);
+    console.log("- Service type:", locationType);
     console.log("- Slot:", slot);
     console.log("- Selected hour:", selectedHour);
     console.log("- Full datetime:", appointmentDateTime.toISOString());
@@ -257,12 +228,12 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="text-sm text-slate-500">บริการ</div>
         <div className="mt-1 text-lg font-semibold">
-          {formData.serviceType} ({serviceType})
+          {formData.serviceType} ({locationType})
         </div>
         <div className="mt-2 text-xs text-slate-500">
-          {serviceType === "onsite" && "สูงสุด 3 คน/ชม."}
-          {serviceType === "online" && "1 คิว = 2 ชั่วโมง"}
-          {serviceType === "offsite" && "จำกัดวันละ 1 คิว"}
+          {locationType === "onsite" && "สูงสุด 3 คน/ชม."}
+          {locationType === "online" && "1 คิว = 2 ชั่วโมง"}
+          {locationType === "offsite" && "จำกัดวันละ 1 คิว"}
         </div>
       </div>
 
@@ -278,9 +249,9 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setServiceType(opt.key)}
+                  onClick={() => setLocationType(opt.key)}
                   className={`rounded-full px-4 py-2 text-sm transition ${
-                    serviceType === opt.key
+                    locationType === opt.key
                       ? "bg-slate-900 text-white"
                       : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                   }`}
@@ -316,10 +287,10 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
 
       <div className="space-y-3">
         <div className="text-sm font-semibold">ช่วงเวลานัดจอง</div>
-        {serviceType === "offsite" && (
+        {locationType === "offsite" && (
           <TimeRowFullDay date={selectedDate} getSlotState={getSlotState} onBook={handleBook} />
         )}
-        {serviceType === "onsite" && (
+        {locationType === "onsite" && (
           <div className="space-y-2">
             {hourlySlots.map((slot) => {
               const state = getSlotState(selectedDate, slot);
@@ -329,7 +300,7 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
             })}
           </div>
         )}
-        {serviceType === "online" && (
+        {locationType === "online" && (
           <div className="space-y-2">
             {onlineBookingSlots.map((slot) => (
               <TimeSlotRow
