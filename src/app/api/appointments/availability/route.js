@@ -1,7 +1,6 @@
 // src/app/api/appointments/availability/route.js
 import { NextResponse } from "next/server";
-import dbConnect from "@/lib/mongodb";
-import Appointment from "@/models/appointment.model";
+import prisma from "@/lib/prisma";
 
 /**
  * @description GET all future appointment times for calendar display
@@ -9,15 +8,14 @@ import Appointment from "@/models/appointment.model";
  */
 export async function GET(request) {
   try {
-    await dbConnect();
-
     const now = new Date();
 
-    // ดึงข้อมูลเฉพาะคิวที่ยังไม่เกิดขึ้น และเลือกเฉพาะ field ที่จำเป็น
-    const appointments = await Appointment.find(
-      { appointmentAt: { $gte: now } },
-      "appointmentAt appointmentType" // Select only these two fields
-    ).lean(); // .lean() for faster query, returns plain JS objects
+    // Query upcoming appointments using Prisma's `date` field
+    const appointments = await prisma.appointment.findMany({
+      where: { date: { gte: now } },
+      select: { date: true, type: true },
+      orderBy: { date: "asc" },
+    });
 
     return NextResponse.json({ success: true, data: appointments });
   } catch (error) {

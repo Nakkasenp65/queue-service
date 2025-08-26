@@ -1,18 +1,20 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 export function useCustomer(line_user_id) {
   const { data: customer, isLoading } = useQuery({
     queryKey: ["customer", line_user_id],
     queryFn: async () => {
-      const response = await fetch(`/api/customers?line_user_id=${line_user_id}`);
-      if (!response.ok) {
+      const { data } = await axios.get(`/api/customers/${line_user_id}`);
+
+      if (!data) {
         throw new Error("Network response was not ok");
       }
-      const data = await response.json();
+
       if (data) {
-        // Store in localStorage to avoid unnecessary fetches
         localStorage.setItem("customer", JSON.stringify(data));
       }
+
       return data;
     },
     enabled: !!line_user_id,

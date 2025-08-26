@@ -14,6 +14,9 @@ const LiffContext = createContext({
     closeWindow: () => {},
     openWindow: (_url, _external) => {},
     text: () => {},
+    // local login for non-LINE environments
+    login: async (_username, _password) => {},
+    logout: () => {},
   },
 });
 
@@ -26,6 +29,7 @@ export function LiffProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
   const [lineAccessToken, setLineAccessToken] = useState("");
   const [liffReady, setLiffReady] = useState(false);
+  const inClient = () => liff.isInClient();
 
   useEffect(() => {
     const longProfile = {
@@ -35,17 +39,13 @@ export function LiffProvider({ children }) {
         "https://profile.line-scdn.net/0hPsTql5LvD1x5CB7EtsVxYglYDDZaeVZOVjxHahgOUGhMPU9ZVDxIORwJAj5BOhxZAWxBakoIV21bTUB3DWgHYz9BU24mUxsKPhhEezdwJwJNQTdDFRZGXRB2BRAsbhxKUDFHXDVTUDIMbD5jU2oBcTpMFWpFQCxrN19jCnw6Yd8WCngJVG9GOE4BU2_M",
       email: "long@example.com",
     };
-    const thirdProfile = {
-      userId: "U87dc3cebcbaecb31cf42e2efd55af2cc",
-      displayName: "PINTO🍊",
-      pictureUrl:
-        "https://profile.line-scdn.net/0h33pF1d5RbBxdP30rE1ASYy1vb3Z-TjUOJV4kfWloNihoD35KIVklcmA9YHkwXysZJlogf2xqZShRLBt6Q2mQKFoPMS1hCSlIeFsg8g",
-    };
+
     const testProfile = {
       userId: "U669f6092308023f227aa435c803b2e74",
       displayName: "Zzz59🧚🏻♀️🌈",
       pictureUrl: "https://lh3.googleusercontent.com/d/1eXgDln7TvPQGiMpzaUdo7l2hKmsh8Kvc",
     };
+
     const lineAccessTokenDev = process.env.NEXT_PUBLIC_ACCESS_TOKEN;
     const init = async () => {
       if (server === "dev") {
@@ -62,19 +62,51 @@ export function LiffProvider({ children }) {
         await liff.init({ liffId: liffenvId });
         setLiffReady(true);
 
-        if (liff.isLoggedIn()) {
-          setIsLoggedIn(true);
-          const profile = await liff.getProfile();
-          setLiffProfile(profile);
-          const accessToken = liff.getAccessToken();
-          console.log("Access token liff provider: ", accessToken);
-          setLineAccessToken(accessToken || "");
-          setIsLoading(false);
+        // If running inside the LINE client, use LIFF login flow.
+        // If not in client, do NOT call liff.login(); provide local login instead.
+        if (inClient()) {
+          if (liff.isLoggedIn()) {
+            setIsLoggedIn(true);
+            const profile = await liff.getProfile();
+            setLiffProfile(profile);
+            const accessToken = liff.getAccessToken();
+            console.log("Access token liff provider: ", accessToken);
+            setLineAccessToken(accessToken || "");
+            setIsLoading(false);
+          } else {
+            // inside LINE client but not logged in: trigger LIFF login
+            liff.login();
+          }
         } else {
-          liff.login();
+          // Not inside LINE client: try a persisted local profile first
+          const saved = globalThis.localStorage?.getItem("local_liff_profile");
+          if (saved) {
+            try {
+              const parsed = JSON.parse(saved);
+              setLiffProfile(parsed);
+              setIsLoggedIn(true);
+            } catch (e) {
+              console.warn("[LIFF] failed to parse local profile", e);
+              globalThis.localStorage?.removeItem("local_liff_profile");
+            }
+          }
+          // Allow app to render and let callers use actions.login for username/password
+          setIsLoading(false);
         }
       } catch (e) {
         console.error("[LIFF init error]", e);
+        // Allow non-LIFF usage if init fails
+        const saved = globalThis.localStorage?.getItem("local_liff_profile");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            setLiffProfile(parsed);
+            setIsLoggedIn(true);
+          } catch (err) {
+            globalThis.localStorage?.removeItem("local_liff_profile");
+          }
+        }
+        setIsLoading(false);
       }
     };
 
@@ -132,6 +164,49 @@ export function LiffProvider({ children }) {
       } catch (e) {
         console.error("[LIFF text error]", e);
         return { status: "error", error: e?.message };
+      }
+    },
+    // Local login/logout for non-LINE environments.
+    login: async (username, password) => {
+      // Very small mock auth: accept any non-empty username/password in dev
+      // In production, wire this to your auth endpoint.
+      if (!username || !password) {
+        return { status: "error", error: "username and password required" };
+      }
+      try {
+        // Create a minimal profile shape similar to LIFF's profile
+        const profile = {
+          userId: `local-${username}`,
+          displayName: username,
+          pictureUrl: null,
+          email: null,
+        };
+
+        globalThis.localStorage?.setItem("local_liff_profile", JSON.stringify(profile));
+        setLiffProfile(profile);
+        setIsLoggedIn(true);
+        return { status: "ok", profile };
+      } catch (e) {
+        console.error("[LIFF local login error]", e);
+        return { status: "error", error: e?.message };
+      }
+    },
+    logout: () => {
+      try {
+        // Clear local session
+        globalThis.localStorage?.removeItem("local_liff_profile");
+        setLiffProfile(null);
+        setIsLoggedIn(false);
+        // If inside LINE client, also call liff.logout()
+        if (liffReady && inClient() && liff?.logout) {
+          try {
+            liff.logout();
+          } catch (e) {
+            console.warn("[LIFF logout]", e);
+          }
+        }
+      } catch (e) {
+        console.error("[LIFF logout error]", e);
       }
     },
   };

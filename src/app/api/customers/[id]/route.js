@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import prisma from "@/lib/prisma";
 
 /**
  * @description Get a specific customer by ID
  * @route GET /api/customers/[id]
  */
 export async function GET(request, { params }) {
+  const { id } = await params;
   try {
     const customer = await prisma.customer.findUnique({
-      where: { id: params.id },
+      where: { line_user_id: id },
       include: {
         appointments: {
           orderBy: {
@@ -19,10 +20,10 @@ export async function GET(request, { params }) {
     });
 
     if (!customer) {
-      return NextResponse.json({ success: false, message: "Customer not found" }, { status: 404 });
+      return NextResponse.json({ success: false, message: "Customer not found or not registered" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, data: customer });
+    return NextResponse.json(customer);
   } catch (error) {
     console.error("API Error:", error);
     return NextResponse.json({ success: false, message: "Internal Server Error" }, { status: 500 });

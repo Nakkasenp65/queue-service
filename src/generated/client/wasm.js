@@ -115,12 +115,27 @@ Prisma.NullTypes = {
 
 exports.Prisma.EmployeeScalarFieldEnum = {
   id: 'id',
-  code: 'code',
-  name: 'name',
-  perHourCapacity: 'perHourCapacity',
+  fullname: 'fullname',
+  email: 'email',
+  password: 'password',
+  phone: 'phone',
+  role: 'role',
   isActive: 'isActive',
+  profileImageUrl: 'profileImageUrl',
+  bio: 'bio',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TagScalarFieldEnum = {
+  id: 'id',
+  name: 'name'
+};
+
+exports.Prisma.EmployeeTagScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  tagId: 'tagId'
 };
 
 exports.Prisma.CustomerScalarFieldEnum = {
@@ -140,11 +155,22 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   type: 'type',
   status: 'status',
   date: 'date',
+  day: 'day',
+  section: 'section',
   customerId: 'customerId',
   employeeId: 'employeeId',
   note: 'note',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MagicLinkScalarFieldEnum = {
+  id: 'id',
+  token: 'token',
+  employeeId: 'employeeId',
+  expiresAt: 'expiresAt',
+  used: 'used',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -156,6 +182,19 @@ exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 };
+exports.EmployeeRole = exports.$Enums.EmployeeRole = {
+  REFINANCE: 'REFINANCE',
+  STAFF: 'STAFF',
+  ENGINEER: 'ENGINEER',
+  ADMIN: 'ADMIN'
+};
+
+exports.EmployeeAbilityTag = exports.$Enums.EmployeeAbilityTag = {
+  ENGINEER: 'ENGINEER',
+  REFINANCE: 'REFINANCE',
+  GENERAL: 'GENERAL'
+};
+
 exports.AppointmentType = exports.$Enums.AppointmentType = {
   ONSITE: 'ONSITE',
   ONLINE: 'ONLINE',
@@ -172,8 +211,11 @@ exports.AppointmentStatus = exports.$Enums.AppointmentStatus = {
 
 exports.Prisma.ModelName = {
   Employee: 'Employee',
+  Tag: 'Tag',
+  EmployeeTag: 'EmployeeTag',
   Customer: 'Customer',
-  Appointment: 'Appointment'
+  Appointment: 'Appointment',
+  MagicLink: 'MagicLink'
 };
 
 /**

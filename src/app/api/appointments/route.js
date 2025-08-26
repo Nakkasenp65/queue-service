@@ -1,25 +1,6 @@
-// src/app/api/appointments/route.js
-
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import axios from "axios";
-
-// Helper function to verify the LINE ID Token (for security)
-async function verifyLineToken(token) {
-  const params = new URLSearchParams();
-  params.append("id_token", token);
-  params.append("client_id", process.env.LINE_CHANNEL_ID);
-
-  try {
-    const response = await axios.post("https://api.line.me/oauth2/v2.1/verify", params, {
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    });
-    return response.data; // Returns { sub: 'userId', name: '...', picture: '...' }
-  } catch (error) {
-    console.error("Token verification failed:", error.response?.data);
-    return null;
-  }
-}
+import { eachDayOfInterval, format, startOfDay, endOfDay, addDays } from "date-fns";
 
 /**
  * @description CREATE a new appointment
@@ -84,12 +65,19 @@ export async function POST(request) {
     }
 
     // For now, do not assign employee at creation (employeeId: null)
+    // Compute 'day' and 'section' fields required by Prisma schema from appointmentAt
+    const appointmentDate = new Date(appointmentAt);
+    const day = format(appointmentDate, "yyyy-MM-dd");
+    const section = String(appointmentDate.getHours());
+
     // You can add logic here to assign employee for specific types if needed
     const appointment = await prisma.appointment.create({
       data: {
         customerId: customer.id,
         employeeId: null,
-        date: new Date(appointmentAt),
+        date: appointmentDate,
+        day,
+        section,
         type: mappedType,
         status: "PENDING",
         note: note || `Service: ${serviceType}`,
@@ -113,42 +101,135 @@ export async function POST(request) {
  * @description VIEW all appointments
  * @route GET /api/appointments
  */
+// export async function GET(request) {
+//   try {
+//     const { searchParams } = new URL(request.url);
+//     const customerId = searchParams.get("customerId");
+//     const lineUserId = searchParams.get("lineUserId");
+//     const startAt = searchParams.get("startAt");
+//     const endAt = searchParams.get("endAt");
+//     const query = searchParams.get("query");
+
+//     const whereClause = {};
+
+//     // customer filter: allow direct customerId or lookup by lineUserId
+//     if (customerId) {
+//       whereClause.customerId = customerId;
+//     } else if (lineUserId) {
+//       const customer = await prisma.customer.findUnique({ where: { line_user_id: lineUserId }, select: { id: true } });
+//       if (!customer) return NextResponse.json([]);
+//       whereClause.customerId = customer.id;
+//     }
+
+//     // date range filter
+//     if (startAt || endAt) {
+//       whereClause.date = {};
+//       if (startAt) {
+//         const s = new Date(startAt);
+//         if (!isNaN(s)) whereClause.date.gte = s;
+//       }
+//       if (endAt) {
+//         const e = new Date(endAt);
+//         if (!isNaN(e)) whereClause.date.lte = e;
+//       }
+//     }
+
+//     // text query: search in note or customer.fullname
+//     if (query) {
+//       whereClause.OR = [
+//         { note: { contains: query, mode: "insensitive" } },
+//         { customer: { fullname: { contains: query, mode: "insensitive" } } },
+//       ];
+//     }
+
+//     const appointments = await prisma.appointment.findMany({
+//       where: whereClause,
+//       include: {
+//         customer: true,
+//         employee: true,
+//       },
+//       orderBy: { date: "desc" },
+//     });
+
+//     return NextResponse.json(appointments);
+//   } catch (error) {
+//     console.error("Error fetching appointments:", error);
+//     return NextResponse.json({ error: "Failed to fetch appointments" }, { status: 500 });
+//   }
+// }
+const HOURS = Array.from({ length: 9 }, (_, i) => 11 + i);
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
-    const customerId = searchParams.get("customerId");
+
+    const startAtParam = searchParams.get("startAt");
+    const endAtParam = searchParams.get("endAt");
+
+    const startDate = startAtParam ? new Date(startAtParam) : new Date();
+    const endDate = endAtParam ? new Date(endAtParam) : addDays(new Date(), 6);
+
+    const dateRange = eachDayOfInterval({
+      start: startOfDay(startDate),
+      end: endOfDay(endDate),
+    });
+
+    // Create a map for quick lookup: 'YYYY-MM-DD' -> dayIndex (0, 1, 2...)
+    const dateToIndexMap = new Map(dateRange.map((date, index) => [format(date, "yyyy-MM-dd"), index]));
+
+    // --- The rest of the filtering logic remains the same ---
     const lineUserId = searchParams.get("lineUserId");
+    const query = searchParams.get("query");
+    const whereClause = {};
 
-    let whereClause = {};
-
-    if (customerId) {
-      whereClause.customerId = customerId;
-    } else if (lineUserId) {
-      // Find customer by LINE user ID first
-      const customer = await prisma.customer.findUnique({
-        where: { line_user_id: lineUserId },
-      });
-
-      if (customer) {
-        whereClause.customerId = customer.id;
-      } else {
-        // No customer found, return empty array
-        return NextResponse.json([]);
-      }
+    if (lineUserId) {
+      const customer = await prisma.customer.findUnique({ where: { line_user_id: lineUserId } });
+      if (!customer) return NextResponse.json(Array(dateRange.length).fill(Array(HOURS.length).fill([]))); // Return empty grid
+      whereClause.customerId = customer.id;
     }
 
+    whereClause.date = {
+      gte: startOfDay(startDate),
+      lte: endOfDay(endDate),
+    };
+
+    if (query) {
+      whereClause.OR = [
+        { note: { contains: query, mode: "insensitive" } },
+        { customer: { fullname: { contains: query, mode: "insensitive" } } },
+      ];
+    }
+
+    // 2. ดึงข้อมูลนัดหมายทั้งหมดในช่วงวันที่ที่กำหนด (ยังเป็น Flat List)
     const appointments = await prisma.appointment.findMany({
       where: whereClause,
       include: {
         customer: true,
         employee: true,
       },
-      orderBy: {
-        date: "desc",
-      },
+      orderBy: { date: "asc" }, // Order by date ascending for easier processing
     });
 
-    return NextResponse.json(appointments);
+    // 3. สร้างตารางว่าง (Empty Grid) 2 มิติ
+    const dailyAppointments = Array.from({ length: dateRange.length }, () =>
+      Array.from({ length: HOURS.length }, () => [])
+    );
+
+    // 4. นำข้อมูลจาก Flat List มาใส่ในตาราง 2 มิติ
+    for (const appointment of appointments) {
+      const appDate = new Date(appointment.date);
+      const dateKey = format(appDate, "yyyy-MM-dd");
+      const hour = appDate.getHours();
+
+      const dayIndex = dateToIndexMap.get(dateKey);
+      const sectionIndex = hour - HOURS[0]; // Calculate section (e.g., 11:00 -> 0, 12:00 -> 1)
+
+      // Ensure the appointment falls within our defined days and sections
+      if (dayIndex !== undefined && sectionIndex >= 0 && sectionIndex < HOURS.length) {
+        dailyAppointments[dayIndex][sectionIndex].push(appointment);
+      }
+    }
+
+    return NextResponse.json(dailyAppointments);
   } catch (error) {
     console.error("Error fetching appointments:", error);
     return NextResponse.json({ error: "Failed to fetch appointments" }, { status: 500 });

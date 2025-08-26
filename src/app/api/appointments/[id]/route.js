@@ -12,13 +12,13 @@ export async function GET(request, { params }) {
   try {
     await dbConnect();
     const { id } = await params;
-    const customerId = await prisma.customer.findUnique({ where: { line_user_id: id }, select: { id: true } });
+    const customer = await prisma.customer.findUnique({ where: { line_user_id: id }, select: { id: true } });
 
-    if (!customerId) {
+    if (!customer) {
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
-    const appointment = await prisma.appointment.findUnique({ where: { customerId: customerId } });
+    const appointment = await prisma.appointment.findUnique({ where: { customerId: customer.id } });
 
     if (!appointment) {
       return NextResponse.json({ success: false, message: "Appointment not found" }, { status: 404 });

@@ -19,6 +19,16 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  */
 export type Employee = $Result.DefaultSelection<Prisma.$EmployeePayload>
 /**
+ * Model Tag
+ * 
+ */
+export type Tag = $Result.DefaultSelection<Prisma.$TagPayload>
+/**
+ * Model EmployeeTag
+ * 
+ */
+export type EmployeeTag = $Result.DefaultSelection<Prisma.$EmployeeTagPayload>
+/**
  * Model Customer
  * 
  */
@@ -28,6 +38,11 @@ export type Customer = $Result.DefaultSelection<Prisma.$CustomerPayload>
  * 
  */
 export type Appointment = $Result.DefaultSelection<Prisma.$AppointmentPayload>
+/**
+ * Model MagicLink
+ * 
+ */
+export type MagicLink = $Result.DefaultSelection<Prisma.$MagicLinkPayload>
 
 /**
  * Enums
@@ -56,10 +71,20 @@ export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof Appointm
 export const EmployeeRole: {
   REFINANCE: 'REFINANCE',
   STAFF: 'STAFF',
-  ENGINEER: 'ENGINEER'
+  ENGINEER: 'ENGINEER',
+  ADMIN: 'ADMIN'
 };
 
 export type EmployeeRole = (typeof EmployeeRole)[keyof typeof EmployeeRole]
+
+
+export const EmployeeAbilityTag: {
+  ENGINEER: 'ENGINEER',
+  REFINANCE: 'REFINANCE',
+  GENERAL: 'GENERAL'
+};
+
+export type EmployeeAbilityTag = (typeof EmployeeAbilityTag)[keyof typeof EmployeeAbilityTag]
 
 }
 
@@ -74,6 +99,10 @@ export const AppointmentStatus: typeof $Enums.AppointmentStatus
 export type EmployeeRole = $Enums.EmployeeRole
 
 export const EmployeeRole: typeof $Enums.EmployeeRole
+
+export type EmployeeAbilityTag = $Enums.EmployeeAbilityTag
+
+export const EmployeeAbilityTag: typeof $Enums.EmployeeAbilityTag
 
 /**
  * ##  Prisma Client ʲˢ
@@ -171,6 +200,26 @@ export class PrismaClient<
   get employee(): Prisma.EmployeeDelegate<ExtArgs, ClientOptions>;
 
   /**
+   * `prisma.tag`: Exposes CRUD operations for the **Tag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Tags
+    * const tags = await prisma.tag.findMany()
+    * ```
+    */
+  get tag(): Prisma.TagDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.employeeTag`: Exposes CRUD operations for the **EmployeeTag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more EmployeeTags
+    * const employeeTags = await prisma.employeeTag.findMany()
+    * ```
+    */
+  get employeeTag(): Prisma.EmployeeTagDelegate<ExtArgs, ClientOptions>;
+
+  /**
    * `prisma.customer`: Exposes CRUD operations for the **Customer** model.
     * Example usage:
     * ```ts
@@ -189,6 +238,16 @@ export class PrismaClient<
     * ```
     */
   get appointment(): Prisma.AppointmentDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.magicLink`: Exposes CRUD operations for the **MagicLink** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more MagicLinks
+    * const magicLinks = await prisma.magicLink.findMany()
+    * ```
+    */
+  get magicLink(): Prisma.MagicLinkDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -630,8 +689,11 @@ export namespace Prisma {
 
   export const ModelName: {
     Employee: 'Employee',
+    Tag: 'Tag',
+    EmployeeTag: 'EmployeeTag',
     Customer: 'Customer',
-    Appointment: 'Appointment'
+    Appointment: 'Appointment',
+    MagicLink: 'MagicLink'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -650,7 +712,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "employee" | "customer" | "appointment"
+      modelProps: "employee" | "tag" | "employeeTag" | "customer" | "appointment" | "magicLink"
       txIsolationLevel: never
     }
     model: {
@@ -725,6 +787,154 @@ export namespace Prisma {
           count: {
             args: Prisma.EmployeeCountArgs<ExtArgs>
             result: $Utils.Optional<EmployeeCountAggregateOutputType> | number
+          }
+        }
+      }
+      Tag: {
+        payload: Prisma.$TagPayload<ExtArgs>
+        fields: Prisma.TagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.TagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.TagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          findFirst: {
+            args: Prisma.TagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.TagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          findMany: {
+            args: Prisma.TagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>[]
+          }
+          create: {
+            args: Prisma.TagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          createMany: {
+            args: Prisma.TagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.TagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          update: {
+            args: Prisma.TagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          deleteMany: {
+            args: Prisma.TagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.TagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.TagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$TagPayload>
+          }
+          aggregate: {
+            args: Prisma.TagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateTag>
+          }
+          groupBy: {
+            args: Prisma.TagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<TagGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.TagFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.TagAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.TagCountArgs<ExtArgs>
+            result: $Utils.Optional<TagCountAggregateOutputType> | number
+          }
+        }
+      }
+      EmployeeTag: {
+        payload: Prisma.$EmployeeTagPayload<ExtArgs>
+        fields: Prisma.EmployeeTagFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.EmployeeTagFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmployeeTagFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          findFirst: {
+            args: Prisma.EmployeeTagFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmployeeTagFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          findMany: {
+            args: Prisma.EmployeeTagFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>[]
+          }
+          create: {
+            args: Prisma.EmployeeTagCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          createMany: {
+            args: Prisma.EmployeeTagCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.EmployeeTagDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          update: {
+            args: Prisma.EmployeeTagUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmployeeTagDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmployeeTagUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.EmployeeTagUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$EmployeeTagPayload>
+          }
+          aggregate: {
+            args: Prisma.EmployeeTagAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateEmployeeTag>
+          }
+          groupBy: {
+            args: Prisma.EmployeeTagGroupByArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeTagGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.EmployeeTagFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.EmployeeTagAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.EmployeeTagCountArgs<ExtArgs>
+            result: $Utils.Optional<EmployeeTagCountAggregateOutputType> | number
           }
         }
       }
@@ -876,6 +1086,80 @@ export namespace Prisma {
           }
         }
       }
+      MagicLink: {
+        payload: Prisma.$MagicLinkPayload<ExtArgs>
+        fields: Prisma.MagicLinkFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.MagicLinkFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.MagicLinkFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          findFirst: {
+            args: Prisma.MagicLinkFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.MagicLinkFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          findMany: {
+            args: Prisma.MagicLinkFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>[]
+          }
+          create: {
+            args: Prisma.MagicLinkCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          createMany: {
+            args: Prisma.MagicLinkCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          delete: {
+            args: Prisma.MagicLinkDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          update: {
+            args: Prisma.MagicLinkUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          deleteMany: {
+            args: Prisma.MagicLinkDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.MagicLinkUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.MagicLinkUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$MagicLinkPayload>
+          }
+          aggregate: {
+            args: Prisma.MagicLinkAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateMagicLink>
+          }
+          groupBy: {
+            args: Prisma.MagicLinkGroupByArgs<ExtArgs>
+            result: $Utils.Optional<MagicLinkGroupByOutputType>[]
+          }
+          findRaw: {
+            args: Prisma.MagicLinkFindRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          aggregateRaw: {
+            args: Prisma.MagicLinkAggregateRawArgs<ExtArgs>
+            result: JsonObject
+          }
+          count: {
+            args: Prisma.MagicLinkCountArgs<ExtArgs>
+            result: $Utils.Optional<MagicLinkCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -956,8 +1240,11 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     employee?: EmployeeOmit
+    tag?: TagOmit
+    employeeTag?: EmployeeTagOmit
     customer?: CustomerOmit
     appointment?: AppointmentOmit
+    magicLink?: MagicLinkOmit
   }
 
   /* Types for Logging */
@@ -1039,10 +1326,14 @@ export namespace Prisma {
 
   export type EmployeeCountOutputType = {
     appointments: number
+    employeeTags: number
+    magicLinks: number
   }
 
   export type EmployeeCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     appointments?: boolean | EmployeeCountOutputTypeCountAppointmentsArgs
+    employeeTags?: boolean | EmployeeCountOutputTypeCountEmployeeTagsArgs
+    magicLinks?: boolean | EmployeeCountOutputTypeCountMagicLinksArgs
   }
 
   // Custom InputTypes
@@ -1061,6 +1352,51 @@ export namespace Prisma {
    */
   export type EmployeeCountOutputTypeCountAppointmentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: AppointmentWhereInput
+  }
+
+  /**
+   * EmployeeCountOutputType without action
+   */
+  export type EmployeeCountOutputTypeCountEmployeeTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeTagWhereInput
+  }
+
+  /**
+   * EmployeeCountOutputType without action
+   */
+  export type EmployeeCountOutputTypeCountMagicLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MagicLinkWhereInput
+  }
+
+
+  /**
+   * Count Type TagCountOutputType
+   */
+
+  export type TagCountOutputType = {
+    employeeTags: number
+  }
+
+  export type TagCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employeeTags?: boolean | TagCountOutputTypeCountEmployeeTagsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * TagCountOutputType without action
+   */
+  export type TagCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the TagCountOutputType
+     */
+    select?: TagCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * TagCountOutputType without action
+   */
+  export type TagCountOutputTypeCountEmployeeTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeTagWhereInput
   }
 
 
@@ -1105,86 +1441,92 @@ export namespace Prisma {
 
   export type AggregateEmployee = {
     _count: EmployeeCountAggregateOutputType | null
-    _avg: EmployeeAvgAggregateOutputType | null
-    _sum: EmployeeSumAggregateOutputType | null
     _min: EmployeeMinAggregateOutputType | null
     _max: EmployeeMaxAggregateOutputType | null
   }
 
-  export type EmployeeAvgAggregateOutputType = {
-    perHourCapacity: number | null
-  }
-
-  export type EmployeeSumAggregateOutputType = {
-    perHourCapacity: number | null
-  }
-
   export type EmployeeMinAggregateOutputType = {
     id: string | null
-    code: string | null
-    name: string | null
-    perHourCapacity: number | null
+    fullname: string | null
+    email: string | null
+    password: string | null
+    phone: string | null
+    role: $Enums.EmployeeRole | null
     isActive: boolean | null
+    profileImageUrl: string | null
+    bio: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type EmployeeMaxAggregateOutputType = {
     id: string | null
-    code: string | null
-    name: string | null
-    perHourCapacity: number | null
+    fullname: string | null
+    email: string | null
+    password: string | null
+    phone: string | null
+    role: $Enums.EmployeeRole | null
     isActive: boolean | null
+    profileImageUrl: string | null
+    bio: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type EmployeeCountAggregateOutputType = {
     id: number
-    code: number
-    name: number
-    perHourCapacity: number
+    fullname: number
+    email: number
+    password: number
+    phone: number
+    role: number
     isActive: number
+    profileImageUrl: number
+    bio: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
-  export type EmployeeAvgAggregateInputType = {
-    perHourCapacity?: true
-  }
-
-  export type EmployeeSumAggregateInputType = {
-    perHourCapacity?: true
-  }
-
   export type EmployeeMinAggregateInputType = {
     id?: true
-    code?: true
-    name?: true
-    perHourCapacity?: true
+    fullname?: true
+    email?: true
+    password?: true
+    phone?: true
+    role?: true
     isActive?: true
+    profileImageUrl?: true
+    bio?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type EmployeeMaxAggregateInputType = {
     id?: true
-    code?: true
-    name?: true
-    perHourCapacity?: true
+    fullname?: true
+    email?: true
+    password?: true
+    phone?: true
+    role?: true
     isActive?: true
+    profileImageUrl?: true
+    bio?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type EmployeeCountAggregateInputType = {
     id?: true
-    code?: true
-    name?: true
-    perHourCapacity?: true
+    fullname?: true
+    email?: true
+    password?: true
+    phone?: true
+    role?: true
     isActive?: true
+    profileImageUrl?: true
+    bio?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1228,18 +1570,6 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Select which fields to average
-    **/
-    _avg?: EmployeeAvgAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to sum
-    **/
-    _sum?: EmployeeSumAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
      * Select which fields to find the minimum value
     **/
     _min?: EmployeeMinAggregateInputType
@@ -1270,23 +1600,23 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: EmployeeCountAggregateInputType | true
-    _avg?: EmployeeAvgAggregateInputType
-    _sum?: EmployeeSumAggregateInputType
     _min?: EmployeeMinAggregateInputType
     _max?: EmployeeMaxAggregateInputType
   }
 
   export type EmployeeGroupByOutputType = {
     id: string
-    code: string
-    name: string | null
-    perHourCapacity: number
+    fullname: string | null
+    email: string | null
+    password: string | null
+    phone: string | null
+    role: $Enums.EmployeeRole
     isActive: boolean
+    profileImageUrl: string | null
+    bio: string | null
     createdAt: Date
     updatedAt: Date
     _count: EmployeeCountAggregateOutputType | null
-    _avg: EmployeeAvgAggregateOutputType | null
-    _sum: EmployeeSumAggregateOutputType | null
     _min: EmployeeMinAggregateOutputType | null
     _max: EmployeeMaxAggregateOutputType | null
   }
@@ -1307,13 +1637,19 @@ export namespace Prisma {
 
   export type EmployeeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    code?: boolean
-    name?: boolean
-    perHourCapacity?: boolean
+    fullname?: boolean
+    email?: boolean
+    password?: boolean
+    phone?: boolean
+    role?: boolean
     isActive?: boolean
+    profileImageUrl?: boolean
+    bio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     appointments?: boolean | Employee$appointmentsArgs<ExtArgs>
+    employeeTags?: boolean | Employee$employeeTagsArgs<ExtArgs>
+    magicLinks?: boolean | Employee$magicLinksArgs<ExtArgs>
     _count?: boolean | EmployeeCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["employee"]>
 
@@ -1321,17 +1657,23 @@ export namespace Prisma {
 
   export type EmployeeSelectScalar = {
     id?: boolean
-    code?: boolean
-    name?: boolean
-    perHourCapacity?: boolean
+    fullname?: boolean
+    email?: boolean
+    password?: boolean
+    phone?: boolean
+    role?: boolean
     isActive?: boolean
+    profileImageUrl?: boolean
+    bio?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "code" | "name" | "perHourCapacity" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullname" | "email" | "password" | "phone" | "role" | "isActive" | "profileImageUrl" | "bio" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
   export type EmployeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     appointments?: boolean | Employee$appointmentsArgs<ExtArgs>
+    employeeTags?: boolean | Employee$employeeTagsArgs<ExtArgs>
+    magicLinks?: boolean | Employee$magicLinksArgs<ExtArgs>
     _count?: boolean | EmployeeCountOutputTypeDefaultArgs<ExtArgs>
   }
 
@@ -1339,13 +1681,19 @@ export namespace Prisma {
     name: "Employee"
     objects: {
       appointments: Prisma.$AppointmentPayload<ExtArgs>[]
+      employeeTags: Prisma.$EmployeeTagPayload<ExtArgs>[]
+      magicLinks: Prisma.$MagicLinkPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      code: string
-      name: string | null
-      perHourCapacity: number
+      fullname: string | null
+      email: string | null
+      password: string | null
+      phone: string | null
+      role: $Enums.EmployeeRole
       isActive: boolean
+      profileImageUrl: string | null
+      bio: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["employee"]>
@@ -1712,6 +2060,8 @@ export namespace Prisma {
   export interface Prisma__EmployeeClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     appointments<T extends Employee$appointmentsArgs<ExtArgs> = {}>(args?: Subset<T, Employee$appointmentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$AppointmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    employeeTags<T extends Employee$employeeTagsArgs<ExtArgs> = {}>(args?: Subset<T, Employee$employeeTagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    magicLinks<T extends Employee$magicLinksArgs<ExtArgs> = {}>(args?: Subset<T, Employee$magicLinksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1742,10 +2092,14 @@ export namespace Prisma {
    */
   interface EmployeeFieldRefs {
     readonly id: FieldRef<"Employee", 'String'>
-    readonly code: FieldRef<"Employee", 'String'>
-    readonly name: FieldRef<"Employee", 'String'>
-    readonly perHourCapacity: FieldRef<"Employee", 'Int'>
+    readonly fullname: FieldRef<"Employee", 'String'>
+    readonly email: FieldRef<"Employee", 'String'>
+    readonly password: FieldRef<"Employee", 'String'>
+    readonly phone: FieldRef<"Employee", 'String'>
+    readonly role: FieldRef<"Employee", 'EmployeeRole'>
     readonly isActive: FieldRef<"Employee", 'Boolean'>
+    readonly profileImageUrl: FieldRef<"Employee", 'String'>
+    readonly bio: FieldRef<"Employee", 'String'>
     readonly createdAt: FieldRef<"Employee", 'DateTime'>
     readonly updatedAt: FieldRef<"Employee", 'DateTime'>
   }
@@ -2142,6 +2496,54 @@ export namespace Prisma {
   }
 
   /**
+   * Employee.employeeTags
+   */
+  export type Employee$employeeTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    where?: EmployeeTagWhereInput
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    cursor?: EmployeeTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeTagScalarFieldEnum | EmployeeTagScalarFieldEnum[]
+  }
+
+  /**
+   * Employee.magicLinks
+   */
+  export type Employee$magicLinksArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    where?: MagicLinkWhereInput
+    orderBy?: MagicLinkOrderByWithRelationInput | MagicLinkOrderByWithRelationInput[]
+    cursor?: MagicLinkWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: MagicLinkScalarFieldEnum | MagicLinkScalarFieldEnum[]
+  }
+
+  /**
    * Employee without action
    */
   export type EmployeeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2157,6 +2559,1939 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: EmployeeInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Tag
+   */
+
+  export type AggregateTag = {
+    _count: TagCountAggregateOutputType | null
+    _min: TagMinAggregateOutputType | null
+    _max: TagMaxAggregateOutputType | null
+  }
+
+  export type TagMinAggregateOutputType = {
+    id: string | null
+    name: $Enums.EmployeeAbilityTag | null
+  }
+
+  export type TagMaxAggregateOutputType = {
+    id: string | null
+    name: $Enums.EmployeeAbilityTag | null
+  }
+
+  export type TagCountAggregateOutputType = {
+    id: number
+    name: number
+    _all: number
+  }
+
+
+  export type TagMinAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type TagMaxAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type TagCountAggregateInputType = {
+    id?: true
+    name?: true
+    _all?: true
+  }
+
+  export type TagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Tag to aggregate.
+     */
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     */
+    orderBy?: TagOrderByWithRelationInput | TagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Tags
+    **/
+    _count?: true | TagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TagMaxAggregateInputType
+  }
+
+  export type GetTagAggregateType<T extends TagAggregateArgs> = {
+        [P in keyof T & keyof AggregateTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTag[P]>
+      : GetScalarType<T[P], AggregateTag[P]>
+  }
+
+
+
+
+  export type TagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: TagWhereInput
+    orderBy?: TagOrderByWithAggregationInput | TagOrderByWithAggregationInput[]
+    by: TagScalarFieldEnum[] | TagScalarFieldEnum
+    having?: TagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TagCountAggregateInputType | true
+    _min?: TagMinAggregateInputType
+    _max?: TagMaxAggregateInputType
+  }
+
+  export type TagGroupByOutputType = {
+    id: string
+    name: $Enums.EmployeeAbilityTag
+    _count: TagCountAggregateOutputType | null
+    _min: TagMinAggregateOutputType | null
+    _max: TagMaxAggregateOutputType | null
+  }
+
+  type GetTagGroupByPayload<T extends TagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<TagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof TagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], TagGroupByOutputType[P]>
+            : GetScalarType<T[P], TagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type TagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    employeeTags?: boolean | Tag$employeeTagsArgs<ExtArgs>
+    _count?: boolean | TagCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["tag"]>
+
+
+
+  export type TagSelectScalar = {
+    id?: boolean
+    name?: boolean
+  }
+
+  export type TagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name", ExtArgs["result"]["tag"]>
+  export type TagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employeeTags?: boolean | Tag$employeeTagsArgs<ExtArgs>
+    _count?: boolean | TagCountOutputTypeDefaultArgs<ExtArgs>
+  }
+
+  export type $TagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Tag"
+    objects: {
+      employeeTags: Prisma.$EmployeeTagPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: $Enums.EmployeeAbilityTag
+    }, ExtArgs["result"]["tag"]>
+    composites: {}
+  }
+
+  type TagGetPayload<S extends boolean | null | undefined | TagDefaultArgs> = $Result.GetResult<Prisma.$TagPayload, S>
+
+  type TagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<TagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: TagCountAggregateInputType | true
+    }
+
+  export interface TagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Tag'], meta: { name: 'Tag' } }
+    /**
+     * Find zero or one Tag that matches the filter.
+     * @param {TagFindUniqueArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends TagFindUniqueArgs>(args: SelectSubset<T, TagFindUniqueArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Tag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {TagFindUniqueOrThrowArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends TagFindUniqueOrThrowArgs>(args: SelectSubset<T, TagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagFindFirstArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends TagFindFirstArgs>(args?: SelectSubset<T, TagFindFirstArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Tag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagFindFirstOrThrowArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends TagFindFirstOrThrowArgs>(args?: SelectSubset<T, TagFindFirstOrThrowArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Tags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Tags
+     * const tags = await prisma.tag.findMany()
+     * 
+     * // Get first 10 Tags
+     * const tags = await prisma.tag.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tagWithIdOnly = await prisma.tag.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends TagFindManyArgs>(args?: SelectSubset<T, TagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Tag.
+     * @param {TagCreateArgs} args - Arguments to create a Tag.
+     * @example
+     * // Create one Tag
+     * const Tag = await prisma.tag.create({
+     *   data: {
+     *     // ... data to create a Tag
+     *   }
+     * })
+     * 
+     */
+    create<T extends TagCreateArgs>(args: SelectSubset<T, TagCreateArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Tags.
+     * @param {TagCreateManyArgs} args - Arguments to create many Tags.
+     * @example
+     * // Create many Tags
+     * const tag = await prisma.tag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends TagCreateManyArgs>(args?: SelectSubset<T, TagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Tag.
+     * @param {TagDeleteArgs} args - Arguments to delete one Tag.
+     * @example
+     * // Delete one Tag
+     * const Tag = await prisma.tag.delete({
+     *   where: {
+     *     // ... filter to delete one Tag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends TagDeleteArgs>(args: SelectSubset<T, TagDeleteArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Tag.
+     * @param {TagUpdateArgs} args - Arguments to update one Tag.
+     * @example
+     * // Update one Tag
+     * const tag = await prisma.tag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends TagUpdateArgs>(args: SelectSubset<T, TagUpdateArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Tags.
+     * @param {TagDeleteManyArgs} args - Arguments to filter Tags to delete.
+     * @example
+     * // Delete a few Tags
+     * const { count } = await prisma.tag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends TagDeleteManyArgs>(args?: SelectSubset<T, TagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Tags
+     * const tag = await prisma.tag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends TagUpdateManyArgs>(args: SelectSubset<T, TagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Tag.
+     * @param {TagUpsertArgs} args - Arguments to update or create a Tag.
+     * @example
+     * // Update or create a Tag
+     * const tag = await prisma.tag.upsert({
+     *   create: {
+     *     // ... data to create a Tag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Tag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends TagUpsertArgs>(args: SelectSubset<T, TagUpsertArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Tags that matches the filter.
+     * @param {TagFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const tag = await prisma.tag.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: TagFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a Tag.
+     * @param {TagAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const tag = await prisma.tag.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: TagAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagCountArgs} args - Arguments to filter Tags to count.
+     * @example
+     * // Count the number of Tags
+     * const count = await prisma.tag.count({
+     *   where: {
+     *     // ... the filter for the Tags we want to count
+     *   }
+     * })
+    **/
+    count<T extends TagCountArgs>(
+      args?: Subset<T, TagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Tag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TagAggregateArgs>(args: Subset<T, TagAggregateArgs>): Prisma.PrismaPromise<GetTagAggregateType<T>>
+
+    /**
+     * Group by Tag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TagGroupByArgs['orderBy'] }
+        : { orderBy?: TagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Tag model
+   */
+  readonly fields: TagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Tag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__TagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employeeTags<T extends Tag$employeeTagsArgs<ExtArgs> = {}>(args?: Subset<T, Tag$employeeTagsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Tag model
+   */
+  interface TagFieldRefs {
+    readonly id: FieldRef<"Tag", 'String'>
+    readonly name: FieldRef<"Tag", 'EmployeeAbilityTag'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Tag findUnique
+   */
+  export type TagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter, which Tag to fetch.
+     */
+    where: TagWhereUniqueInput
+  }
+
+  /**
+   * Tag findUniqueOrThrow
+   */
+  export type TagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter, which Tag to fetch.
+     */
+    where: TagWhereUniqueInput
+  }
+
+  /**
+   * Tag findFirst
+   */
+  export type TagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter, which Tag to fetch.
+     */
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     */
+    orderBy?: TagOrderByWithRelationInput | TagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Tags.
+     */
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Tags.
+     */
+    distinct?: TagScalarFieldEnum | TagScalarFieldEnum[]
+  }
+
+  /**
+   * Tag findFirstOrThrow
+   */
+  export type TagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter, which Tag to fetch.
+     */
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     */
+    orderBy?: TagOrderByWithRelationInput | TagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Tags.
+     */
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Tags.
+     */
+    distinct?: TagScalarFieldEnum | TagScalarFieldEnum[]
+  }
+
+  /**
+   * Tag findMany
+   */
+  export type TagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter, which Tags to fetch.
+     */
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     */
+    orderBy?: TagOrderByWithRelationInput | TagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Tags.
+     */
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     */
+    skip?: number
+    distinct?: TagScalarFieldEnum | TagScalarFieldEnum[]
+  }
+
+  /**
+   * Tag create
+   */
+  export type TagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Tag.
+     */
+    data: XOR<TagCreateInput, TagUncheckedCreateInput>
+  }
+
+  /**
+   * Tag createMany
+   */
+  export type TagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Tags.
+     */
+    data: TagCreateManyInput | TagCreateManyInput[]
+  }
+
+  /**
+   * Tag update
+   */
+  export type TagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Tag.
+     */
+    data: XOR<TagUpdateInput, TagUncheckedUpdateInput>
+    /**
+     * Choose, which Tag to update.
+     */
+    where: TagWhereUniqueInput
+  }
+
+  /**
+   * Tag updateMany
+   */
+  export type TagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Tags.
+     */
+    data: XOR<TagUpdateManyMutationInput, TagUncheckedUpdateManyInput>
+    /**
+     * Filter which Tags to update
+     */
+    where?: TagWhereInput
+    /**
+     * Limit how many Tags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Tag upsert
+   */
+  export type TagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Tag to update in case it exists.
+     */
+    where: TagWhereUniqueInput
+    /**
+     * In case the Tag found by the `where` argument doesn't exist, create a new Tag with this data.
+     */
+    create: XOR<TagCreateInput, TagUncheckedCreateInput>
+    /**
+     * In case the Tag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<TagUpdateInput, TagUncheckedUpdateInput>
+  }
+
+  /**
+   * Tag delete
+   */
+  export type TagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+    /**
+     * Filter which Tag to delete.
+     */
+    where: TagWhereUniqueInput
+  }
+
+  /**
+   * Tag deleteMany
+   */
+  export type TagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Tags to delete
+     */
+    where?: TagWhereInput
+    /**
+     * Limit how many Tags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Tag findRaw
+   */
+  export type TagFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Tag aggregateRaw
+   */
+  export type TagAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * Tag.employeeTags
+   */
+  export type Tag$employeeTagsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    where?: EmployeeTagWhereInput
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    cursor?: EmployeeTagWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: EmployeeTagScalarFieldEnum | EmployeeTagScalarFieldEnum[]
+  }
+
+  /**
+   * Tag without action
+   */
+  export type TagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Tag
+     */
+    select?: TagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Tag
+     */
+    omit?: TagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: TagInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model EmployeeTag
+   */
+
+  export type AggregateEmployeeTag = {
+    _count: EmployeeTagCountAggregateOutputType | null
+    _min: EmployeeTagMinAggregateOutputType | null
+    _max: EmployeeTagMaxAggregateOutputType | null
+  }
+
+  export type EmployeeTagMinAggregateOutputType = {
+    id: string | null
+    employeeId: string | null
+    tagId: string | null
+  }
+
+  export type EmployeeTagMaxAggregateOutputType = {
+    id: string | null
+    employeeId: string | null
+    tagId: string | null
+  }
+
+  export type EmployeeTagCountAggregateOutputType = {
+    id: number
+    employeeId: number
+    tagId: number
+    _all: number
+  }
+
+
+  export type EmployeeTagMinAggregateInputType = {
+    id?: true
+    employeeId?: true
+    tagId?: true
+  }
+
+  export type EmployeeTagMaxAggregateInputType = {
+    id?: true
+    employeeId?: true
+    tagId?: true
+  }
+
+  export type EmployeeTagCountAggregateInputType = {
+    id?: true
+    employeeId?: true
+    tagId?: true
+    _all?: true
+  }
+
+  export type EmployeeTagAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeTag to aggregate.
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeTags to fetch.
+     */
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmployeeTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned EmployeeTags
+    **/
+    _count?: true | EmployeeTagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmployeeTagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmployeeTagMaxAggregateInputType
+  }
+
+  export type GetEmployeeTagAggregateType<T extends EmployeeTagAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmployeeTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmployeeTag[P]>
+      : GetScalarType<T[P], AggregateEmployeeTag[P]>
+  }
+
+
+
+
+  export type EmployeeTagGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: EmployeeTagWhereInput
+    orderBy?: EmployeeTagOrderByWithAggregationInput | EmployeeTagOrderByWithAggregationInput[]
+    by: EmployeeTagScalarFieldEnum[] | EmployeeTagScalarFieldEnum
+    having?: EmployeeTagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmployeeTagCountAggregateInputType | true
+    _min?: EmployeeTagMinAggregateInputType
+    _max?: EmployeeTagMaxAggregateInputType
+  }
+
+  export type EmployeeTagGroupByOutputType = {
+    id: string
+    employeeId: string
+    tagId: string
+    _count: EmployeeTagCountAggregateOutputType | null
+    _min: EmployeeTagMinAggregateOutputType | null
+    _max: EmployeeTagMaxAggregateOutputType | null
+  }
+
+  type GetEmployeeTagGroupByPayload<T extends EmployeeTagGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<EmployeeTagGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmployeeTagGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmployeeTagGroupByOutputType[P]>
+            : GetScalarType<T[P], EmployeeTagGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmployeeTagSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    employeeId?: boolean
+    tagId?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+    tag?: boolean | TagDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["employeeTag"]>
+
+
+
+  export type EmployeeTagSelectScalar = {
+    id?: boolean
+    employeeId?: boolean
+    tagId?: boolean
+  }
+
+  export type EmployeeTagOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "employeeId" | "tagId", ExtArgs["result"]["employeeTag"]>
+  export type EmployeeTagInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+    tag?: boolean | TagDefaultArgs<ExtArgs>
+  }
+
+  export type $EmployeeTagPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "EmployeeTag"
+    objects: {
+      employee: Prisma.$EmployeePayload<ExtArgs>
+      tag: Prisma.$TagPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      employeeId: string
+      tagId: string
+    }, ExtArgs["result"]["employeeTag"]>
+    composites: {}
+  }
+
+  type EmployeeTagGetPayload<S extends boolean | null | undefined | EmployeeTagDefaultArgs> = $Result.GetResult<Prisma.$EmployeeTagPayload, S>
+
+  type EmployeeTagCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<EmployeeTagFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: EmployeeTagCountAggregateInputType | true
+    }
+
+  export interface EmployeeTagDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EmployeeTag'], meta: { name: 'EmployeeTag' } }
+    /**
+     * Find zero or one EmployeeTag that matches the filter.
+     * @param {EmployeeTagFindUniqueArgs} args - Arguments to find a EmployeeTag
+     * @example
+     * // Get one EmployeeTag
+     * const employeeTag = await prisma.employeeTag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends EmployeeTagFindUniqueArgs>(args: SelectSubset<T, EmployeeTagFindUniqueArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one EmployeeTag that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {EmployeeTagFindUniqueOrThrowArgs} args - Arguments to find a EmployeeTag
+     * @example
+     * // Get one EmployeeTag
+     * const employeeTag = await prisma.employeeTag.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends EmployeeTagFindUniqueOrThrowArgs>(args: SelectSubset<T, EmployeeTagFindUniqueOrThrowArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeTag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagFindFirstArgs} args - Arguments to find a EmployeeTag
+     * @example
+     * // Get one EmployeeTag
+     * const employeeTag = await prisma.employeeTag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends EmployeeTagFindFirstArgs>(args?: SelectSubset<T, EmployeeTagFindFirstArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first EmployeeTag that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagFindFirstOrThrowArgs} args - Arguments to find a EmployeeTag
+     * @example
+     * // Get one EmployeeTag
+     * const employeeTag = await prisma.employeeTag.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends EmployeeTagFindFirstOrThrowArgs>(args?: SelectSubset<T, EmployeeTagFindFirstOrThrowArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all EmployeeTags
+     * const employeeTags = await prisma.employeeTag.findMany()
+     * 
+     * // Get first 10 EmployeeTags
+     * const employeeTags = await prisma.employeeTag.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const employeeTagWithIdOnly = await prisma.employeeTag.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends EmployeeTagFindManyArgs>(args?: SelectSubset<T, EmployeeTagFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a EmployeeTag.
+     * @param {EmployeeTagCreateArgs} args - Arguments to create a EmployeeTag.
+     * @example
+     * // Create one EmployeeTag
+     * const EmployeeTag = await prisma.employeeTag.create({
+     *   data: {
+     *     // ... data to create a EmployeeTag
+     *   }
+     * })
+     * 
+     */
+    create<T extends EmployeeTagCreateArgs>(args: SelectSubset<T, EmployeeTagCreateArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many EmployeeTags.
+     * @param {EmployeeTagCreateManyArgs} args - Arguments to create many EmployeeTags.
+     * @example
+     * // Create many EmployeeTags
+     * const employeeTag = await prisma.employeeTag.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends EmployeeTagCreateManyArgs>(args?: SelectSubset<T, EmployeeTagCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a EmployeeTag.
+     * @param {EmployeeTagDeleteArgs} args - Arguments to delete one EmployeeTag.
+     * @example
+     * // Delete one EmployeeTag
+     * const EmployeeTag = await prisma.employeeTag.delete({
+     *   where: {
+     *     // ... filter to delete one EmployeeTag
+     *   }
+     * })
+     * 
+     */
+    delete<T extends EmployeeTagDeleteArgs>(args: SelectSubset<T, EmployeeTagDeleteArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one EmployeeTag.
+     * @param {EmployeeTagUpdateArgs} args - Arguments to update one EmployeeTag.
+     * @example
+     * // Update one EmployeeTag
+     * const employeeTag = await prisma.employeeTag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends EmployeeTagUpdateArgs>(args: SelectSubset<T, EmployeeTagUpdateArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more EmployeeTags.
+     * @param {EmployeeTagDeleteManyArgs} args - Arguments to filter EmployeeTags to delete.
+     * @example
+     * // Delete a few EmployeeTags
+     * const { count } = await prisma.employeeTag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends EmployeeTagDeleteManyArgs>(args?: SelectSubset<T, EmployeeTagDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more EmployeeTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many EmployeeTags
+     * const employeeTag = await prisma.employeeTag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends EmployeeTagUpdateManyArgs>(args: SelectSubset<T, EmployeeTagUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one EmployeeTag.
+     * @param {EmployeeTagUpsertArgs} args - Arguments to update or create a EmployeeTag.
+     * @example
+     * // Update or create a EmployeeTag
+     * const employeeTag = await prisma.employeeTag.upsert({
+     *   create: {
+     *     // ... data to create a EmployeeTag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the EmployeeTag we want to update
+     *   }
+     * })
+     */
+    upsert<T extends EmployeeTagUpsertArgs>(args: SelectSubset<T, EmployeeTagUpsertArgs<ExtArgs>>): Prisma__EmployeeTagClient<$Result.GetResult<Prisma.$EmployeeTagPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more EmployeeTags that matches the filter.
+     * @param {EmployeeTagFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const employeeTag = await prisma.employeeTag.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: EmployeeTagFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a EmployeeTag.
+     * @param {EmployeeTagAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const employeeTag = await prisma.employeeTag.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: EmployeeTagAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of EmployeeTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagCountArgs} args - Arguments to filter EmployeeTags to count.
+     * @example
+     * // Count the number of EmployeeTags
+     * const count = await prisma.employeeTag.count({
+     *   where: {
+     *     // ... the filter for the EmployeeTags we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmployeeTagCountArgs>(
+      args?: Subset<T, EmployeeTagCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmployeeTagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a EmployeeTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmployeeTagAggregateArgs>(args: Subset<T, EmployeeTagAggregateArgs>): Prisma.PrismaPromise<GetEmployeeTagAggregateType<T>>
+
+    /**
+     * Group by EmployeeTag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmployeeTagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmployeeTagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmployeeTagGroupByArgs['orderBy'] }
+        : { orderBy?: EmployeeTagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmployeeTagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmployeeTagGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the EmployeeTag model
+   */
+  readonly fields: EmployeeTagFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for EmployeeTag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__EmployeeTagClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends EmployeeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeDefaultArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    tag<T extends TagDefaultArgs<ExtArgs> = {}>(args?: Subset<T, TagDefaultArgs<ExtArgs>>): Prisma__TagClient<$Result.GetResult<Prisma.$TagPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the EmployeeTag model
+   */
+  interface EmployeeTagFieldRefs {
+    readonly id: FieldRef<"EmployeeTag", 'String'>
+    readonly employeeId: FieldRef<"EmployeeTag", 'String'>
+    readonly tagId: FieldRef<"EmployeeTag", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * EmployeeTag findUnique
+   */
+  export type EmployeeTagFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeTag to fetch.
+     */
+    where: EmployeeTagWhereUniqueInput
+  }
+
+  /**
+   * EmployeeTag findUniqueOrThrow
+   */
+  export type EmployeeTagFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeTag to fetch.
+     */
+    where: EmployeeTagWhereUniqueInput
+  }
+
+  /**
+   * EmployeeTag findFirst
+   */
+  export type EmployeeTagFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeTag to fetch.
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeTags to fetch.
+     */
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeTags.
+     */
+    cursor?: EmployeeTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeTags.
+     */
+    distinct?: EmployeeTagScalarFieldEnum | EmployeeTagScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeTag findFirstOrThrow
+   */
+  export type EmployeeTagFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeTag to fetch.
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeTags to fetch.
+     */
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for EmployeeTags.
+     */
+    cursor?: EmployeeTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeTags.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of EmployeeTags.
+     */
+    distinct?: EmployeeTagScalarFieldEnum | EmployeeTagScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeTag findMany
+   */
+  export type EmployeeTagFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter, which EmployeeTags to fetch.
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of EmployeeTags to fetch.
+     */
+    orderBy?: EmployeeTagOrderByWithRelationInput | EmployeeTagOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing EmployeeTags.
+     */
+    cursor?: EmployeeTagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` EmployeeTags from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` EmployeeTags.
+     */
+    skip?: number
+    distinct?: EmployeeTagScalarFieldEnum | EmployeeTagScalarFieldEnum[]
+  }
+
+  /**
+   * EmployeeTag create
+   */
+  export type EmployeeTagCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * The data needed to create a EmployeeTag.
+     */
+    data: XOR<EmployeeTagCreateInput, EmployeeTagUncheckedCreateInput>
+  }
+
+  /**
+   * EmployeeTag createMany
+   */
+  export type EmployeeTagCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many EmployeeTags.
+     */
+    data: EmployeeTagCreateManyInput | EmployeeTagCreateManyInput[]
+  }
+
+  /**
+   * EmployeeTag update
+   */
+  export type EmployeeTagUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * The data needed to update a EmployeeTag.
+     */
+    data: XOR<EmployeeTagUpdateInput, EmployeeTagUncheckedUpdateInput>
+    /**
+     * Choose, which EmployeeTag to update.
+     */
+    where: EmployeeTagWhereUniqueInput
+  }
+
+  /**
+   * EmployeeTag updateMany
+   */
+  export type EmployeeTagUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update EmployeeTags.
+     */
+    data: XOR<EmployeeTagUpdateManyMutationInput, EmployeeTagUncheckedUpdateManyInput>
+    /**
+     * Filter which EmployeeTags to update
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * Limit how many EmployeeTags to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeTag upsert
+   */
+  export type EmployeeTagUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * The filter to search for the EmployeeTag to update in case it exists.
+     */
+    where: EmployeeTagWhereUniqueInput
+    /**
+     * In case the EmployeeTag found by the `where` argument doesn't exist, create a new EmployeeTag with this data.
+     */
+    create: XOR<EmployeeTagCreateInput, EmployeeTagUncheckedCreateInput>
+    /**
+     * In case the EmployeeTag was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmployeeTagUpdateInput, EmployeeTagUncheckedUpdateInput>
+  }
+
+  /**
+   * EmployeeTag delete
+   */
+  export type EmployeeTagDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
+    /**
+     * Filter which EmployeeTag to delete.
+     */
+    where: EmployeeTagWhereUniqueInput
+  }
+
+  /**
+   * EmployeeTag deleteMany
+   */
+  export type EmployeeTagDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which EmployeeTags to delete
+     */
+    where?: EmployeeTagWhereInput
+    /**
+     * Limit how many EmployeeTags to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * EmployeeTag findRaw
+   */
+  export type EmployeeTagFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * EmployeeTag aggregateRaw
+   */
+  export type EmployeeTagAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * EmployeeTag without action
+   */
+  export type EmployeeTagDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the EmployeeTag
+     */
+    select?: EmployeeTagSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the EmployeeTag
+     */
+    omit?: EmployeeTagOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: EmployeeTagInclude<ExtArgs> | null
   }
 
 
@@ -3224,6 +5559,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType | null
     status: $Enums.AppointmentStatus | null
     date: Date | null
+    day: string | null
+    section: string | null
     customerId: string | null
     employeeId: string | null
     note: string | null
@@ -3236,6 +5573,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType | null
     status: $Enums.AppointmentStatus | null
     date: Date | null
+    day: string | null
+    section: string | null
     customerId: string | null
     employeeId: string | null
     note: string | null
@@ -3248,6 +5587,8 @@ export namespace Prisma {
     type: number
     status: number
     date: number
+    day: number
+    section: number
     customerId: number
     employeeId: number
     note: number
@@ -3262,6 +5603,8 @@ export namespace Prisma {
     type?: true
     status?: true
     date?: true
+    day?: true
+    section?: true
     customerId?: true
     employeeId?: true
     note?: true
@@ -3274,6 +5617,8 @@ export namespace Prisma {
     type?: true
     status?: true
     date?: true
+    day?: true
+    section?: true
     customerId?: true
     employeeId?: true
     note?: true
@@ -3286,6 +5631,8 @@ export namespace Prisma {
     type?: true
     status?: true
     date?: true
+    day?: true
+    section?: true
     customerId?: true
     employeeId?: true
     note?: true
@@ -3371,6 +5718,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status: $Enums.AppointmentStatus
     date: Date
+    day: string
+    section: string
     customerId: string
     employeeId: string | null
     note: string | null
@@ -3400,6 +5749,8 @@ export namespace Prisma {
     type?: boolean
     status?: boolean
     date?: boolean
+    day?: boolean
+    section?: boolean
     customerId?: boolean
     employeeId?: boolean
     note?: boolean
@@ -3416,6 +5767,8 @@ export namespace Prisma {
     type?: boolean
     status?: boolean
     date?: boolean
+    day?: boolean
+    section?: boolean
     customerId?: boolean
     employeeId?: boolean
     note?: boolean
@@ -3423,7 +5776,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "date" | "customerId" | "employeeId" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
+  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "date" | "day" | "section" | "customerId" | "employeeId" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
   export type AppointmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
     employee?: boolean | Appointment$employeeArgs<ExtArgs>
@@ -3440,6 +5793,8 @@ export namespace Prisma {
       type: $Enums.AppointmentType
       status: $Enums.AppointmentStatus
       date: Date
+      day: string
+      section: string
       customerId: string
       employeeId: string | null
       note: string | null
@@ -3843,6 +6198,8 @@ export namespace Prisma {
     readonly type: FieldRef<"Appointment", 'AppointmentType'>
     readonly status: FieldRef<"Appointment", 'AppointmentStatus'>
     readonly date: FieldRef<"Appointment", 'DateTime'>
+    readonly day: FieldRef<"Appointment", 'String'>
+    readonly section: FieldRef<"Appointment", 'String'>
     readonly customerId: FieldRef<"Appointment", 'String'>
     readonly employeeId: FieldRef<"Appointment", 'String'>
     readonly note: FieldRef<"Appointment", 'String'>
@@ -4256,20 +6613,1031 @@ export namespace Prisma {
 
 
   /**
+   * Model MagicLink
+   */
+
+  export type AggregateMagicLink = {
+    _count: MagicLinkCountAggregateOutputType | null
+    _min: MagicLinkMinAggregateOutputType | null
+    _max: MagicLinkMaxAggregateOutputType | null
+  }
+
+  export type MagicLinkMinAggregateOutputType = {
+    id: string | null
+    token: string | null
+    employeeId: string | null
+    expiresAt: Date | null
+    used: boolean | null
+    createdAt: Date | null
+  }
+
+  export type MagicLinkMaxAggregateOutputType = {
+    id: string | null
+    token: string | null
+    employeeId: string | null
+    expiresAt: Date | null
+    used: boolean | null
+    createdAt: Date | null
+  }
+
+  export type MagicLinkCountAggregateOutputType = {
+    id: number
+    token: number
+    employeeId: number
+    expiresAt: number
+    used: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type MagicLinkMinAggregateInputType = {
+    id?: true
+    token?: true
+    employeeId?: true
+    expiresAt?: true
+    used?: true
+    createdAt?: true
+  }
+
+  export type MagicLinkMaxAggregateInputType = {
+    id?: true
+    token?: true
+    employeeId?: true
+    expiresAt?: true
+    used?: true
+    createdAt?: true
+  }
+
+  export type MagicLinkCountAggregateInputType = {
+    id?: true
+    token?: true
+    employeeId?: true
+    expiresAt?: true
+    used?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type MagicLinkAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MagicLink to aggregate.
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MagicLinks to fetch.
+     */
+    orderBy?: MagicLinkOrderByWithRelationInput | MagicLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: MagicLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MagicLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MagicLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned MagicLinks
+    **/
+    _count?: true | MagicLinkCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: MagicLinkMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: MagicLinkMaxAggregateInputType
+  }
+
+  export type GetMagicLinkAggregateType<T extends MagicLinkAggregateArgs> = {
+        [P in keyof T & keyof AggregateMagicLink]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateMagicLink[P]>
+      : GetScalarType<T[P], AggregateMagicLink[P]>
+  }
+
+
+
+
+  export type MagicLinkGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: MagicLinkWhereInput
+    orderBy?: MagicLinkOrderByWithAggregationInput | MagicLinkOrderByWithAggregationInput[]
+    by: MagicLinkScalarFieldEnum[] | MagicLinkScalarFieldEnum
+    having?: MagicLinkScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: MagicLinkCountAggregateInputType | true
+    _min?: MagicLinkMinAggregateInputType
+    _max?: MagicLinkMaxAggregateInputType
+  }
+
+  export type MagicLinkGroupByOutputType = {
+    id: string
+    token: string
+    employeeId: string
+    expiresAt: Date
+    used: boolean
+    createdAt: Date
+    _count: MagicLinkCountAggregateOutputType | null
+    _min: MagicLinkMinAggregateOutputType | null
+    _max: MagicLinkMaxAggregateOutputType | null
+  }
+
+  type GetMagicLinkGroupByPayload<T extends MagicLinkGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<MagicLinkGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof MagicLinkGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], MagicLinkGroupByOutputType[P]>
+            : GetScalarType<T[P], MagicLinkGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type MagicLinkSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    token?: boolean
+    employeeId?: boolean
+    expiresAt?: boolean
+    used?: boolean
+    createdAt?: boolean
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["magicLink"]>
+
+
+
+  export type MagicLinkSelectScalar = {
+    id?: boolean
+    token?: boolean
+    employeeId?: boolean
+    expiresAt?: boolean
+    used?: boolean
+    createdAt?: boolean
+  }
+
+  export type MagicLinkOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "token" | "employeeId" | "expiresAt" | "used" | "createdAt", ExtArgs["result"]["magicLink"]>
+  export type MagicLinkInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | EmployeeDefaultArgs<ExtArgs>
+  }
+
+  export type $MagicLinkPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "MagicLink"
+    objects: {
+      employee: Prisma.$EmployeePayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      token: string
+      employeeId: string
+      expiresAt: Date
+      used: boolean
+      createdAt: Date
+    }, ExtArgs["result"]["magicLink"]>
+    composites: {}
+  }
+
+  type MagicLinkGetPayload<S extends boolean | null | undefined | MagicLinkDefaultArgs> = $Result.GetResult<Prisma.$MagicLinkPayload, S>
+
+  type MagicLinkCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<MagicLinkFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: MagicLinkCountAggregateInputType | true
+    }
+
+  export interface MagicLinkDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['MagicLink'], meta: { name: 'MagicLink' } }
+    /**
+     * Find zero or one MagicLink that matches the filter.
+     * @param {MagicLinkFindUniqueArgs} args - Arguments to find a MagicLink
+     * @example
+     * // Get one MagicLink
+     * const magicLink = await prisma.magicLink.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends MagicLinkFindUniqueArgs>(args: SelectSubset<T, MagicLinkFindUniqueArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one MagicLink that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {MagicLinkFindUniqueOrThrowArgs} args - Arguments to find a MagicLink
+     * @example
+     * // Get one MagicLink
+     * const magicLink = await prisma.magicLink.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends MagicLinkFindUniqueOrThrowArgs>(args: SelectSubset<T, MagicLinkFindUniqueOrThrowArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MagicLink that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkFindFirstArgs} args - Arguments to find a MagicLink
+     * @example
+     * // Get one MagicLink
+     * const magicLink = await prisma.magicLink.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends MagicLinkFindFirstArgs>(args?: SelectSubset<T, MagicLinkFindFirstArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first MagicLink that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkFindFirstOrThrowArgs} args - Arguments to find a MagicLink
+     * @example
+     * // Get one MagicLink
+     * const magicLink = await prisma.magicLink.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends MagicLinkFindFirstOrThrowArgs>(args?: SelectSubset<T, MagicLinkFindFirstOrThrowArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MagicLinks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all MagicLinks
+     * const magicLinks = await prisma.magicLink.findMany()
+     * 
+     * // Get first 10 MagicLinks
+     * const magicLinks = await prisma.magicLink.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const magicLinkWithIdOnly = await prisma.magicLink.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends MagicLinkFindManyArgs>(args?: SelectSubset<T, MagicLinkFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a MagicLink.
+     * @param {MagicLinkCreateArgs} args - Arguments to create a MagicLink.
+     * @example
+     * // Create one MagicLink
+     * const MagicLink = await prisma.magicLink.create({
+     *   data: {
+     *     // ... data to create a MagicLink
+     *   }
+     * })
+     * 
+     */
+    create<T extends MagicLinkCreateArgs>(args: SelectSubset<T, MagicLinkCreateArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many MagicLinks.
+     * @param {MagicLinkCreateManyArgs} args - Arguments to create many MagicLinks.
+     * @example
+     * // Create many MagicLinks
+     * const magicLink = await prisma.magicLink.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends MagicLinkCreateManyArgs>(args?: SelectSubset<T, MagicLinkCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a MagicLink.
+     * @param {MagicLinkDeleteArgs} args - Arguments to delete one MagicLink.
+     * @example
+     * // Delete one MagicLink
+     * const MagicLink = await prisma.magicLink.delete({
+     *   where: {
+     *     // ... filter to delete one MagicLink
+     *   }
+     * })
+     * 
+     */
+    delete<T extends MagicLinkDeleteArgs>(args: SelectSubset<T, MagicLinkDeleteArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one MagicLink.
+     * @param {MagicLinkUpdateArgs} args - Arguments to update one MagicLink.
+     * @example
+     * // Update one MagicLink
+     * const magicLink = await prisma.magicLink.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends MagicLinkUpdateArgs>(args: SelectSubset<T, MagicLinkUpdateArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more MagicLinks.
+     * @param {MagicLinkDeleteManyArgs} args - Arguments to filter MagicLinks to delete.
+     * @example
+     * // Delete a few MagicLinks
+     * const { count } = await prisma.magicLink.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends MagicLinkDeleteManyArgs>(args?: SelectSubset<T, MagicLinkDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more MagicLinks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many MagicLinks
+     * const magicLink = await prisma.magicLink.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends MagicLinkUpdateManyArgs>(args: SelectSubset<T, MagicLinkUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one MagicLink.
+     * @param {MagicLinkUpsertArgs} args - Arguments to update or create a MagicLink.
+     * @example
+     * // Update or create a MagicLink
+     * const magicLink = await prisma.magicLink.upsert({
+     *   create: {
+     *     // ... data to create a MagicLink
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the MagicLink we want to update
+     *   }
+     * })
+     */
+    upsert<T extends MagicLinkUpsertArgs>(args: SelectSubset<T, MagicLinkUpsertArgs<ExtArgs>>): Prisma__MagicLinkClient<$Result.GetResult<Prisma.$MagicLinkPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more MagicLinks that matches the filter.
+     * @param {MagicLinkFindRawArgs} args - Select which filters you would like to apply.
+     * @example
+     * const magicLink = await prisma.magicLink.findRaw({
+     *   filter: { age: { $gt: 25 } }
+     * })
+     */
+    findRaw(args?: MagicLinkFindRawArgs): Prisma.PrismaPromise<JsonObject>
+
+    /**
+     * Perform aggregation operations on a MagicLink.
+     * @param {MagicLinkAggregateRawArgs} args - Select which aggregations you would like to apply.
+     * @example
+     * const magicLink = await prisma.magicLink.aggregateRaw({
+     *   pipeline: [
+     *     { $match: { status: "registered" } },
+     *     { $group: { _id: "$country", total: { $sum: 1 } } }
+     *   ]
+     * })
+     */
+    aggregateRaw(args?: MagicLinkAggregateRawArgs): Prisma.PrismaPromise<JsonObject>
+
+
+    /**
+     * Count the number of MagicLinks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkCountArgs} args - Arguments to filter MagicLinks to count.
+     * @example
+     * // Count the number of MagicLinks
+     * const count = await prisma.magicLink.count({
+     *   where: {
+     *     // ... the filter for the MagicLinks we want to count
+     *   }
+     * })
+    **/
+    count<T extends MagicLinkCountArgs>(
+      args?: Subset<T, MagicLinkCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], MagicLinkCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a MagicLink.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends MagicLinkAggregateArgs>(args: Subset<T, MagicLinkAggregateArgs>): Prisma.PrismaPromise<GetMagicLinkAggregateType<T>>
+
+    /**
+     * Group by MagicLink.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {MagicLinkGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends MagicLinkGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: MagicLinkGroupByArgs['orderBy'] }
+        : { orderBy?: MagicLinkGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, MagicLinkGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetMagicLinkGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the MagicLink model
+   */
+  readonly fields: MagicLinkFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for MagicLink.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__MagicLinkClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends EmployeeDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EmployeeDefaultArgs<ExtArgs>>): Prisma__EmployeeClient<$Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the MagicLink model
+   */
+  interface MagicLinkFieldRefs {
+    readonly id: FieldRef<"MagicLink", 'String'>
+    readonly token: FieldRef<"MagicLink", 'String'>
+    readonly employeeId: FieldRef<"MagicLink", 'String'>
+    readonly expiresAt: FieldRef<"MagicLink", 'DateTime'>
+    readonly used: FieldRef<"MagicLink", 'Boolean'>
+    readonly createdAt: FieldRef<"MagicLink", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * MagicLink findUnique
+   */
+  export type MagicLinkFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which MagicLink to fetch.
+     */
+    where: MagicLinkWhereUniqueInput
+  }
+
+  /**
+   * MagicLink findUniqueOrThrow
+   */
+  export type MagicLinkFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which MagicLink to fetch.
+     */
+    where: MagicLinkWhereUniqueInput
+  }
+
+  /**
+   * MagicLink findFirst
+   */
+  export type MagicLinkFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which MagicLink to fetch.
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MagicLinks to fetch.
+     */
+    orderBy?: MagicLinkOrderByWithRelationInput | MagicLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MagicLinks.
+     */
+    cursor?: MagicLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MagicLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MagicLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MagicLinks.
+     */
+    distinct?: MagicLinkScalarFieldEnum | MagicLinkScalarFieldEnum[]
+  }
+
+  /**
+   * MagicLink findFirstOrThrow
+   */
+  export type MagicLinkFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which MagicLink to fetch.
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MagicLinks to fetch.
+     */
+    orderBy?: MagicLinkOrderByWithRelationInput | MagicLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for MagicLinks.
+     */
+    cursor?: MagicLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MagicLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MagicLinks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of MagicLinks.
+     */
+    distinct?: MagicLinkScalarFieldEnum | MagicLinkScalarFieldEnum[]
+  }
+
+  /**
+   * MagicLink findMany
+   */
+  export type MagicLinkFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter, which MagicLinks to fetch.
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of MagicLinks to fetch.
+     */
+    orderBy?: MagicLinkOrderByWithRelationInput | MagicLinkOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing MagicLinks.
+     */
+    cursor?: MagicLinkWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` MagicLinks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` MagicLinks.
+     */
+    skip?: number
+    distinct?: MagicLinkScalarFieldEnum | MagicLinkScalarFieldEnum[]
+  }
+
+  /**
+   * MagicLink create
+   */
+  export type MagicLinkCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * The data needed to create a MagicLink.
+     */
+    data: XOR<MagicLinkCreateInput, MagicLinkUncheckedCreateInput>
+  }
+
+  /**
+   * MagicLink createMany
+   */
+  export type MagicLinkCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many MagicLinks.
+     */
+    data: MagicLinkCreateManyInput | MagicLinkCreateManyInput[]
+  }
+
+  /**
+   * MagicLink update
+   */
+  export type MagicLinkUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * The data needed to update a MagicLink.
+     */
+    data: XOR<MagicLinkUpdateInput, MagicLinkUncheckedUpdateInput>
+    /**
+     * Choose, which MagicLink to update.
+     */
+    where: MagicLinkWhereUniqueInput
+  }
+
+  /**
+   * MagicLink updateMany
+   */
+  export type MagicLinkUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update MagicLinks.
+     */
+    data: XOR<MagicLinkUpdateManyMutationInput, MagicLinkUncheckedUpdateManyInput>
+    /**
+     * Filter which MagicLinks to update
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * Limit how many MagicLinks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * MagicLink upsert
+   */
+  export type MagicLinkUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * The filter to search for the MagicLink to update in case it exists.
+     */
+    where: MagicLinkWhereUniqueInput
+    /**
+     * In case the MagicLink found by the `where` argument doesn't exist, create a new MagicLink with this data.
+     */
+    create: XOR<MagicLinkCreateInput, MagicLinkUncheckedCreateInput>
+    /**
+     * In case the MagicLink was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<MagicLinkUpdateInput, MagicLinkUncheckedUpdateInput>
+  }
+
+  /**
+   * MagicLink delete
+   */
+  export type MagicLinkDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+    /**
+     * Filter which MagicLink to delete.
+     */
+    where: MagicLinkWhereUniqueInput
+  }
+
+  /**
+   * MagicLink deleteMany
+   */
+  export type MagicLinkDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which MagicLinks to delete
+     */
+    where?: MagicLinkWhereInput
+    /**
+     * Limit how many MagicLinks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * MagicLink findRaw
+   */
+  export type MagicLinkFindRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The query predicate filter. If unspecified, then all documents in the collection will match the predicate. ${@link https://docs.mongodb.com/manual/reference/operator/query MongoDB Docs}.
+     */
+    filter?: InputJsonValue
+    /**
+     * Additional options to pass to the `find` command ${@link https://docs.mongodb.com/manual/reference/command/find/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MagicLink aggregateRaw
+   */
+  export type MagicLinkAggregateRawArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * An array of aggregation stages to process and transform the document stream via the aggregation pipeline. ${@link https://docs.mongodb.com/manual/reference/operator/aggregation-pipeline MongoDB Docs}.
+     */
+    pipeline?: InputJsonValue[]
+    /**
+     * Additional options to pass to the `aggregate` command ${@link https://docs.mongodb.com/manual/reference/command/aggregate/#command-fields MongoDB Docs}.
+     */
+    options?: InputJsonValue
+  }
+
+  /**
+   * MagicLink without action
+   */
+  export type MagicLinkDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MagicLink
+     */
+    select?: MagicLinkSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the MagicLink
+     */
+    omit?: MagicLinkOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: MagicLinkInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
   export const EmployeeScalarFieldEnum: {
     id: 'id',
-    code: 'code',
-    name: 'name',
-    perHourCapacity: 'perHourCapacity',
+    fullname: 'fullname',
+    email: 'email',
+    password: 'password',
+    phone: 'phone',
+    role: 'role',
     isActive: 'isActive',
+    profileImageUrl: 'profileImageUrl',
+    bio: 'bio',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+  export const TagScalarFieldEnum: {
+    id: 'id',
+    name: 'name'
+  };
+
+  export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+  export const EmployeeTagScalarFieldEnum: {
+    id: 'id',
+    employeeId: 'employeeId',
+    tagId: 'tagId'
+  };
+
+  export type EmployeeTagScalarFieldEnum = (typeof EmployeeTagScalarFieldEnum)[keyof typeof EmployeeTagScalarFieldEnum]
 
 
   export const CustomerScalarFieldEnum: {
@@ -4292,6 +7660,8 @@ export namespace Prisma {
     type: 'type',
     status: 'status',
     date: 'date',
+    day: 'day',
+    section: 'section',
     customerId: 'customerId',
     employeeId: 'employeeId',
     note: 'note',
@@ -4300,6 +7670,18 @@ export namespace Prisma {
   };
 
   export type AppointmentScalarFieldEnum = (typeof AppointmentScalarFieldEnum)[keyof typeof AppointmentScalarFieldEnum]
+
+
+  export const MagicLinkScalarFieldEnum: {
+    id: 'id',
+    token: 'token',
+    employeeId: 'employeeId',
+    expiresAt: 'expiresAt',
+    used: 'used',
+    createdAt: 'createdAt'
+  };
+
+  export type MagicLinkScalarFieldEnum = (typeof MagicLinkScalarFieldEnum)[keyof typeof MagicLinkScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -4338,16 +7720,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Int'
+   * Reference to a field of type 'EmployeeRole'
    */
-  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+  export type EnumEmployeeRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRole'>
     
 
 
   /**
-   * Reference to a field of type 'Int[]'
+   * Reference to a field of type 'EmployeeRole[]'
    */
-  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+  export type ListEnumEmployeeRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeRole[]'>
     
 
 
@@ -4369,6 +7751,20 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'EmployeeAbilityTag'
+   */
+  export type EnumEmployeeAbilityTagFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeAbilityTag'>
+    
+
+
+  /**
+   * Reference to a field of type 'EmployeeAbilityTag[]'
+   */
+  export type ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeAbilityTag[]'>
     
 
 
@@ -4401,16 +7797,16 @@ export namespace Prisma {
 
 
   /**
-   * Reference to a field of type 'Float'
+   * Reference to a field of type 'Int'
    */
-  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+  export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
   /**
-   * Reference to a field of type 'Float[]'
+   * Reference to a field of type 'Int[]'
    */
-  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+  export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
   /**
    * Deep Input Types
@@ -4422,53 +7818,73 @@ export namespace Prisma {
     OR?: EmployeeWhereInput[]
     NOT?: EmployeeWhereInput | EmployeeWhereInput[]
     id?: StringFilter<"Employee"> | string
-    code?: StringFilter<"Employee"> | string
-    name?: StringNullableFilter<"Employee"> | string | null
-    perHourCapacity?: IntFilter<"Employee"> | number
+    fullname?: StringNullableFilter<"Employee"> | string | null
+    email?: StringNullableFilter<"Employee"> | string | null
+    password?: StringNullableFilter<"Employee"> | string | null
+    phone?: StringNullableFilter<"Employee"> | string | null
+    role?: EnumEmployeeRoleFilter<"Employee"> | $Enums.EmployeeRole
     isActive?: BoolFilter<"Employee"> | boolean
+    profileImageUrl?: StringNullableFilter<"Employee"> | string | null
+    bio?: StringNullableFilter<"Employee"> | string | null
     createdAt?: DateTimeFilter<"Employee"> | Date | string
     updatedAt?: DateTimeFilter<"Employee"> | Date | string
     appointments?: AppointmentListRelationFilter
+    employeeTags?: EmployeeTagListRelationFilter
+    magicLinks?: MagicLinkListRelationFilter
   }
 
   export type EmployeeOrderByWithRelationInput = {
     id?: SortOrder
-    code?: SortOrder
-    name?: SortOrder
-    perHourCapacity?: SortOrder
+    fullname?: SortOrder
+    email?: SortOrder
+    password?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    profileImageUrl?: SortOrder
+    bio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     appointments?: AppointmentOrderByRelationAggregateInput
+    employeeTags?: EmployeeTagOrderByRelationAggregateInput
+    magicLinks?: MagicLinkOrderByRelationAggregateInput
   }
 
   export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    code?: string
+    email?: string
+    phone?: string
     AND?: EmployeeWhereInput | EmployeeWhereInput[]
     OR?: EmployeeWhereInput[]
     NOT?: EmployeeWhereInput | EmployeeWhereInput[]
-    name?: StringNullableFilter<"Employee"> | string | null
-    perHourCapacity?: IntFilter<"Employee"> | number
+    fullname?: StringNullableFilter<"Employee"> | string | null
+    password?: StringNullableFilter<"Employee"> | string | null
+    role?: EnumEmployeeRoleFilter<"Employee"> | $Enums.EmployeeRole
     isActive?: BoolFilter<"Employee"> | boolean
+    profileImageUrl?: StringNullableFilter<"Employee"> | string | null
+    bio?: StringNullableFilter<"Employee"> | string | null
     createdAt?: DateTimeFilter<"Employee"> | Date | string
     updatedAt?: DateTimeFilter<"Employee"> | Date | string
     appointments?: AppointmentListRelationFilter
-  }, "id" | "code">
+    employeeTags?: EmployeeTagListRelationFilter
+    magicLinks?: MagicLinkListRelationFilter
+  }, "id" | "email" | "phone">
 
   export type EmployeeOrderByWithAggregationInput = {
     id?: SortOrder
-    code?: SortOrder
-    name?: SortOrder
-    perHourCapacity?: SortOrder
+    fullname?: SortOrder
+    email?: SortOrder
+    password?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    profileImageUrl?: SortOrder
+    bio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: EmployeeCountOrderByAggregateInput
-    _avg?: EmployeeAvgOrderByAggregateInput
     _max?: EmployeeMaxOrderByAggregateInput
     _min?: EmployeeMinOrderByAggregateInput
-    _sum?: EmployeeSumOrderByAggregateInput
   }
 
   export type EmployeeScalarWhereWithAggregatesInput = {
@@ -4476,12 +7892,104 @@ export namespace Prisma {
     OR?: EmployeeScalarWhereWithAggregatesInput[]
     NOT?: EmployeeScalarWhereWithAggregatesInput | EmployeeScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Employee"> | string
-    code?: StringWithAggregatesFilter<"Employee"> | string
-    name?: StringNullableWithAggregatesFilter<"Employee"> | string | null
-    perHourCapacity?: IntWithAggregatesFilter<"Employee"> | number
+    fullname?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    email?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    password?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    phone?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    role?: EnumEmployeeRoleWithAggregatesFilter<"Employee"> | $Enums.EmployeeRole
     isActive?: BoolWithAggregatesFilter<"Employee"> | boolean
+    profileImageUrl?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    bio?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
+  }
+
+  export type TagWhereInput = {
+    AND?: TagWhereInput | TagWhereInput[]
+    OR?: TagWhereInput[]
+    NOT?: TagWhereInput | TagWhereInput[]
+    id?: StringFilter<"Tag"> | string
+    name?: EnumEmployeeAbilityTagFilter<"Tag"> | $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagListRelationFilter
+  }
+
+  export type TagOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    employeeTags?: EmployeeTagOrderByRelationAggregateInput
+  }
+
+  export type TagWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: TagWhereInput | TagWhereInput[]
+    OR?: TagWhereInput[]
+    NOT?: TagWhereInput | TagWhereInput[]
+    name?: EnumEmployeeAbilityTagFilter<"Tag"> | $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagListRelationFilter
+  }, "id">
+
+  export type TagOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    _count?: TagCountOrderByAggregateInput
+    _max?: TagMaxOrderByAggregateInput
+    _min?: TagMinOrderByAggregateInput
+  }
+
+  export type TagScalarWhereWithAggregatesInput = {
+    AND?: TagScalarWhereWithAggregatesInput | TagScalarWhereWithAggregatesInput[]
+    OR?: TagScalarWhereWithAggregatesInput[]
+    NOT?: TagScalarWhereWithAggregatesInput | TagScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Tag"> | string
+    name?: EnumEmployeeAbilityTagWithAggregatesFilter<"Tag"> | $Enums.EmployeeAbilityTag
+  }
+
+  export type EmployeeTagWhereInput = {
+    AND?: EmployeeTagWhereInput | EmployeeTagWhereInput[]
+    OR?: EmployeeTagWhereInput[]
+    NOT?: EmployeeTagWhereInput | EmployeeTagWhereInput[]
+    id?: StringFilter<"EmployeeTag"> | string
+    employeeId?: StringFilter<"EmployeeTag"> | string
+    tagId?: StringFilter<"EmployeeTag"> | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+    tag?: XOR<TagScalarRelationFilter, TagWhereInput>
+  }
+
+  export type EmployeeTagOrderByWithRelationInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    tagId?: SortOrder
+    employee?: EmployeeOrderByWithRelationInput
+    tag?: TagOrderByWithRelationInput
+  }
+
+  export type EmployeeTagWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: EmployeeTagWhereInput | EmployeeTagWhereInput[]
+    OR?: EmployeeTagWhereInput[]
+    NOT?: EmployeeTagWhereInput | EmployeeTagWhereInput[]
+    employeeId?: StringFilter<"EmployeeTag"> | string
+    tagId?: StringFilter<"EmployeeTag"> | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+    tag?: XOR<TagScalarRelationFilter, TagWhereInput>
+  }, "id">
+
+  export type EmployeeTagOrderByWithAggregationInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    tagId?: SortOrder
+    _count?: EmployeeTagCountOrderByAggregateInput
+    _max?: EmployeeTagMaxOrderByAggregateInput
+    _min?: EmployeeTagMinOrderByAggregateInput
+  }
+
+  export type EmployeeTagScalarWhereWithAggregatesInput = {
+    AND?: EmployeeTagScalarWhereWithAggregatesInput | EmployeeTagScalarWhereWithAggregatesInput[]
+    OR?: EmployeeTagScalarWhereWithAggregatesInput[]
+    NOT?: EmployeeTagScalarWhereWithAggregatesInput | EmployeeTagScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"EmployeeTag"> | string
+    employeeId?: StringWithAggregatesFilter<"EmployeeTag"> | string
+    tagId?: StringWithAggregatesFilter<"EmployeeTag"> | string
   }
 
   export type CustomerWhereInput = {
@@ -4567,6 +8075,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFilter<"Appointment"> | $Enums.AppointmentType
     status?: EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
     date?: DateTimeFilter<"Appointment"> | Date | string
+    day?: StringFilter<"Appointment"> | string
+    section?: StringFilter<"Appointment"> | string
     customerId?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
@@ -4581,6 +8091,8 @@ export namespace Prisma {
     type?: SortOrder
     status?: SortOrder
     date?: SortOrder
+    day?: SortOrder
+    section?: SortOrder
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
@@ -4592,26 +8104,30 @@ export namespace Prisma {
 
   export type AppointmentWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    customerId?: string
     AND?: AppointmentWhereInput | AppointmentWhereInput[]
     OR?: AppointmentWhereInput[]
     NOT?: AppointmentWhereInput | AppointmentWhereInput[]
     type?: EnumAppointmentTypeFilter<"Appointment"> | $Enums.AppointmentType
     status?: EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
     date?: DateTimeFilter<"Appointment"> | Date | string
-    customerId?: StringFilter<"Appointment"> | string
+    day?: StringFilter<"Appointment"> | string
+    section?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
     employee?: XOR<EmployeeNullableScalarRelationFilter, EmployeeWhereInput> | null
-  }, "id">
+  }, "id" | "customerId">
 
   export type AppointmentOrderByWithAggregationInput = {
     id?: SortOrder
     type?: SortOrder
     status?: SortOrder
     date?: SortOrder
+    day?: SortOrder
+    section?: SortOrder
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
@@ -4630,6 +8146,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeWithAggregatesFilter<"Appointment"> | $Enums.AppointmentType
     status?: EnumAppointmentStatusWithAggregatesFilter<"Appointment"> | $Enums.AppointmentStatus
     date?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
+    day?: StringWithAggregatesFilter<"Appointment"> | string
+    section?: StringWithAggregatesFilter<"Appointment"> | string
     customerId?: StringWithAggregatesFilter<"Appointment"> | string
     employeeId?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
     note?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
@@ -4637,74 +8155,242 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
   }
 
+  export type MagicLinkWhereInput = {
+    AND?: MagicLinkWhereInput | MagicLinkWhereInput[]
+    OR?: MagicLinkWhereInput[]
+    NOT?: MagicLinkWhereInput | MagicLinkWhereInput[]
+    id?: StringFilter<"MagicLink"> | string
+    token?: StringFilter<"MagicLink"> | string
+    employeeId?: StringFilter<"MagicLink"> | string
+    expiresAt?: DateTimeFilter<"MagicLink"> | Date | string
+    used?: BoolFilter<"MagicLink"> | boolean
+    createdAt?: DateTimeFilter<"MagicLink"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }
+
+  export type MagicLinkOrderByWithRelationInput = {
+    id?: SortOrder
+    token?: SortOrder
+    employeeId?: SortOrder
+    expiresAt?: SortOrder
+    used?: SortOrder
+    createdAt?: SortOrder
+    employee?: EmployeeOrderByWithRelationInput
+  }
+
+  export type MagicLinkWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    token?: string
+    AND?: MagicLinkWhereInput | MagicLinkWhereInput[]
+    OR?: MagicLinkWhereInput[]
+    NOT?: MagicLinkWhereInput | MagicLinkWhereInput[]
+    employeeId?: StringFilter<"MagicLink"> | string
+    expiresAt?: DateTimeFilter<"MagicLink"> | Date | string
+    used?: BoolFilter<"MagicLink"> | boolean
+    createdAt?: DateTimeFilter<"MagicLink"> | Date | string
+    employee?: XOR<EmployeeScalarRelationFilter, EmployeeWhereInput>
+  }, "id" | "token">
+
+  export type MagicLinkOrderByWithAggregationInput = {
+    id?: SortOrder
+    token?: SortOrder
+    employeeId?: SortOrder
+    expiresAt?: SortOrder
+    used?: SortOrder
+    createdAt?: SortOrder
+    _count?: MagicLinkCountOrderByAggregateInput
+    _max?: MagicLinkMaxOrderByAggregateInput
+    _min?: MagicLinkMinOrderByAggregateInput
+  }
+
+  export type MagicLinkScalarWhereWithAggregatesInput = {
+    AND?: MagicLinkScalarWhereWithAggregatesInput | MagicLinkScalarWhereWithAggregatesInput[]
+    OR?: MagicLinkScalarWhereWithAggregatesInput[]
+    NOT?: MagicLinkScalarWhereWithAggregatesInput | MagicLinkScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"MagicLink"> | string
+    token?: StringWithAggregatesFilter<"MagicLink"> | string
+    employeeId?: StringWithAggregatesFilter<"MagicLink"> | string
+    expiresAt?: DateTimeWithAggregatesFilter<"MagicLink"> | Date | string
+    used?: BoolWithAggregatesFilter<"MagicLink"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"MagicLink"> | Date | string
+  }
+
   export type EmployeeCreateInput = {
     id?: string
-    code: string
-    name?: string | null
-    perHourCapacity?: number
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
     isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
+    employeeTags?: EmployeeTagCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeeUncheckedCreateInput = {
     id?: string
-    code: string
-    name?: string | null
-    perHourCapacity?: number
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
     isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
+    employeeTags?: EmployeeTagUncheckedCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeeUpdateInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
+    employeeTags?: EmployeeTagUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeeUncheckedUpdateInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
+    employeeTags?: EmployeeTagUncheckedUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeeCreateManyInput = {
     id?: string
-    code: string
-    name?: string | null
-    perHourCapacity?: number
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
     isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type EmployeeUpdateManyMutationInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmployeeUncheckedUpdateManyInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type TagCreateInput = {
+    id?: string
+    name: $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagCreateNestedManyWithoutTagInput
+  }
+
+  export type TagUncheckedCreateInput = {
+    id?: string
+    name: $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagUncheckedCreateNestedManyWithoutTagInput
+  }
+
+  export type TagUpdateInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagUpdateManyWithoutTagNestedInput
+  }
+
+  export type TagUncheckedUpdateInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+    employeeTags?: EmployeeTagUncheckedUpdateManyWithoutTagNestedInput
+  }
+
+  export type TagCreateManyInput = {
+    id?: string
+    name: $Enums.EmployeeAbilityTag
+  }
+
+  export type TagUpdateManyMutationInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+  }
+
+  export type TagUncheckedUpdateManyInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+  }
+
+  export type EmployeeTagCreateInput = {
+    id?: string
+    employee: EmployeeCreateNestedOneWithoutEmployeeTagsInput
+    tag: TagCreateNestedOneWithoutEmployeeTagsInput
+  }
+
+  export type EmployeeTagUncheckedCreateInput = {
+    id?: string
+    employeeId: string
+    tagId: string
+  }
+
+  export type EmployeeTagUpdateInput = {
+    employee?: EmployeeUpdateOneRequiredWithoutEmployeeTagsNestedInput
+    tag?: TagUpdateOneRequiredWithoutEmployeeTagsNestedInput
+  }
+
+  export type EmployeeTagUncheckedUpdateInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
+    tagId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type EmployeeTagCreateManyInput = {
+    id?: string
+    employeeId: string
+    tagId: string
+  }
+
+  export type EmployeeTagUpdateManyMutationInput = {
+
+  }
+
+  export type EmployeeTagUncheckedUpdateManyInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
+    tagId?: StringFieldUpdateOperationsInput | string
   }
 
   export type CustomerCreateInput = {
@@ -4796,6 +8482,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -4808,6 +8496,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     customerId: string
     employeeId?: string | null
     note?: string | null
@@ -4819,6 +8509,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4830,6 +8522,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
@@ -4842,6 +8536,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     customerId: string
     employeeId?: string | null
     note?: string | null
@@ -4853,6 +8549,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -4862,11 +8560,71 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MagicLinkCreateInput = {
+    id?: string
+    token: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+    employee: EmployeeCreateNestedOneWithoutMagicLinksInput
+  }
+
+  export type MagicLinkUncheckedCreateInput = {
+    id?: string
+    token: string
+    employeeId: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+  }
+
+  export type MagicLinkUpdateInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employee?: EmployeeUpdateOneRequiredWithoutMagicLinksNestedInput
+  }
+
+  export type MagicLinkUncheckedUpdateInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MagicLinkCreateManyInput = {
+    id?: string
+    token: string
+    employeeId: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+  }
+
+  export type MagicLinkUpdateManyMutationInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MagicLinkUncheckedUpdateManyInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    employeeId?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -4900,15 +8658,11 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type EnumEmployeeRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeRole | EnumEmployeeRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeRoleFilter<$PrismaModel> | $Enums.EmployeeRole
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -4933,46 +8687,70 @@ export namespace Prisma {
     none?: AppointmentWhereInput
   }
 
+  export type EmployeeTagListRelationFilter = {
+    every?: EmployeeTagWhereInput
+    some?: EmployeeTagWhereInput
+    none?: EmployeeTagWhereInput
+  }
+
+  export type MagicLinkListRelationFilter = {
+    every?: MagicLinkWhereInput
+    some?: MagicLinkWhereInput
+    none?: MagicLinkWhereInput
+  }
+
   export type AppointmentOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmployeeTagOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type MagicLinkOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type EmployeeCountOrderByAggregateInput = {
     id?: SortOrder
-    code?: SortOrder
-    name?: SortOrder
-    perHourCapacity?: SortOrder
+    fullname?: SortOrder
+    email?: SortOrder
+    password?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    profileImageUrl?: SortOrder
+    bio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type EmployeeAvgOrderByAggregateInput = {
-    perHourCapacity?: SortOrder
-  }
-
   export type EmployeeMaxOrderByAggregateInput = {
     id?: SortOrder
-    code?: SortOrder
-    name?: SortOrder
-    perHourCapacity?: SortOrder
+    fullname?: SortOrder
+    email?: SortOrder
+    password?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    profileImageUrl?: SortOrder
+    bio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type EmployeeMinOrderByAggregateInput = {
     id?: SortOrder
-    code?: SortOrder
-    name?: SortOrder
-    perHourCapacity?: SortOrder
+    fullname?: SortOrder
+    email?: SortOrder
+    password?: SortOrder
+    phone?: SortOrder
+    role?: SortOrder
     isActive?: SortOrder
+    profileImageUrl?: SortOrder
+    bio?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type EmployeeSumOrderByAggregateInput = {
-    perHourCapacity?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -5012,20 +8790,14 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+  export type EnumEmployeeRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeRole | EnumEmployeeRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeRoleWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRole
     _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmployeeRoleFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeRoleFilter<$PrismaModel>
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -5048,6 +8820,66 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type EnumEmployeeAbilityTagFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeAbilityTag | EnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel> | $Enums.EmployeeAbilityTag
+  }
+
+  export type TagCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type TagMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type TagMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type EnumEmployeeAbilityTagWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeAbilityTag | EnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeAbilityTagWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeAbilityTag
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel>
+  }
+
+  export type EmployeeScalarRelationFilter = {
+    is?: EmployeeWhereInput
+    isNot?: EmployeeWhereInput
+  }
+
+  export type TagScalarRelationFilter = {
+    is?: TagWhereInput
+    isNot?: TagWhereInput
+  }
+
+  export type EmployeeTagCountOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type EmployeeTagMaxOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    tagId?: SortOrder
+  }
+
+  export type EmployeeTagMinOrderByAggregateInput = {
+    id?: SortOrder
+    employeeId?: SortOrder
+    tagId?: SortOrder
   }
 
   export type CustomerCountOrderByAggregateInput = {
@@ -5115,6 +8947,8 @@ export namespace Prisma {
     type?: SortOrder
     status?: SortOrder
     date?: SortOrder
+    day?: SortOrder
+    section?: SortOrder
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
@@ -5127,6 +8961,8 @@ export namespace Prisma {
     type?: SortOrder
     status?: SortOrder
     date?: SortOrder
+    day?: SortOrder
+    section?: SortOrder
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
@@ -5139,6 +8975,8 @@ export namespace Prisma {
     type?: SortOrder
     status?: SortOrder
     date?: SortOrder
+    day?: SortOrder
+    section?: SortOrder
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
@@ -5166,11 +9004,52 @@ export namespace Prisma {
     _max?: NestedEnumAppointmentStatusFilter<$PrismaModel>
   }
 
+  export type MagicLinkCountOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    employeeId?: SortOrder
+    expiresAt?: SortOrder
+    used?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MagicLinkMaxOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    employeeId?: SortOrder
+    expiresAt?: SortOrder
+    used?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type MagicLinkMinOrderByAggregateInput = {
+    id?: SortOrder
+    token?: SortOrder
+    employeeId?: SortOrder
+    expiresAt?: SortOrder
+    used?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type AppointmentCreateNestedManyWithoutEmployeeInput = {
     create?: XOR<AppointmentCreateWithoutEmployeeInput, AppointmentUncheckedCreateWithoutEmployeeInput> | AppointmentCreateWithoutEmployeeInput[] | AppointmentUncheckedCreateWithoutEmployeeInput[]
     connectOrCreate?: AppointmentCreateOrConnectWithoutEmployeeInput | AppointmentCreateOrConnectWithoutEmployeeInput[]
     createMany?: AppointmentCreateManyEmployeeInputEnvelope
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
+  }
+
+  export type EmployeeTagCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput> | EmployeeTagCreateWithoutEmployeeInput[] | EmployeeTagUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutEmployeeInput | EmployeeTagCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeTagCreateManyEmployeeInputEnvelope
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+  }
+
+  export type MagicLinkCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput> | MagicLinkCreateWithoutEmployeeInput[] | MagicLinkUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: MagicLinkCreateOrConnectWithoutEmployeeInput | MagicLinkCreateOrConnectWithoutEmployeeInput[]
+    createMany?: MagicLinkCreateManyEmployeeInputEnvelope
+    connect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
   }
 
   export type AppointmentUncheckedCreateNestedManyWithoutEmployeeInput = {
@@ -5180,8 +9059,18 @@ export namespace Prisma {
     connect?: AppointmentWhereUniqueInput | AppointmentWhereUniqueInput[]
   }
 
-  export type StringFieldUpdateOperationsInput = {
-    set?: string
+  export type EmployeeTagUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput> | EmployeeTagCreateWithoutEmployeeInput[] | EmployeeTagUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutEmployeeInput | EmployeeTagCreateOrConnectWithoutEmployeeInput[]
+    createMany?: EmployeeTagCreateManyEmployeeInputEnvelope
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+  }
+
+  export type MagicLinkUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput> | MagicLinkCreateWithoutEmployeeInput[] | MagicLinkUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: MagicLinkCreateOrConnectWithoutEmployeeInput | MagicLinkCreateOrConnectWithoutEmployeeInput[]
+    createMany?: MagicLinkCreateManyEmployeeInputEnvelope
+    connect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -5189,12 +9078,8 @@ export namespace Prisma {
     unset?: boolean
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
+  export type EnumEmployeeRoleFieldUpdateOperationsInput = {
+    set?: $Enums.EmployeeRole
   }
 
   export type BoolFieldUpdateOperationsInput = {
@@ -5219,6 +9104,34 @@ export namespace Prisma {
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
   }
 
+  export type EmployeeTagUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput> | EmployeeTagCreateWithoutEmployeeInput[] | EmployeeTagUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutEmployeeInput | EmployeeTagCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeTagUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeTagUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeTagCreateManyEmployeeInputEnvelope
+    set?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    disconnect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    delete?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    update?: EmployeeTagUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeTagUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeTagUpdateManyWithWhereWithoutEmployeeInput | EmployeeTagUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+  }
+
+  export type MagicLinkUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput> | MagicLinkCreateWithoutEmployeeInput[] | MagicLinkUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: MagicLinkCreateOrConnectWithoutEmployeeInput | MagicLinkCreateOrConnectWithoutEmployeeInput[]
+    upsert?: MagicLinkUpsertWithWhereUniqueWithoutEmployeeInput | MagicLinkUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: MagicLinkCreateManyEmployeeInputEnvelope
+    set?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    disconnect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    delete?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    connect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    update?: MagicLinkUpdateWithWhereUniqueWithoutEmployeeInput | MagicLinkUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: MagicLinkUpdateManyWithWhereWithoutEmployeeInput | MagicLinkUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: MagicLinkScalarWhereInput | MagicLinkScalarWhereInput[]
+  }
+
   export type AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput = {
     create?: XOR<AppointmentCreateWithoutEmployeeInput, AppointmentUncheckedCreateWithoutEmployeeInput> | AppointmentCreateWithoutEmployeeInput[] | AppointmentUncheckedCreateWithoutEmployeeInput[]
     connectOrCreate?: AppointmentCreateOrConnectWithoutEmployeeInput | AppointmentCreateOrConnectWithoutEmployeeInput[]
@@ -5231,6 +9144,112 @@ export namespace Prisma {
     update?: AppointmentUpdateWithWhereUniqueWithoutEmployeeInput | AppointmentUpdateWithWhereUniqueWithoutEmployeeInput[]
     updateMany?: AppointmentUpdateManyWithWhereWithoutEmployeeInput | AppointmentUpdateManyWithWhereWithoutEmployeeInput[]
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
+  }
+
+  export type EmployeeTagUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput> | EmployeeTagCreateWithoutEmployeeInput[] | EmployeeTagUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutEmployeeInput | EmployeeTagCreateOrConnectWithoutEmployeeInput[]
+    upsert?: EmployeeTagUpsertWithWhereUniqueWithoutEmployeeInput | EmployeeTagUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: EmployeeTagCreateManyEmployeeInputEnvelope
+    set?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    disconnect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    delete?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    update?: EmployeeTagUpdateWithWhereUniqueWithoutEmployeeInput | EmployeeTagUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: EmployeeTagUpdateManyWithWhereWithoutEmployeeInput | EmployeeTagUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+  }
+
+  export type MagicLinkUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput> | MagicLinkCreateWithoutEmployeeInput[] | MagicLinkUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: MagicLinkCreateOrConnectWithoutEmployeeInput | MagicLinkCreateOrConnectWithoutEmployeeInput[]
+    upsert?: MagicLinkUpsertWithWhereUniqueWithoutEmployeeInput | MagicLinkUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: MagicLinkCreateManyEmployeeInputEnvelope
+    set?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    disconnect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    delete?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    connect?: MagicLinkWhereUniqueInput | MagicLinkWhereUniqueInput[]
+    update?: MagicLinkUpdateWithWhereUniqueWithoutEmployeeInput | MagicLinkUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: MagicLinkUpdateManyWithWhereWithoutEmployeeInput | MagicLinkUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: MagicLinkScalarWhereInput | MagicLinkScalarWhereInput[]
+  }
+
+  export type EmployeeTagCreateNestedManyWithoutTagInput = {
+    create?: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput> | EmployeeTagCreateWithoutTagInput[] | EmployeeTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutTagInput | EmployeeTagCreateOrConnectWithoutTagInput[]
+    createMany?: EmployeeTagCreateManyTagInputEnvelope
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+  }
+
+  export type EmployeeTagUncheckedCreateNestedManyWithoutTagInput = {
+    create?: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput> | EmployeeTagCreateWithoutTagInput[] | EmployeeTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutTagInput | EmployeeTagCreateOrConnectWithoutTagInput[]
+    createMany?: EmployeeTagCreateManyTagInputEnvelope
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+  }
+
+  export type EnumEmployeeAbilityTagFieldUpdateOperationsInput = {
+    set?: $Enums.EmployeeAbilityTag
+  }
+
+  export type EmployeeTagUpdateManyWithoutTagNestedInput = {
+    create?: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput> | EmployeeTagCreateWithoutTagInput[] | EmployeeTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutTagInput | EmployeeTagCreateOrConnectWithoutTagInput[]
+    upsert?: EmployeeTagUpsertWithWhereUniqueWithoutTagInput | EmployeeTagUpsertWithWhereUniqueWithoutTagInput[]
+    createMany?: EmployeeTagCreateManyTagInputEnvelope
+    set?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    disconnect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    delete?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    update?: EmployeeTagUpdateWithWhereUniqueWithoutTagInput | EmployeeTagUpdateWithWhereUniqueWithoutTagInput[]
+    updateMany?: EmployeeTagUpdateManyWithWhereWithoutTagInput | EmployeeTagUpdateManyWithWhereWithoutTagInput[]
+    deleteMany?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+  }
+
+  export type EmployeeTagUncheckedUpdateManyWithoutTagNestedInput = {
+    create?: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput> | EmployeeTagCreateWithoutTagInput[] | EmployeeTagUncheckedCreateWithoutTagInput[]
+    connectOrCreate?: EmployeeTagCreateOrConnectWithoutTagInput | EmployeeTagCreateOrConnectWithoutTagInput[]
+    upsert?: EmployeeTagUpsertWithWhereUniqueWithoutTagInput | EmployeeTagUpsertWithWhereUniqueWithoutTagInput[]
+    createMany?: EmployeeTagCreateManyTagInputEnvelope
+    set?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    disconnect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    delete?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    connect?: EmployeeTagWhereUniqueInput | EmployeeTagWhereUniqueInput[]
+    update?: EmployeeTagUpdateWithWhereUniqueWithoutTagInput | EmployeeTagUpdateWithWhereUniqueWithoutTagInput[]
+    updateMany?: EmployeeTagUpdateManyWithWhereWithoutTagInput | EmployeeTagUpdateManyWithWhereWithoutTagInput[]
+    deleteMany?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+  }
+
+  export type EmployeeCreateNestedOneWithoutEmployeeTagsInput = {
+    create?: XOR<EmployeeCreateWithoutEmployeeTagsInput, EmployeeUncheckedCreateWithoutEmployeeTagsInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutEmployeeTagsInput
+    connect?: EmployeeWhereUniqueInput
+  }
+
+  export type TagCreateNestedOneWithoutEmployeeTagsInput = {
+    create?: XOR<TagCreateWithoutEmployeeTagsInput, TagUncheckedCreateWithoutEmployeeTagsInput>
+    connectOrCreate?: TagCreateOrConnectWithoutEmployeeTagsInput
+    connect?: TagWhereUniqueInput
+  }
+
+  export type EmployeeUpdateOneRequiredWithoutEmployeeTagsNestedInput = {
+    create?: XOR<EmployeeCreateWithoutEmployeeTagsInput, EmployeeUncheckedCreateWithoutEmployeeTagsInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutEmployeeTagsInput
+    upsert?: EmployeeUpsertWithoutEmployeeTagsInput
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutEmployeeTagsInput, EmployeeUpdateWithoutEmployeeTagsInput>, EmployeeUncheckedUpdateWithoutEmployeeTagsInput>
+  }
+
+  export type TagUpdateOneRequiredWithoutEmployeeTagsNestedInput = {
+    create?: XOR<TagCreateWithoutEmployeeTagsInput, TagUncheckedCreateWithoutEmployeeTagsInput>
+    connectOrCreate?: TagCreateOrConnectWithoutEmployeeTagsInput
+    upsert?: TagUpsertWithoutEmployeeTagsInput
+    connect?: TagWhereUniqueInput
+    update?: XOR<XOR<TagUpdateToOneWithWhereWithoutEmployeeTagsInput, TagUpdateWithoutEmployeeTagsInput>, TagUncheckedUpdateWithoutEmployeeTagsInput>
+  }
+
+  export type StringFieldUpdateOperationsInput = {
+    set?: string
   }
 
   export type AppointmentCreateNestedManyWithoutCustomerInput = {
@@ -5313,6 +9332,20 @@ export namespace Prisma {
     update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutAppointmentsInput, EmployeeUpdateWithoutAppointmentsInput>, EmployeeUncheckedUpdateWithoutAppointmentsInput>
   }
 
+  export type EmployeeCreateNestedOneWithoutMagicLinksInput = {
+    create?: XOR<EmployeeCreateWithoutMagicLinksInput, EmployeeUncheckedCreateWithoutMagicLinksInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutMagicLinksInput
+    connect?: EmployeeWhereUniqueInput
+  }
+
+  export type EmployeeUpdateOneRequiredWithoutMagicLinksNestedInput = {
+    create?: XOR<EmployeeCreateWithoutMagicLinksInput, EmployeeUncheckedCreateWithoutMagicLinksInput>
+    connectOrCreate?: EmployeeCreateOrConnectWithoutMagicLinksInput
+    upsert?: EmployeeUpsertWithoutMagicLinksInput
+    connect?: EmployeeWhereUniqueInput
+    update?: XOR<XOR<EmployeeUpdateToOneWithWhereWithoutMagicLinksInput, EmployeeUpdateWithoutMagicLinksInput>, EmployeeUncheckedUpdateWithoutMagicLinksInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -5342,15 +9375,11 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
+  export type NestedEnumEmployeeRoleFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeRole | EnumEmployeeRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeRoleFilter<$PrismaModel> | $Enums.EmployeeRole
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -5386,6 +9415,17 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel> | null
     in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
@@ -5416,31 +9456,14 @@ export namespace Prisma {
     isSet?: boolean
   }
 
-  export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+  export type NestedEnumEmployeeRoleWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeRole | EnumEmployeeRoleFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeRole[] | ListEnumEmployeeRoleFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeRoleWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeRole
     _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
-  }
-
-  export type NestedFloatFilter<$PrismaModel = never> = {
-    equals?: number | FloatFieldRefInput<$PrismaModel>
-    in?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
-    lt?: number | FloatFieldRefInput<$PrismaModel>
-    lte?: number | FloatFieldRefInput<$PrismaModel>
-    gt?: number | FloatFieldRefInput<$PrismaModel>
-    gte?: number | FloatFieldRefInput<$PrismaModel>
-    not?: NestedFloatFilter<$PrismaModel> | number
+    _min?: NestedEnumEmployeeRoleFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeRoleFilter<$PrismaModel>
   }
 
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -5463,6 +9486,23 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedDateTimeFilter<$PrismaModel>
     _max?: NestedDateTimeFilter<$PrismaModel>
+  }
+
+  export type NestedEnumEmployeeAbilityTagFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeAbilityTag | EnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel> | $Enums.EmployeeAbilityTag
+  }
+
+  export type NestedEnumEmployeeAbilityTagWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeAbilityTag | EnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    in?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    notIn?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    not?: NestedEnumEmployeeAbilityTagWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeAbilityTag
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeAbilityTagFilter<$PrismaModel>
   }
 
   export type NestedEnumAppointmentTypeFilter<$PrismaModel = never> = {
@@ -5504,6 +9544,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -5515,6 +9557,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     customerId: string
     note?: string | null
     createdAt?: Date | string
@@ -5528,6 +9572,50 @@ export namespace Prisma {
 
   export type AppointmentCreateManyEmployeeInputEnvelope = {
     data: AppointmentCreateManyEmployeeInput | AppointmentCreateManyEmployeeInput[]
+  }
+
+  export type EmployeeTagCreateWithoutEmployeeInput = {
+    id?: string
+    tag: TagCreateNestedOneWithoutEmployeeTagsInput
+  }
+
+  export type EmployeeTagUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    tagId: string
+  }
+
+  export type EmployeeTagCreateOrConnectWithoutEmployeeInput = {
+    where: EmployeeTagWhereUniqueInput
+    create: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeTagCreateManyEmployeeInputEnvelope = {
+    data: EmployeeTagCreateManyEmployeeInput | EmployeeTagCreateManyEmployeeInput[]
+  }
+
+  export type MagicLinkCreateWithoutEmployeeInput = {
+    id?: string
+    token: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+  }
+
+  export type MagicLinkUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    token: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+  }
+
+  export type MagicLinkCreateOrConnectWithoutEmployeeInput = {
+    where: MagicLinkWhereUniqueInput
+    create: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type MagicLinkCreateManyEmployeeInputEnvelope = {
+    data: MagicLinkCreateManyEmployeeInput | MagicLinkCreateManyEmployeeInput[]
   }
 
   export type AppointmentUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -5554,6 +9642,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFilter<"Appointment"> | $Enums.AppointmentType
     status?: EnumAppointmentStatusFilter<"Appointment"> | $Enums.AppointmentStatus
     date?: DateTimeFilter<"Appointment"> | Date | string
+    day?: StringFilter<"Appointment"> | string
+    section?: StringFilter<"Appointment"> | string
     customerId?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
@@ -5561,11 +9651,213 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
   }
 
+  export type EmployeeTagUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeTagWhereUniqueInput
+    update: XOR<EmployeeTagUpdateWithoutEmployeeInput, EmployeeTagUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<EmployeeTagCreateWithoutEmployeeInput, EmployeeTagUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type EmployeeTagUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: EmployeeTagWhereUniqueInput
+    data: XOR<EmployeeTagUpdateWithoutEmployeeInput, EmployeeTagUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type EmployeeTagUpdateManyWithWhereWithoutEmployeeInput = {
+    where: EmployeeTagScalarWhereInput
+    data: XOR<EmployeeTagUpdateManyMutationInput, EmployeeTagUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
+  export type EmployeeTagScalarWhereInput = {
+    AND?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+    OR?: EmployeeTagScalarWhereInput[]
+    NOT?: EmployeeTagScalarWhereInput | EmployeeTagScalarWhereInput[]
+    id?: StringFilter<"EmployeeTag"> | string
+    employeeId?: StringFilter<"EmployeeTag"> | string
+    tagId?: StringFilter<"EmployeeTag"> | string
+  }
+
+  export type MagicLinkUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: MagicLinkWhereUniqueInput
+    update: XOR<MagicLinkUpdateWithoutEmployeeInput, MagicLinkUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<MagicLinkCreateWithoutEmployeeInput, MagicLinkUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type MagicLinkUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: MagicLinkWhereUniqueInput
+    data: XOR<MagicLinkUpdateWithoutEmployeeInput, MagicLinkUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type MagicLinkUpdateManyWithWhereWithoutEmployeeInput = {
+    where: MagicLinkScalarWhereInput
+    data: XOR<MagicLinkUpdateManyMutationInput, MagicLinkUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
+  export type MagicLinkScalarWhereInput = {
+    AND?: MagicLinkScalarWhereInput | MagicLinkScalarWhereInput[]
+    OR?: MagicLinkScalarWhereInput[]
+    NOT?: MagicLinkScalarWhereInput | MagicLinkScalarWhereInput[]
+    id?: StringFilter<"MagicLink"> | string
+    token?: StringFilter<"MagicLink"> | string
+    employeeId?: StringFilter<"MagicLink"> | string
+    expiresAt?: DateTimeFilter<"MagicLink"> | Date | string
+    used?: BoolFilter<"MagicLink"> | boolean
+    createdAt?: DateTimeFilter<"MagicLink"> | Date | string
+  }
+
+  export type EmployeeTagCreateWithoutTagInput = {
+    id?: string
+    employee: EmployeeCreateNestedOneWithoutEmployeeTagsInput
+  }
+
+  export type EmployeeTagUncheckedCreateWithoutTagInput = {
+    id?: string
+    employeeId: string
+  }
+
+  export type EmployeeTagCreateOrConnectWithoutTagInput = {
+    where: EmployeeTagWhereUniqueInput
+    create: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput>
+  }
+
+  export type EmployeeTagCreateManyTagInputEnvelope = {
+    data: EmployeeTagCreateManyTagInput | EmployeeTagCreateManyTagInput[]
+  }
+
+  export type EmployeeTagUpsertWithWhereUniqueWithoutTagInput = {
+    where: EmployeeTagWhereUniqueInput
+    update: XOR<EmployeeTagUpdateWithoutTagInput, EmployeeTagUncheckedUpdateWithoutTagInput>
+    create: XOR<EmployeeTagCreateWithoutTagInput, EmployeeTagUncheckedCreateWithoutTagInput>
+  }
+
+  export type EmployeeTagUpdateWithWhereUniqueWithoutTagInput = {
+    where: EmployeeTagWhereUniqueInput
+    data: XOR<EmployeeTagUpdateWithoutTagInput, EmployeeTagUncheckedUpdateWithoutTagInput>
+  }
+
+  export type EmployeeTagUpdateManyWithWhereWithoutTagInput = {
+    where: EmployeeTagScalarWhereInput
+    data: XOR<EmployeeTagUpdateManyMutationInput, EmployeeTagUncheckedUpdateManyWithoutTagInput>
+  }
+
+  export type EmployeeCreateWithoutEmployeeTagsInput = {
+    id?: string
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
+    isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutEmployeeTagsInput = {
+    id?: string
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
+    isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutEmployeeTagsInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutEmployeeTagsInput, EmployeeUncheckedCreateWithoutEmployeeTagsInput>
+  }
+
+  export type TagCreateWithoutEmployeeTagsInput = {
+    id?: string
+    name: $Enums.EmployeeAbilityTag
+  }
+
+  export type TagUncheckedCreateWithoutEmployeeTagsInput = {
+    id?: string
+    name: $Enums.EmployeeAbilityTag
+  }
+
+  export type TagCreateOrConnectWithoutEmployeeTagsInput = {
+    where: TagWhereUniqueInput
+    create: XOR<TagCreateWithoutEmployeeTagsInput, TagUncheckedCreateWithoutEmployeeTagsInput>
+  }
+
+  export type EmployeeUpsertWithoutEmployeeTagsInput = {
+    update: XOR<EmployeeUpdateWithoutEmployeeTagsInput, EmployeeUncheckedUpdateWithoutEmployeeTagsInput>
+    create: XOR<EmployeeCreateWithoutEmployeeTagsInput, EmployeeUncheckedCreateWithoutEmployeeTagsInput>
+    where?: EmployeeWhereInput
+  }
+
+  export type EmployeeUpdateToOneWithWhereWithoutEmployeeTagsInput = {
+    where?: EmployeeWhereInput
+    data: XOR<EmployeeUpdateWithoutEmployeeTagsInput, EmployeeUncheckedUpdateWithoutEmployeeTagsInput>
+  }
+
+  export type EmployeeUpdateWithoutEmployeeTagsInput = {
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutEmployeeTagsInput = {
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type TagUpsertWithoutEmployeeTagsInput = {
+    update: XOR<TagUpdateWithoutEmployeeTagsInput, TagUncheckedUpdateWithoutEmployeeTagsInput>
+    create: XOR<TagCreateWithoutEmployeeTagsInput, TagUncheckedCreateWithoutEmployeeTagsInput>
+    where?: TagWhereInput
+  }
+
+  export type TagUpdateToOneWithWhereWithoutEmployeeTagsInput = {
+    where?: TagWhereInput
+    data: XOR<TagUpdateWithoutEmployeeTagsInput, TagUncheckedUpdateWithoutEmployeeTagsInput>
+  }
+
+  export type TagUpdateWithoutEmployeeTagsInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+  }
+
+  export type TagUncheckedUpdateWithoutEmployeeTagsInput = {
+    name?: EnumEmployeeAbilityTagFieldUpdateOperationsInput | $Enums.EmployeeAbilityTag
+  }
+
   export type AppointmentCreateWithoutCustomerInput = {
     id?: string
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -5577,6 +9869,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     employeeId?: string | null
     note?: string | null
     createdAt?: Date | string
@@ -5639,22 +9933,34 @@ export namespace Prisma {
 
   export type EmployeeCreateWithoutAppointmentsInput = {
     id?: string
-    code: string
-    name?: string | null
-    perHourCapacity?: number
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
     isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    employeeTags?: EmployeeTagCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeeUncheckedCreateWithoutAppointmentsInput = {
     id?: string
-    code: string
-    name?: string | null
-    perHourCapacity?: number
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
     isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    employeeTags?: EmployeeTagUncheckedCreateNestedManyWithoutEmployeeInput
+    magicLinks?: MagicLinkUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type EmployeeCreateOrConnectWithoutAppointmentsInput = {
@@ -5707,21 +10013,111 @@ export namespace Prisma {
   }
 
   export type EmployeeUpdateWithoutAppointmentsInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeTags?: EmployeeTagUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUpdateManyWithoutEmployeeNestedInput
   }
 
   export type EmployeeUncheckedUpdateWithoutAppointmentsInput = {
-    code?: StringFieldUpdateOperationsInput | string
-    name?: NullableStringFieldUpdateOperationsInput | string | null
-    perHourCapacity?: IntFieldUpdateOperationsInput | number
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
     isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeTags?: EmployeeTagUncheckedUpdateManyWithoutEmployeeNestedInput
+    magicLinks?: MagicLinkUncheckedUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeCreateWithoutMagicLinksInput = {
+    id?: string
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
+    isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
+    employeeTags?: EmployeeTagCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeUncheckedCreateWithoutMagicLinksInput = {
+    id?: string
+    fullname?: string | null
+    email?: string | null
+    password?: string | null
+    phone?: string | null
+    role?: $Enums.EmployeeRole
+    isActive?: boolean
+    profileImageUrl?: string | null
+    bio?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
+    employeeTags?: EmployeeTagUncheckedCreateNestedManyWithoutEmployeeInput
+  }
+
+  export type EmployeeCreateOrConnectWithoutMagicLinksInput = {
+    where: EmployeeWhereUniqueInput
+    create: XOR<EmployeeCreateWithoutMagicLinksInput, EmployeeUncheckedCreateWithoutMagicLinksInput>
+  }
+
+  export type EmployeeUpsertWithoutMagicLinksInput = {
+    update: XOR<EmployeeUpdateWithoutMagicLinksInput, EmployeeUncheckedUpdateWithoutMagicLinksInput>
+    create: XOR<EmployeeCreateWithoutMagicLinksInput, EmployeeUncheckedCreateWithoutMagicLinksInput>
+    where?: EmployeeWhereInput
+  }
+
+  export type EmployeeUpdateToOneWithWhereWithoutMagicLinksInput = {
+    where?: EmployeeWhereInput
+    data: XOR<EmployeeUpdateWithoutMagicLinksInput, EmployeeUncheckedUpdateWithoutMagicLinksInput>
+  }
+
+  export type EmployeeUpdateWithoutMagicLinksInput = {
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
+    employeeTags?: EmployeeTagUpdateManyWithoutEmployeeNestedInput
+  }
+
+  export type EmployeeUncheckedUpdateWithoutMagicLinksInput = {
+    fullname?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    password?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumEmployeeRoleFieldUpdateOperationsInput | $Enums.EmployeeRole
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    bio?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
+    employeeTags?: EmployeeTagUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type AppointmentCreateManyEmployeeInput = {
@@ -5729,16 +10125,33 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     customerId: string
     note?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
+  export type EmployeeTagCreateManyEmployeeInput = {
+    id?: string
+    tagId: string
+  }
+
+  export type MagicLinkCreateManyEmployeeInput = {
+    id?: string
+    token: string
+    expiresAt: Date | string
+    used?: boolean
+    createdAt?: Date | string
+  }
+
   export type AppointmentUpdateWithoutEmployeeInput = {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5749,6 +10162,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5759,10 +10174,62 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeTagUpdateWithoutEmployeeInput = {
+    tag?: TagUpdateOneRequiredWithoutEmployeeTagsNestedInput
+  }
+
+  export type EmployeeTagUncheckedUpdateWithoutEmployeeInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type EmployeeTagUncheckedUpdateManyWithoutEmployeeInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type MagicLinkUpdateWithoutEmployeeInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MagicLinkUncheckedUpdateWithoutEmployeeInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type MagicLinkUncheckedUpdateManyWithoutEmployeeInput = {
+    token?: StringFieldUpdateOperationsInput | string
+    expiresAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmployeeTagCreateManyTagInput = {
+    id?: string
+    employeeId: string
+  }
+
+  export type EmployeeTagUpdateWithoutTagInput = {
+    employee?: EmployeeUpdateOneRequiredWithoutEmployeeTagsNestedInput
+  }
+
+  export type EmployeeTagUncheckedUpdateWithoutTagInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type EmployeeTagUncheckedUpdateManyWithoutTagInput = {
+    employeeId?: StringFieldUpdateOperationsInput | string
   }
 
   export type AppointmentCreateManyCustomerInput = {
@@ -5770,6 +10237,8 @@ export namespace Prisma {
     type: $Enums.AppointmentType
     status?: $Enums.AppointmentStatus
     date: Date | string
+    day: string
+    section: string
     employeeId?: string | null
     note?: string | null
     createdAt?: Date | string
@@ -5780,6 +10249,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5790,6 +10261,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -5800,6 +10273,8 @@ export namespace Prisma {
     type?: EnumAppointmentTypeFieldUpdateOperationsInput | $Enums.AppointmentType
     status?: EnumAppointmentStatusFieldUpdateOperationsInput | $Enums.AppointmentStatus
     date?: DateTimeFieldUpdateOperationsInput | Date | string
+    day?: StringFieldUpdateOperationsInput | string
+    section?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

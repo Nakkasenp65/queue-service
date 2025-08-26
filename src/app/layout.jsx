@@ -1,5 +1,6 @@
 import "./globals.css";
 import Providers from "./components/Provider/Providers";
+import Navbar from "./components/Navbar";
 
 export const metadata = {
   title: "Create Next App",
@@ -10,7 +11,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <Navbar />
+          {children}
+        </Providers>
       </body>
     </html>
   );

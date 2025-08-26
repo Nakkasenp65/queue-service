@@ -4,210 +4,180 @@ import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { th } from "date-fns/locale";
 import { addDays, format, isSameDay } from "date-fns";
+import { useGetAppointments } from "../hooks/useAppointments";
+import { ArrowLeft } from "lucide-react";
 
-// Mock data and constants
-
-// ให้คิดจาก quota ของพนักงานและ condition ต่างๆ เช่น วันนั้นมี Employee Tag RF มากกว่า 1 คนก็สามารถรับได้ 3 + 1 ออนไลน์ใน 1 ชั่วโมง
-// - ให้แสดงย่อย logic เทียบในแต่ละช่องไป ว่า มีคิวที่เป็น งานซ่อมไหม
-// - มีคิวงานซ่อมก็ = ต้องดู REF ว่าเหลือ 1 คนไหม
-// - กรณีที่ REF 1 คนยังไงก็ไม่รับออนไลน์ในชั่วโมงนั้น และถ้ารับออนไลน์ไปแล้วในชั่วโมงนั้น คิวก็จะเต็มเลย
-// - งานซ่อมเป็นงานแบบ Priority: EASY | HARD
-// - งานประเภท EASY สามารถรับงานเพิ่มได้ HARD คือเต็ม
-// - ถ้ามี ENG 2 คนให้ คำนวณ Quota ตามงานที่จะเข้ามารับเลย
-
-const mockAppointments = [
-  { id: "apt001", type: "onsite", startDateTime: new Date("2025-08-26T11:00:00") },
-  { id: "apt002", type: "offsite", startDateTime: new Date("2025-08-26T09:00:00") },
-  { id: "apt003", type: "online", startDateTime: new Date("2025-08-26T11:00:00") },
-  { id: "apt004", type: "onsite", startDateTime: new Date("2025-08-26T15:00:00") },
-];
 const HOURS = Array.from({ length: 9 }, (_, i) => 11 + i);
-// Services that require specific employees
-const EMPLOYEE_REQUIRED_SERVICES = ["รีไฟแนนซ์", "ซ่อมมือถือ"];
-
-const CAPACITY = {
-  // Services requiring employees
-  REFINANCE: {
-    onsite: 3, // Max 3 customers per hour
-    online: 1, // Online needs 2 consecutive slots
-    offsite: 1, // 1 visit per day
-  },
-  REPAIR: {
-    onsite: 3, // Max 3 repairs per hour
-  },
-  // General services (no specific employee needed)
-  GENERAL: {
-    onsite: 5, // Can handle more customers simultaneously
-  },
-};
-
-const STAFF_COUNT = 1;
-const today = new Date();
+const today = new Date("2025-08-26");
 const daysList = Array.from({ length: 7 }, (_, i) => addDays(today, i));
+const dailyEmployees = [
+  { id: "emp02", name: "Jane (Engineer)", tags: ["ENGINEER"] },
+  { id: "emp03", name: "Alex (All-rounder)", tags: ["REFINANCE", "GENERAL"] },
+  { id: "emp04", name: "Bob (General)", tags: ["GENERAL"] },
+];
 const slotLabel = (startHour, duration = 1) =>
   `${String(startHour).padStart(2, "0")}:00-${String(startHour + duration).padStart(2, "0")}:00`;
 
-function buildMatricesForRange(appointments, daysList) {
-  const keyOf = (d) => format(d, "yyyy-MM-dd");
-  const keys = daysList.map(keyOf);
-  const indexByKey = new Map(keys.map((k, i) => [k, i]));
-  const countsOnsite = Array.from({ length: daysList.length }, () => Array(HOURS.length).fill(0));
-  const countsOnline = Array.from({ length: daysList.length }, () => Array(HOURS.length).fill(0));
-  const offsiteDaily = Array.from({ length: daysList.length }, () => 0);
-  appointments.forEach((apt) => {
-    const dateKey = format(apt.startDateTime, "yyyy-MM-dd");
-    const dayIndex = indexByKey.get(dateKey);
-    if (dayIndex === undefined) return;
-    if (apt.type === "offsite") {
-      offsiteDaily[dayIndex] += 1;
-      return;
+function checkRefinanceAvailability(jobs, allEmployees, locationType) {
+  const refinanceSpecialists = allEmployees.filter((e) => e.tags.includes("REFINANCE"));
+  const busyEmployeeIds = new Set(jobs.map((j) => j.employeeId).filter(Boolean));
+  const freeRefinanceEmployees = refinanceSpecialists.filter((e) => !busyEmployeeIds.has(e.id));
+  const onlineJobCount = jobs.filter((j) => j.type === "ONLINE").length;
+  const onsiteJobCount = jobs.filter((j) => j.type === "ONSITE").length;
+
+  if (locationType === "online") {
+    const cap = 1;
+    if (onlineJobCount >= cap) {
+      return { isAvailable: false, reason: "คิวออนไลน์เต็มแล้ว", stats: { used: onlineJobCount, cap } };
     }
-    const startHour = apt.startDateTime.getHours();
-    const i = startHour - HOURS[0];
-    if (i < 0 || i >= HOURS.length) return;
-    if (apt.type === "onsite") {
-      countsOnsite[dayIndex][i] += 1;
-    } else if (apt.type === "online") {
-      countsOnline[dayIndex][i] += 1;
-      if (i + 1 < HOURS.length) countsOnline[dayIndex][i + 1] += 1;
+    if (freeRefinanceEmployees.length === 0) {
+      return { isAvailable: false, reason: "พนักงาน Refinance เต็ม", stats: { used: onlineJobCount, cap } };
     }
-  });
-  return { countsOnsite, countsOnline, offsiteDaily };
+    if (freeRefinanceEmployees.length === 1 && onsiteJobCount >= 3) {
+      return { isAvailable: false, reason: "พนักงานไม่ว่าง", stats: { used: onlineJobCount, cap } };
+    }
+    return { isAvailable: true, reason: "", stats: { used: onlineJobCount, cap } };
+  }
+
+  if (locationType === "onsite") {
+    const cap = 3;
+    if (onsiteJobCount >= cap) {
+      return { isAvailable: false, reason: "คิวหน้าร้านเต็ม", stats: { used: onsiteJobCount, cap } };
+    }
+    if (freeRefinanceEmployees.length === 0) {
+      return { isAvailable: false, reason: "พนักงาน Refinance เต็ม", stats: { used: onsiteJobCount, cap } };
+    }
+    if (freeRefinanceEmployees.length === 1 && onlineJobCount >= 1) {
+      return { isAvailable: false, reason: "พนักงานติดคิวออนไลน์", stats: { used: onsiteJobCount, cap } };
+    }
+    return { isAvailable: true, reason: "", stats: { used: onsiteJobCount, cap } };
+  }
+
+  return { isAvailable: true, reason: "", stats: { used: 0, cap: 1 } };
+}
+
+function checkMaintenanceAvailability(jobs, allEmployees) {
+  const maintenanceSpecialists = allEmployees.filter((e) => e.tags.includes("ENGINEER"));
+  const busyEmployeeIds = new Set(jobs.map((j) => j.employeeId).filter(Boolean));
+  const freeMaintenanceEmployees = maintenanceSpecialists.filter((e) => !busyEmployeeIds.has(e.id));
+
+  if (freeMaintenanceEmployees.length === 0) {
+    return {
+      isAvailable: false,
+      reason: "ช่างซ่อมไม่ว่าง",
+      stats: { used: jobs.length, cap: maintenanceSpecialists.length },
+    };
+  }
+  if (jobs.some((job) => job.priority === "HARD")) {
+    return {
+      isAvailable: false,
+      reason: "มีงานซ่อมด่วนอยู่",
+      stats: { used: jobs.length, cap: maintenanceSpecialists.length },
+    };
+  }
+  return { isAvailable: true, reason: "", stats: { used: jobs.length, cap: maintenanceSpecialists.length } };
 }
 
 export default function DateTimePicker({ formData, setFormData, setAppState }) {
-  if (!formData) return null;
-  const getInitialLocationType = () => {
-    return formData.serviceType === "รีไฟแนนซ์" ? "onsite" : "onsite";
-  };
-  const [locationType, setLocationType] = useState(getInitialLocationType());
-  const [selectedDate, setSelectedDate] = useState(daysList[0]);
-  const { countsOnsite, countsOnline, offsiteDaily } = useMemo(
-    () => buildMatricesForRange(mockAppointments, daysList),
-    []
-  );
+  const { data: appointments, isLoading, error, refetch, createAppointment, isCreating } = useGetAppointments({});
 
-  // เรียกดูสถานะของช่อง
+  const [locationType, setLocationType] = useState("onsite");
+  const [selectedDate, setSelectedDate] = useState(daysList[0]);
+
   const getSlotState = (day, slot) => {
     const dayIndex = daysList.findIndex((d) => isSameDay(d, day));
     const i = slot.startIndex;
+    const jobs = appointments?.[dayIndex]?.[i] || [];
 
-    // Check if this service requires an employee
-    const requiresEmployee = EMPLOYEE_REQUIRED_SERVICES.includes(formData.serviceType);
-
-    // Get capacity based on service type
-    const getServiceCapacity = () => {
-      if (formData.serviceType === "รีไฟแนนซ์") {
-        return CAPACITY.REFINANCE;
-      }
-      if (formData.serviceType === "ซ่อมมือถือ") {
-        return CAPACITY.REPAIR;
-      }
-      return CAPACITY.GENERAL;
-    };
-
-    const currentCapacity = getServiceCapacity();
-
-    // Refinance-specific logic for offsite
-    if (formData.serviceType === "รีไฟแนนซ์" && locationType === "offsite") {
-      const used = offsiteDaily[dayIndex] || 0;
-      const cap = currentCapacity.offsite;
-      return { used, cap, full: used >= cap, reason: used >= cap ? "คิวเต็มแล้ว" : "" };
-    }
-
-    // For services requiring employees
-    if (requiresEmployee) {
-      // Only count appointments for services that need employees
-      const relevantOnsite = countsOnsite[dayIndex]?.[i] || 0;
-      const relevantOnline = countsOnline[dayIndex]?.[i] || 0;
-      const totalEmployeeBookings = relevantOnsite + relevantOnline;
-
-      // Online booking for Refinance
-      if (formData.serviceType === "รีไฟแนนซ์" && locationType === "online") {
-        if (i >= HOURS.length - 1) {
-          return { used: 1, cap: 1, full: true, reason: "ต้องจองล่วงหน้า 2 ชั่วโมง" };
+    let result;
+    switch (formData.serviceType) {
+      case "รีไฟแนนซ์":
+        if (locationType === "offsite") {
+          const offsiteJobsToday = 0; // Placeholder
+          return {
+            used: offsiteJobsToday,
+            cap: 1,
+            full: offsiteJobsToday >= 1,
+            reason: offsiteJobsToday >= 1 ? "คิวนอกสถานที่เต็ม" : "",
+          };
         }
+        // Pass the current locationType to the logic function
+        result = checkRefinanceAvailability(jobs, dailyEmployees, locationType);
+        return { used: result.stats.used, cap: result.stats.cap, full: !result.isAvailable, reason: result.reason };
 
-        const nextSlotBookings = (countsOnsite[dayIndex]?.[i + 1] || 0) + (countsOnline[dayIndex]?.[i + 1] || 0);
-        const onlineUsed = Math.max(countsOnline[dayIndex]?.[i] || 0, countsOnline[dayIndex]?.[i + 1] || 0);
+      case "ซ่อมมือถือ":
+        result = checkMaintenanceAvailability(jobs, dailyEmployees);
+        return { used: result.stats.used, cap: result.stats.cap, full: !result.isAvailable, reason: result.reason };
 
-        if (onlineUsed >= currentCapacity.online) {
-          return { used: onlineUsed, cap: currentCapacity.online, full: true, reason: "คิวออนไลน์เต็มแล้ว" };
-        }
-
-        const isFull = totalEmployeeBookings >= currentCapacity.onsite || nextSlotBookings >= currentCapacity.onsite;
-        return {
-          used: onlineUsed,
-          cap: currentCapacity.online,
-          full: isFull,
-          reason: isFull ? "พนักงานไม่ว่างในช่วงเวลานี้" : "",
-        };
-      }
-
-      // Regular onsite booking for employee-required services
-      return {
-        used: totalEmployeeBookings,
-        cap: currentCapacity.onsite,
-        full: totalEmployeeBookings >= currentCapacity.onsite,
-        reason: totalEmployeeBookings >= currentCapacity.onsite ? "พนักงานไม่ว่างในช่วงเวลานี้" : "",
-      };
+      default:
+        const cap = 5;
+        const full = jobs.length >= cap;
+        return { used: jobs.length, cap, full, reason: full ? "คิวเต็มแล้ว" : "" };
     }
-    // For general services (no employee required)
-    const generalUsed = countsOnsite[dayIndex]?.[i] || 0;
-    const generalCap = currentCapacity.onsite || 0;
-    return {
-      used: generalUsed,
-      cap: generalCap,
-      full: generalUsed >= generalCap,
-      reason: generalUsed >= generalCap ? "คิวเต็มแล้ว" : "",
-    };
   };
 
-  const hourlySlots = useMemo(() => {
-    return HOURS.map((h, i) => ({ startIndex: i, label: slotLabel(h, 1) }));
-  }, []);
+  const hourlySlots = useMemo(() => HOURS.map((h, i) => ({ startIndex: i, label: slotLabel(h, 1) })), []);
+  const onlineBookingSlots = useMemo(
+    () =>
+      HOURS.slice(0, -1).map((h, i) => ({
+        startIndex: i,
+        label: slotLabel(h, 2),
+        state: getSlotState(selectedDate, { startIndex: i }),
+      })),
+    [selectedDate, locationType, formData.serviceType, appointments]
+  );
 
-  const onlineBookingSlots = useMemo(() => {
-    return HOURS.slice(0, -1).map((h, i) => {
-      const slot = { startIndex: i, label: slotLabel(h, 2) };
-      const state = getSlotState(selectedDate, slot);
-      return { ...slot, state };
-    });
-  }, [selectedDate, countsOnline, countsOnsite, locationType, formData.serviceType]);
-
-  const handleBook = (day, slot) => {
-    // Calculate the actual hour from the slot
-    let selectedHour;
-
-    if (slot.isFullDay || serviceType === "offsite") {
-      // For offsite/full day appointments, use a default time (e.g., 9 AM)
-      selectedHour = 9;
-    } else {
-      // For onsite and online, use the actual hour from HOURS array
-      // HOURS = [11, 12, 13, 14, 15, 16, 17, 18, 19] (11 AM to 7 PM)
-      selectedHour = HOURS[slot.startIndex];
-    }
-
-    // Create the full datetime
+  const handleBook = async (day, slot) => {
+    // Choose a sensible hour for full-day bookings (first hour in HOURS)
+    const selectedHour = slot.isFullDay ? HOURS[0] : HOURS[slot.startIndex];
     const appointmentDateTime = new Date(day);
     appointmentDateTime.setHours(selectedHour, 0, 0, 0);
 
-    // Update formData with selected date and time
+    // Update form state with chosen time & type
     setFormData((prev) => ({
       ...prev,
       appointmentAt: appointmentDateTime.toISOString(),
       appointmentType: locationType,
     }));
 
-    console.log("Selected appointment details:");
-    console.log("- Service type:", locationType);
-    console.log("- Slot:", slot);
-    console.log("- Selected hour:", selectedHour);
-    console.log("- Full datetime:", appointmentDateTime.toISOString());
+    // If we already have a lineUserId, attempt to create the appointment immediately
+    if (formData?.lineUserId) {
+      try {
+        const day = format(appointmentDateTime, "yyyy-MM-dd");
+        const section = String(appointmentDateTime.getHours());
 
-    // Move to user details form
+        await createAppointment({
+          customerName: formData.customerName || "",
+          customerPhone: formData.customerPhone || "",
+          lineUserId: formData.lineUserId,
+          lineDisplayName: formData.lineDisplayName || "",
+          lineProfilePicUrl: formData.lineProfilePicUrl || "",
+          appointmentAt: appointmentDateTime.toISOString(),
+          serviceType: formData.serviceType,
+          appointmentType: locationType,
+          note: `Service: ${formData.serviceType}`,
+          day,
+          section,
+        });
+
+        // Navigate to appointment status view on success
+        setAppState("appointment_status");
+      } catch (err) {
+        console.error("Failed to create appointment:", err);
+        // If creation fails, drop the user into details so they can retry or correct info
+        setAppState("user_details");
+      }
+      return;
+    }
+
+    // Otherwise, open the user details form so we can collect identity before creating
     setAppState("user_details");
   };
+
+  if (isLoading) return <div className="text-center p-10">กำลังโหลดข้อมูลคิว...</div>;
+  if (error) return <div className="text-center p-10 text-red-600">เกิดข้อผิดพลาด: {error.message}</div>;
+  if (!formData) return null;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
@@ -219,9 +189,9 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
         <button
           type="button"
           onClick={() => setAppState("selecting_service")}
-          className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+          className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 flex items-center gap-2"
         >
-          ← กลับ
+          <ArrowLeft className="w-4 h-4" /> กลับ
         </button>
         <h1 className="text-xl font-semibold">ระบบจองคิวออนไลน์</h1>
       </div>
@@ -236,7 +206,6 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
           {locationType === "offsite" && "จำกัดวันละ 1 คิว"}
         </div>
       </div>
-
       <div className="space-y-4">
         {formData.serviceType === "รีไฟแนนซ์" && (
           <div>
@@ -263,7 +232,6 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
           </div>
         )}
       </div>
-
       <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="mb-3 text-sm font-semibold">เลือกวัน (ภายใน 7 วันถัดไป)</div>
         <div className="flex gap-2 overflow-x-auto pb-1">
@@ -284,7 +252,6 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
           })}
         </div>
       </div>
-
       <div className="space-y-3">
         <div className="text-sm font-semibold">ช่วงเวลานัดจอง</div>
         {locationType === "offsite" && (
@@ -292,12 +259,14 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
         )}
         {locationType === "onsite" && (
           <div className="space-y-2">
-            {hourlySlots.map((slot) => {
-              const state = getSlotState(selectedDate, slot);
-              return (
-                <TimeSlotRow key={slot.label} slot={slot} state={state} onBook={() => handleBook(selectedDate, slot)} />
-              );
-            })}
+            {hourlySlots.map((slot) => (
+              <TimeSlotRow
+                key={slot.label}
+                slot={slot}
+                state={getSlotState(selectedDate, slot)}
+                onBook={() => handleBook(selectedDate, slot)}
+              />
+            ))}
           </div>
         )}
         {locationType === "online" && (
@@ -339,7 +308,6 @@ function TimeSlotRow({ slot, state, onBook }) {
     </div>
   );
 }
-
 function TimeRowFullDay({ date, getSlotState, onBook }) {
   const slot = { startIndex: 0, label: "ทั้งวัน", isFullDay: true };
   const { used, cap, full } = getSlotState(date, slot);

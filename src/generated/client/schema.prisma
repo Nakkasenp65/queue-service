@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = env("LOCAL_DATABASE_URL")
+  url      = env("MONGO_URL")
 }
 
 enum AppointmentType {
@@ -26,20 +26,49 @@ enum EmployeeRole {
   REFINANCE
   STAFF
   ENGINEER
+  ADMIN
+}
+
+enum EmployeeAbilityTag {
+  ENGINEER
+  REFINANCE
+  GENERAL
 }
 
 model Employee {
-  id              String  @id @default(auto()) @map("_id") @db.ObjectId
-  code            String  @unique
-  name            String?
-  perHourCapacity Int     @default(1) // จะใช้/ไม่ใช้ก็ได้
-  isActive        Boolean @default(true)
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  fullname String?
+  email    String? @unique
+  password String? // optional - for future employee login
+  phone    String? @unique
 
-  // reverse
+  role EmployeeRole @default(STAFF)
+
+  isActive        Boolean @default(true)
+  profileImageUrl String?
+  bio             String?
+
   appointments Appointment[]
+  employeeTags EmployeeTag[]
+  magicLinks   MagicLink[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Tag {
+  id   String             @id @default(auto()) @map("_id") @db.ObjectId
+  name EmployeeAbilityTag
+
+  employeeTags EmployeeTag[]
+}
+
+model EmployeeTag {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @db.ObjectId
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  tagId      String   @db.ObjectId
 }
 
 model Customer {
@@ -51,7 +80,6 @@ model Customer {
   email             String?
   note              String?
 
-  // reverse
   appointments Appointment[]
 
   createdAt DateTime @default(now())
@@ -63,10 +91,12 @@ model Appointment {
   type   AppointmentType
   status AppointmentStatus @default(PENDING)
 
-  date DateTime
+  date    DateTime
+  day     String
+  section String
 
   customer   Customer @relation(fields: [customerId], references: [id])
-  customerId String   @db.ObjectId
+  customerId String   @unique @db.ObjectId
 
   employee   Employee? @relation(fields: [employeeId], references: [id])
   employeeId String?   @db.ObjectId
@@ -77,4 +107,14 @@ model Appointment {
   updatedAt DateTime @updatedAt
 
   @@index([customerId, date])
+}
+
+model MagicLink {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  token      String   @unique
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  employeeId String   @db.ObjectId
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
 }
