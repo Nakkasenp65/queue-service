@@ -52,6 +52,7 @@ export default function DPOConsent({ onAccept }) {
             alt="Logo"
             width={100}
             height={100}
+            style={{ width: "auto", height: "auto" }} // Maintain aspect ratio
             className="mb-4"
           />
           <h1 className="text-center text-xl font-bold text-gray-900">

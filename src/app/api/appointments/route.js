@@ -19,6 +19,7 @@ export async function POST(request) {
       serviceType,
       appointmentType,
       note,
+      requiredTags,
     } = body;
 
     console.log("Received appointment request:", body);
@@ -27,28 +28,31 @@ export async function POST(request) {
       return NextResponse.json({ error: "lineUserId and appointmentAt are required" }, { status: 400 });
     }
 
-    // First, find or create the customer
+    // Find or create customer
     let customer = await prisma.customer.findUnique({
-      where: { line_user_id: lineUserId },
+      where: { line_user_id: body.lineUserId },
     });
 
     if (!customer) {
       // Create new customer
       customer = await prisma.customer.create({
         data: {
-          line_user_id: lineUserId,
-          line_display_name: lineDisplayName,
-          fullname: customerName,
-          phone: customerPhone,
+          line_user_id: body.lineUserId,
+          line_display_name: body.lineDisplayName,
+          fullname: body.customerName,
+          phone: body.customerPhone,
+          email: body.email || null,
+          picture_url: body.lineProfilePicUrl,
         },
       });
-      console.log("Created new customer:", customer);
     } else {
       // Update existing customer with latest info
       customer = await prisma.customer.update({
         where: { line_user_id: lineUserId },
         data: {
           line_display_name: lineDisplayName,
+          picture_url: lineProfilePicUrl,
+
           fullname: customerName,
           phone: customerPhone,
         },
@@ -70,6 +74,10 @@ export async function POST(request) {
     const day = format(appointmentDate, "yyyy-MM-dd");
     const section = String(appointmentDate.getHours());
 
+    // Validate requiredTags
+    const validTags = ["ENGINEER", "REFINANCE", "GENERAL"];
+    const filteredTags = (requiredTags || []).filter((tag) => validTags.includes(tag));
+
     // You can add logic here to assign employee for specific types if needed
     const appointment = await prisma.appointment.create({
       data: {
@@ -81,6 +89,7 @@ export async function POST(request) {
         type: mappedType,
         status: "PENDING",
         note: note || `Service: ${serviceType}`,
+        requiredTags: filteredTags, // Use validated tags
       },
       include: {
         customer: true,
@@ -92,72 +101,13 @@ export async function POST(request) {
 
     return NextResponse.json(appointment, { status: 201 });
   } catch (error) {
-    console.error("Error creating appointment:", error);
-    return NextResponse.json({ error: "Failed to create appointment", details: error.message }, { status: 500 });
+    console.error("POST /api/appointments error", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-/**
- * @description VIEW all appointments
- * @route GET /api/appointments
- */
-// export async function GET(request) {
-//   try {
-//     const { searchParams } = new URL(request.url);
-//     const customerId = searchParams.get("customerId");
-//     const lineUserId = searchParams.get("lineUserId");
-//     const startAt = searchParams.get("startAt");
-//     const endAt = searchParams.get("endAt");
-//     const query = searchParams.get("query");
-
-//     const whereClause = {};
-
-//     // customer filter: allow direct customerId or lookup by lineUserId
-//     if (customerId) {
-//       whereClause.customerId = customerId;
-//     } else if (lineUserId) {
-//       const customer = await prisma.customer.findUnique({ where: { line_user_id: lineUserId }, select: { id: true } });
-//       if (!customer) return NextResponse.json([]);
-//       whereClause.customerId = customer.id;
-//     }
-
-//     // date range filter
-//     if (startAt || endAt) {
-//       whereClause.date = {};
-//       if (startAt) {
-//         const s = new Date(startAt);
-//         if (!isNaN(s)) whereClause.date.gte = s;
-//       }
-//       if (endAt) {
-//         const e = new Date(endAt);
-//         if (!isNaN(e)) whereClause.date.lte = e;
-//       }
-//     }
-
-//     // text query: search in note or customer.fullname
-//     if (query) {
-//       whereClause.OR = [
-//         { note: { contains: query, mode: "insensitive" } },
-//         { customer: { fullname: { contains: query, mode: "insensitive" } } },
-//       ];
-//     }
-
-//     const appointments = await prisma.appointment.findMany({
-//       where: whereClause,
-//       include: {
-//         customer: true,
-//         employee: true,
-//       },
-//       orderBy: { date: "desc" },
-//     });
-
-//     return NextResponse.json(appointments);
-//   } catch (error) {
-//     console.error("Error fetching appointments:", error);
-//     return NextResponse.json({ error: "Failed to fetch appointments" }, { status: 500 });
-//   }
-// }
 const HOURS = Array.from({ length: 9 }, (_, i) => 11 + i);
+
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

@@ -6,7 +6,7 @@ import DPOConsent from "./DPOConsent";
 import { useCustomer } from "../hooks/useCustomer";
 
 export default function UserDetailsForm({ formData, setFormData, onSubmit, liffProfile }) {
-  const [isValid, setIsValid] = useState(false);
+  const isValid = formData.customerName?.length > 0 && formData.customerPhone?.length > 0;
   const [acceptDPO, setAcceptDPO] = useState(false);
   const [showDPOContent, setShowDPOContent] = useState(false);
 
@@ -43,23 +43,18 @@ export default function UserDetailsForm({ formData, setFormData, onSubmit, liffP
 
     // Validate both fields are filled
     const newFormData = { ...formData, [name]: value };
-    setIsValid(newFormData.customerName?.length > 0 && newFormData.customerPhone?.length > 0);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid && acceptDPO) {
-      // Just proceed to next step - let the appointment creation handle customer creation
-      onSubmit();
+      // Proceed to create appointment (handler passed from parent)
+      await onSubmit();
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mx-auto w-full max-w-[420px] space-y-6 p-4"
-    >
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -102,12 +97,38 @@ export default function UserDetailsForm({ formData, setFormData, onSubmit, liffP
           </div>
         </div>
 
+        {/* Add Note Textarea */}
+        <div>
+          <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-2">
+            ข้อมูลเพิ่มเติม (ไม่บังคับ)
+          </label>
+          <textarea
+            id="note"
+            name="note"
+            rows={4}
+            value={formData.note || ""}
+            onChange={(e) => setFormData({ ...formData, note: e.target.value })}
+            placeholder="กรุณาระบุรายละเอียดเพิ่มเติมเกี่ยวกับบริการที่ต้องการ (เช่น สภาพเครื่อง, อาการ, ความต้องการพิเศษ)"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+          />
+          <p className="text-xs text-gray-500 mt-1">ช่วยให้พนักงานเข้าใจความต้องการของคุณได้ดียิ่งขึ้น</p>
+        </div>
+
         <div className="flex items-start space-x-2 p-4">
           <input
             type="checkbox"
             id="dpoConsent"
             checked={acceptDPO}
-            onChange={(e) => setAcceptDPO(e.target.checked)}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              if (checked) {
+                // Show full DPO modal for explicit acceptance
+                setShowDPOContent(true);
+              } else {
+                // Allow unchecking to withdraw consent locally
+                setAcceptDPO(false);
+              }
+            }}
             className="mt-1"
           />
           <label htmlFor="dpoConsent" className="text-sm text-slate-700">
@@ -136,7 +157,14 @@ export default function UserDetailsForm({ formData, setFormData, onSubmit, liffP
         </button>
       </form>
 
-      {showDPOContent && <DPOConsent onClose={() => setShowDPOContent(false)} />}
-    </motion.div>
+      {showDPOContent && (
+        <DPOConsent
+          onAccept={() => {
+            setAcceptDPO(true);
+            setShowDPOContent(false);
+          }}
+        />
+      )}
+    </div>
   );
 }

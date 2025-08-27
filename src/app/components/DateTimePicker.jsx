@@ -22,8 +22,9 @@ function checkRefinanceAvailability(jobs, allEmployees, locationType) {
   const refinanceSpecialists = allEmployees.filter((e) => e.tags.includes("REFINANCE"));
   const busyEmployeeIds = new Set(jobs.map((j) => j.employeeId).filter(Boolean));
   const freeRefinanceEmployees = refinanceSpecialists.filter((e) => !busyEmployeeIds.has(e.id));
-  const onlineJobCount = jobs.filter((j) => j.type === "ONLINE").length;
-  const onsiteJobCount = jobs.filter((j) => j.type === "ONSITE").length;
+  // Count only refinance jobs
+  const onlineJobCount = jobs.filter((j) => (j.requiredTags || []).includes("REFINANCE") && j.type === "ONLINE").length;
+  const onsiteJobCount = jobs.filter((j) => (j.requiredTags || []).includes("REFINANCE") && j.type === "ONSITE").length;
 
   if (locationType === "online") {
     const cap = 1;
@@ -61,21 +62,24 @@ function checkMaintenanceAvailability(jobs, allEmployees) {
   const busyEmployeeIds = new Set(jobs.map((j) => j.employeeId).filter(Boolean));
   const freeMaintenanceEmployees = maintenanceSpecialists.filter((e) => !busyEmployeeIds.has(e.id));
 
+  // Only consider maintenance jobs (ENGINEER tag)
+  const maintenanceJobs = jobs.filter((j) => (j.requiredTags || []).includes("ENGINEER"));
+
   if (freeMaintenanceEmployees.length === 0) {
     return {
       isAvailable: false,
       reason: "ช่างซ่อมไม่ว่าง",
-      stats: { used: jobs.length, cap: maintenanceSpecialists.length },
+      stats: { used: maintenanceJobs.length, cap: maintenanceSpecialists.length },
     };
   }
-  if (jobs.some((job) => job.priority === "HARD")) {
+  if (maintenanceJobs.some((job) => job.priority === "HARD")) {
     return {
       isAvailable: false,
       reason: "มีงานซ่อมด่วนอยู่",
-      stats: { used: jobs.length, cap: maintenanceSpecialists.length },
+      stats: { used: maintenanceJobs.length, cap: maintenanceSpecialists.length },
     };
   }
-  return { isAvailable: true, reason: "", stats: { used: jobs.length, cap: maintenanceSpecialists.length } };
+  return { isAvailable: true, reason: "", stats: { used: maintenanceJobs.length, cap: maintenanceSpecialists.length } };
 }
 
 export default function DateTimePicker({ formData, setFormData, setAppState }) {
@@ -110,9 +114,15 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
         return { used: result.stats.used, cap: result.stats.cap, full: !result.isAvailable, reason: result.reason };
 
       default:
+        // Count only GENERAL jobs (explicit GENERAL tag or no specific tag)
+        const generalJobs = jobs.filter((j) => {
+          const tags = j.requiredTags || [];
+          if (tags.length === 0) return true;
+          return tags.includes("GENERAL");
+        });
         const cap = 5;
-        const full = jobs.length >= cap;
-        return { used: jobs.length, cap, full, reason: full ? "คิวเต็มแล้ว" : "" };
+        const full = generalJobs.length >= cap;
+        return { used: generalJobs.length, cap, full, reason: full ? "คิวเต็มแล้ว" : "" };
     }
   };
 
@@ -128,40 +138,52 @@ export default function DateTimePicker({ formData, setFormData, setAppState }) {
   );
 
   const handleBook = async (day, slot) => {
-    // Choose a sensible hour for full-day bookings (first hour in HOURS)
     const selectedHour = slot.isFullDay ? HOURS[0] : HOURS[slot.startIndex];
     const appointmentDateTime = new Date(day);
     appointmentDateTime.setHours(selectedHour, 0, 0, 0);
 
-    // Update form state with chosen time & type
     setFormData((prev) => ({
       ...prev,
       appointmentAt: appointmentDateTime.toISOString(),
       appointmentType: locationType,
     }));
 
-    // If we already have a lineUserId, attempt to create the appointment immediately
     if (formData?.lineUserId) {
       try {
         const day = format(appointmentDateTime, "yyyy-MM-dd");
         const section = String(appointmentDateTime.getHours());
+        // derive requiredTags from selected service type
+        const getRequiredTags = (serviceType) => {
+          switch (serviceType) {
+            case "รีไฟแนนซ์":
+              return ["REFINANCE"];
+            case "ซ่อมมือถือ":
+              return ["ENGINEER"];
+            default:
+              return ["GENERAL"];
+          }
+        };
 
-        await createAppointment({
-          customerName: formData.customerName || "",
-          customerPhone: formData.customerPhone || "",
-          lineUserId: formData.lineUserId,
-          lineDisplayName: formData.lineDisplayName || "",
-          lineProfilePicUrl: formData.lineProfilePicUrl || "",
-          appointmentAt: appointmentDateTime.toISOString(),
-          serviceType: formData.serviceType,
-          appointmentType: locationType,
-          note: `Service: ${formData.serviceType}`,
-          day,
-          section,
-        });
+        console.log("Required Tags:", getRequiredTags(formData.serviceType));
+        console.log("Day:", day);
+        console.log("Section:", section);
 
-        // Navigate to appointment status view on success
-        setAppState("appointment_status");
+        // await createAppointment({
+        //   customerName: formData.customerName || "",
+        //   customerPhone: formData.customerPhone || "",
+        //   lineUserId: formData.lineUserId,
+        //   lineDisplayName: formData.lineDisplayName || "",
+        //   lineProfilePicUrl: formData.lineProfilePicUrl || "",
+        //   appointmentAt: appointmentDateTime.toISOString(),
+        //   serviceType: formData.serviceType,
+        //   appointmentType: locationType,
+        //   note: `Service: ${formData.serviceType}`,
+        //   day,
+        //   section,
+        //   requiredTags: getRequiredTags(formData.serviceType),
+        // });
+
+        // setAppState("appointment_status");
       } catch (err) {
         console.error("Failed to create appointment:", err);
         // If creation fails, drop the user into details so they can retry or correct info

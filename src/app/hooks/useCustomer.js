@@ -1,52 +1,51 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { useState, useEffect } from "react";
 
-export function useCustomer(line_user_id) {
-  const { data: customer, isLoading } = useQuery({
-    queryKey: ["customer", line_user_id],
-    queryFn: async () => {
-      const { data } = await axios.get(`/api/customers/${line_user_id}`);
+export function useCustomer(lineUserId) {
+  const [customer, setCustomer] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-      if (!data) {
-        throw new Error("Network response was not ok");
+  useEffect(() => {
+    // Only fetch if we have a lineUserId and haven't already determined this user doesn't exist
+    if (!lineUserId) {
+      setCustomer(null);
+      setIsLoading(false);
+      return;
+    }
+
+    // Prevent multiple calls for the same userId
+    if (customer !== null || isLoading) return;
+
+    const fetchCustomer = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch(`/api/customers/${lineUserId}`);
+
+        if (response.status === 404) {
+          // Customer doesn't exist - this is expected for new users
+          setCustomer(null); // Set to null to indicate no customer found
+          return;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setCustomer(data);
+      } catch (err) {
+        console.error("Error fetching customer:", err);
+        setError(err.message);
+        setCustomer(null);
+      } finally {
+        setIsLoading(false);
       }
+    };
 
-      if (data) {
-        localStorage.setItem("customer", JSON.stringify(data));
-      }
+    fetchCustomer();
+  }, [lineUserId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-      return data;
-    },
-    enabled: !!line_user_id,
-    staleTime: 1000 * 60 * 5,
-  });
-
-  const createCustomerMutation = useMutation({
-    mutationFn: async (customerData) => {
-      const response = await fetch("/api/customers", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(customerData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create customer");
-      }
-
-      const data = await response.json();
-      // Store in localStorage after successful creation
-      localStorage.setItem("customer", JSON.stringify(data));
-      return data;
-    },
-  });
-
-  return {
-    customer,
-    isLoading,
-    createCustomer: createCustomerMutation.mutate,
-    isCreating: createCustomerMutation.isPending,
-    error: createCustomerMutation.error,
-  };
+  return { customer, isLoading, error };
 }

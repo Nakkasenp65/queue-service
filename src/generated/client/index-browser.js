@@ -123,6 +123,13 @@ exports.Prisma.EmployeeScalarFieldEnum = {
   isActive: 'isActive',
   profileImageUrl: 'profileImageUrl',
   bio: 'bio',
+  verificationToken: 'verificationToken',
+  tokenExpiry: 'tokenExpiry',
+  centralServerId: 'centralServerId',
+  staffId: 'staffId',
+  firstLogin: 'firstLogin',
+  centralUsername: 'centralUsername',
+  centralRoles: 'centralRoles',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -145,7 +152,7 @@ exports.Prisma.CustomerScalarFieldEnum = {
   phone: 'phone',
   line_user_id: 'line_user_id',
   email: 'email',
-  note: 'note',
+  picture_url: 'picture_url',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -160,6 +167,9 @@ exports.Prisma.AppointmentScalarFieldEnum = {
   customerId: 'customerId',
   employeeId: 'employeeId',
   note: 'note',
+  requiredTags: 'requiredTags',
+  employeeResponse: 'employeeResponse',
+  offerDate: 'offerDate',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -206,7 +216,16 @@ exports.AppointmentStatus = exports.$Enums.AppointmentStatus = {
   CONFIRMED: 'CONFIRMED',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
-  NO_SHOW: 'NO_SHOW'
+  NO_SHOW: 'NO_SHOW',
+  OFFERED: 'OFFERED',
+  ACCEPTED_BY_EMPLOYEE: 'ACCEPTED_BY_EMPLOYEE',
+  REJECTED_BY_EMPLOYEE: 'REJECTED_BY_EMPLOYEE'
+};
+
+exports.EmployeeResponse = exports.$Enums.EmployeeResponse = {
+  ACCEPT: 'ACCEPT',
+  REJECT: 'REJECT',
+  OFFER: 'OFFER'
 };
 
 exports.Prisma.ModelName = {

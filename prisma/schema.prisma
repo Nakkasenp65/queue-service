@@ -20,6 +20,9 @@ enum AppointmentStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+  OFFERED
+  ACCEPTED_BY_EMPLOYEE
+  REJECTED_BY_EMPLOYEE
 }
 
 enum EmployeeRole {
@@ -33,6 +36,12 @@ enum EmployeeAbilityTag {
   ENGINEER
   REFINANCE
   GENERAL
+}
+
+enum EmployeeResponse {
+  ACCEPT
+  REJECT
+  OFFER
 }
 
 // เอาข้อมูลจากศูนย์มา
@@ -49,9 +58,20 @@ model Employee {
   profileImageUrl String?
   bio             String?
 
+  // Email verification fields
+  verificationToken String?
+  tokenExpiry       DateTime?
+
   appointments Appointment[]
   employeeTags EmployeeTag[]
   magicLinks   MagicLink[]
+
+  // Central server fields
+  centralServerId String? @unique // Central server adminId
+  staffId         String? // Central server staffId
+  firstLogin      Boolean @default(true) // Track first login
+  centralUsername String? // Central server username
+  centralRoles    Json? // Store central server roles array
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -79,7 +99,7 @@ model Customer {
   phone             String? @unique
   line_user_id      String  @unique
   email             String?
-  note              String?
+  picture_url       String?
 
   appointments Appointment[]
 
@@ -104,10 +124,16 @@ model Appointment {
 
   note String?
 
+  // New fields for employee feature
+  requiredTags     EmployeeAbilityTag[] // Array of tags required for this appointment (e.g., ["ENGINEER", "REFINANCE"])
+  employeeResponse EmployeeResponse? // Employee's response: ACCEPT, REJECT, or OFFER
+  offerDate        DateTime? // Optional: Proposed new date/time if employee offers a new slot
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([customerId, date])
+  @@index([requiredTags]) // New index for efficient tag-based queries
 }
 
 model MagicLink {

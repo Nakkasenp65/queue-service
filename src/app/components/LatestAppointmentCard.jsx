@@ -6,11 +6,35 @@ import { Smartphone, Building, Wrench, User, Calendar, Clock } from "lucide-reac
 
 // --- Main Component ---
 export default function LatestAppointmentCard({ appointments }) {
-  if (!appointments) return null;
+  const cardVariants = {
+    initial: { opacity: 0, y: 30, scale: 0.98 },
+    animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
+  };
 
-  const flat = Array.isArray(appointments) ? appointments.flat(Infinity) : [];
-  if (!flat || flat.length === 0) return null;
+  if (!appointments || appointments.length === 0) {
+    return (
+      <motion.div variants={cardVariants} initial="initial" animate="animate">
+        <motion.div
+          className="relative rounded-2xl overflow-hidden border border-slate-200/80 bg-white/50 shadow-lg"
+          style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
+        >
+          <div className="p-6 pl-8">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 text-blue-600">
+                <User className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-lg text-slate-800">ยินดีต้อนรับ!</h3>
+                <p className="text-sm text-slate-500">ยังไม่มีประวัติการจอง</p>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    );
+  }
 
+  const flat = appointments; // Already flat array from customer.appointments
   const latest = [...flat].sort((a, b) => new Date(b.date) - new Date(a.date))[0];
 
   const typeMap = {
@@ -42,11 +66,6 @@ export default function LatestAppointmentCard({ appointments }) {
   const type = typeMap[latest.type] || typeMap.ONSITE;
   const status = statusMap[latest.status] || statusMap.PENDING;
 
-  const cardVariants = {
-    initial: { opacity: 0, y: 30, scale: 0.98 },
-    animate: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 100, damping: 20 } },
-  };
-
   return (
     <motion.div variants={cardVariants} initial="initial" animate="animate">
       <motion.div
@@ -55,9 +74,6 @@ export default function LatestAppointmentCard({ appointments }) {
         style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
       >
         {/* Decorative Gradient Border */}
-        <div
-          className={`absolute top-0 left-0 h-full w-2 bg-gradient-to-b from-${type.color}-400 to-${type.color}-500`}
-        />
 
         <div className="p-6 pl-8">
           {/* Header Section */}

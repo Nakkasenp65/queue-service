@@ -166,6 +166,60 @@ export function LiffProvider({ children }) {
         return { status: "error", error: e?.message };
       }
     },
+    // Share via shareTargetPicker (safe wrapper)
+    share: async (message) => {
+      try {
+        if (server === "dev") {
+          console.warn("[LIFF] share noop in dev:", message);
+          // Dev fallback: copy to clipboard
+          try {
+            await navigator.clipboard.writeText(typeof message === "string" ? message : JSON.stringify(message));
+            return { status: "dev-copied" };
+          } catch (e) {
+            return { status: "dev-failed", error: e?.message };
+          }
+        }
+        if (!inClient() || !liff?.shareTargetPicker) {
+          console.warn("[LIFF] shareTargetPicker not available outside LINE client");
+          return { status: "unsupported" };
+        }
+        const payload = typeof message === "string" ? [{ type: "text", text: message }] : message;
+        await liff.shareTargetPicker(payload);
+        return { status: "shared" };
+      } catch (e) {
+        console.error("[LIFF share error]", e);
+        return { status: "error", error: e?.message };
+      }
+    },
+    // Share a location by sending a text containing a map link (safe and simple)
+    shareLocation: async ({ latitude, longitude, title = "ตำแหน่งร้าน", address = "" } = {}) => {
+      try {
+        const lat = latitude ?? process.env.NEXT_PUBLIC_SHOP_LAT ?? "13.736717";
+        const lng = longitude ?? process.env.NEXT_PUBLIC_SHOP_LNG ?? "100.523186";
+        const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+        const message = `${title}\n${address ? address + "\n" : ""}${mapsUrl}`;
+
+        if (server === "dev") {
+          try {
+            await navigator.clipboard.writeText(message);
+            return { status: "dev-copied" };
+          } catch (e) {
+            return { status: "dev-failed", error: e?.message };
+          }
+        }
+
+        if (!inClient() || !liff?.shareTargetPicker) {
+          console.warn("[LIFF] shareTargetPicker not available outside LINE client");
+          return { status: "unsupported" };
+        }
+
+        await liff.shareTargetPicker([{ type: "text", text: message }]);
+        return { status: "shared" };
+      } catch (e) {
+        console.error("[LIFF shareLocation error]", e);
+        return { status: "error", error: e?.message };
+      }
+    },
     // Local login/logout for non-LINE environments.
     login: async (username, password) => {
       // Very small mock auth: accept any non-empty username/password in dev

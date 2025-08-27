@@ -64,6 +64,25 @@ export function useGetAppointments(params = {}) {
   };
 }
 
+export function useGetMyAppointment(lineUserId) {
+  return useQuery({
+    queryKey: ["my-appointments", lineUserId],
+    queryFn: async () => {
+      if (!lineUserId) throw new Error("lineUserId is required");
+      const response = await fetch(`/api/appointments/my-appointment?lineUserId=${lineUserId}`);
+      const data = await response.json();
+      console.log("data: ", data);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch appointments");
+      }
+
+      return data[0];
+    },
+    enabled: !!lineUserId, // Only run query if lineUserId is provided
+  });
+}
+
 /** สร้างนัดหมายใหม่ แล้ว refresh รายการนัดหมาย */
 export function useCreateAppointmentMutation(refetch) {
   const queryClient = useQueryClient();

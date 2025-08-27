@@ -1,15 +1,49 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
-import { User } from "lucide-react";
+import { User, Calendar, Users } from "lucide-react";
 import { useLiff } from "./Provider/LiffProvider";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Navbar({ onProfileOpen = () => {} }) {
   const { liffProfile } = useLiff();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isEmployee, setIsEmployee] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is an employee by calling the API
+    const checkEmployeeStatus = async () => {
+      try {
+        const response = await fetch("/api/auth/check-role");
+        const data = await response.json();
+        setIsEmployee(data.isEmployee);
+      } catch (error) {
+        console.error("Error checking employee status:", error);
+        setIsEmployee(false);
+      }
+    };
+
+    checkEmployeeStatus();
+  }, []);
+
+  const handleMenuClick = (action) => {
+    setIsMenuOpen(false);
+
+    switch (action) {
+      case "employee-appointments":
+        router.push("/queueManagement/employees/myAppointment");
+        break;
+      case "admin":
+        router.push("/queueManagement/admin");
+        break;
+      default:
+        break;
+    }
+  };
 
   return (
     <>
@@ -17,7 +51,7 @@ export default function Navbar({ onProfileOpen = () => {} }) {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="flex justify-around items-center mb-10 "
+        className="flex justify-around items-center px-4 py-2"
       >
         <div className="flex items-center gap-4 w-full">
           <button onClick={() => setIsMenuOpen(true)} className="p-2 hover:bg-slate-100 rounded-lg transition-colors">
@@ -72,15 +106,39 @@ export default function Navbar({ onProfileOpen = () => {} }) {
               </button>
               <div className="space-y-4">
                 <h2 className="text-xl font-semibold">เมนู</h2>
-                <button
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent("go-appointments"));
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full rounded-lg bg-slate-100 p-4 text-left"
+
+                {/* Customer Menu Items */}
+                <Link
+                  href="/queueService"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full rounded-lg bg-slate-100 p-4 text-left flex items-center gap-3 hover:bg-slate-200 transition-colors"
                 >
-                  คิวของฉัน
-                </button>
+                  <Calendar className="w-5 h-5 text-blue-600" />
+                  <span>คิวของฉัน</span>
+                </Link>
+
+                {/* Employee Menu Items */}
+                {isEmployee && (
+                  <>
+                    <div className="border-t border-slate-200 pt-4">
+                      <h3 className="text-sm font-medium text-slate-600 mb-2">เมนูพนักงาน</h3>
+                      <button
+                        onClick={() => handleMenuClick("employee-appointments")}
+                        className="w-full rounded-lg bg-blue-50 p-4 text-left flex items-center gap-3 mb-2"
+                      >
+                        <Users className="w-5 h-5 text-blue-600" />
+                        <span>นัดหมายของฉัน</span>
+                      </button>
+                      <button
+                        onClick={() => handleMenuClick("admin")}
+                        className="w-full rounded-lg bg-blue-50 p-4 text-left flex items-center gap-3"
+                      >
+                        <User className="w-5 h-5 text-green-600" />
+                        <span>จัดการระบบ</span>
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </motion.div>

@@ -62,7 +62,10 @@ export const AppointmentStatus: {
   CONFIRMED: 'CONFIRMED',
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',
-  NO_SHOW: 'NO_SHOW'
+  NO_SHOW: 'NO_SHOW',
+  OFFERED: 'OFFERED',
+  ACCEPTED_BY_EMPLOYEE: 'ACCEPTED_BY_EMPLOYEE',
+  REJECTED_BY_EMPLOYEE: 'REJECTED_BY_EMPLOYEE'
 };
 
 export type AppointmentStatus = (typeof AppointmentStatus)[keyof typeof AppointmentStatus]
@@ -86,6 +89,15 @@ export const EmployeeAbilityTag: {
 
 export type EmployeeAbilityTag = (typeof EmployeeAbilityTag)[keyof typeof EmployeeAbilityTag]
 
+
+export const EmployeeResponse: {
+  ACCEPT: 'ACCEPT',
+  REJECT: 'REJECT',
+  OFFER: 'OFFER'
+};
+
+export type EmployeeResponse = (typeof EmployeeResponse)[keyof typeof EmployeeResponse]
+
 }
 
 export type AppointmentType = $Enums.AppointmentType
@@ -103,6 +115,10 @@ export const EmployeeRole: typeof $Enums.EmployeeRole
 export type EmployeeAbilityTag = $Enums.EmployeeAbilityTag
 
 export const EmployeeAbilityTag: typeof $Enums.EmployeeAbilityTag
+
+export type EmployeeResponse = $Enums.EmployeeResponse
+
+export const EmployeeResponse: typeof $Enums.EmployeeResponse
 
 /**
  * ##  Prisma Client ʲˢ
@@ -1455,6 +1471,12 @@ export namespace Prisma {
     isActive: boolean | null
     profileImageUrl: string | null
     bio: string | null
+    verificationToken: string | null
+    tokenExpiry: Date | null
+    centralServerId: string | null
+    staffId: string | null
+    firstLogin: boolean | null
+    centralUsername: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1469,6 +1491,12 @@ export namespace Prisma {
     isActive: boolean | null
     profileImageUrl: string | null
     bio: string | null
+    verificationToken: string | null
+    tokenExpiry: Date | null
+    centralServerId: string | null
+    staffId: string | null
+    firstLogin: boolean | null
+    centralUsername: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -1483,6 +1511,13 @@ export namespace Prisma {
     isActive: number
     profileImageUrl: number
     bio: number
+    verificationToken: number
+    tokenExpiry: number
+    centralServerId: number
+    staffId: number
+    firstLogin: number
+    centralUsername: number
+    centralRoles: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -1499,6 +1534,12 @@ export namespace Prisma {
     isActive?: true
     profileImageUrl?: true
     bio?: true
+    verificationToken?: true
+    tokenExpiry?: true
+    centralServerId?: true
+    staffId?: true
+    firstLogin?: true
+    centralUsername?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1513,6 +1554,12 @@ export namespace Prisma {
     isActive?: true
     profileImageUrl?: true
     bio?: true
+    verificationToken?: true
+    tokenExpiry?: true
+    centralServerId?: true
+    staffId?: true
+    firstLogin?: true
+    centralUsername?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -1527,6 +1574,13 @@ export namespace Prisma {
     isActive?: true
     profileImageUrl?: true
     bio?: true
+    verificationToken?: true
+    tokenExpiry?: true
+    centralServerId?: true
+    staffId?: true
+    firstLogin?: true
+    centralUsername?: true
+    centralRoles?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -1614,6 +1668,13 @@ export namespace Prisma {
     isActive: boolean
     profileImageUrl: string | null
     bio: string | null
+    verificationToken: string | null
+    tokenExpiry: Date | null
+    centralServerId: string | null
+    staffId: string | null
+    firstLogin: boolean
+    centralUsername: string | null
+    centralRoles: JsonValue | null
     createdAt: Date
     updatedAt: Date
     _count: EmployeeCountAggregateOutputType | null
@@ -1645,6 +1706,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: boolean
     bio?: boolean
+    verificationToken?: boolean
+    tokenExpiry?: boolean
+    centralServerId?: boolean
+    staffId?: boolean
+    firstLogin?: boolean
+    centralUsername?: boolean
+    centralRoles?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     appointments?: boolean | Employee$appointmentsArgs<ExtArgs>
@@ -1665,11 +1733,18 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: boolean
     bio?: boolean
+    verificationToken?: boolean
+    tokenExpiry?: boolean
+    centralServerId?: boolean
+    staffId?: boolean
+    firstLogin?: boolean
+    centralUsername?: boolean
+    centralRoles?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullname" | "email" | "password" | "phone" | "role" | "isActive" | "profileImageUrl" | "bio" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+  export type EmployeeOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "fullname" | "email" | "password" | "phone" | "role" | "isActive" | "profileImageUrl" | "bio" | "verificationToken" | "tokenExpiry" | "centralServerId" | "staffId" | "firstLogin" | "centralUsername" | "centralRoles" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
   export type EmployeeInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     appointments?: boolean | Employee$appointmentsArgs<ExtArgs>
     employeeTags?: boolean | Employee$employeeTagsArgs<ExtArgs>
@@ -1694,6 +1769,13 @@ export namespace Prisma {
       isActive: boolean
       profileImageUrl: string | null
       bio: string | null
+      verificationToken: string | null
+      tokenExpiry: Date | null
+      centralServerId: string | null
+      staffId: string | null
+      firstLogin: boolean
+      centralUsername: string | null
+      centralRoles: Prisma.JsonValue | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["employee"]>
@@ -2100,6 +2182,13 @@ export namespace Prisma {
     readonly isActive: FieldRef<"Employee", 'Boolean'>
     readonly profileImageUrl: FieldRef<"Employee", 'String'>
     readonly bio: FieldRef<"Employee", 'String'>
+    readonly verificationToken: FieldRef<"Employee", 'String'>
+    readonly tokenExpiry: FieldRef<"Employee", 'DateTime'>
+    readonly centralServerId: FieldRef<"Employee", 'String'>
+    readonly staffId: FieldRef<"Employee", 'String'>
+    readonly firstLogin: FieldRef<"Employee", 'Boolean'>
+    readonly centralUsername: FieldRef<"Employee", 'String'>
+    readonly centralRoles: FieldRef<"Employee", 'Json'>
     readonly createdAt: FieldRef<"Employee", 'DateTime'>
     readonly updatedAt: FieldRef<"Employee", 'DateTime'>
   }
@@ -4512,7 +4601,7 @@ export namespace Prisma {
     phone: string | null
     line_user_id: string | null
     email: string | null
-    note: string | null
+    picture_url: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4524,7 +4613,7 @@ export namespace Prisma {
     phone: string | null
     line_user_id: string | null
     email: string | null
-    note: string | null
+    picture_url: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4536,7 +4625,7 @@ export namespace Prisma {
     phone: number
     line_user_id: number
     email: number
-    note: number
+    picture_url: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -4550,7 +4639,7 @@ export namespace Prisma {
     phone?: true
     line_user_id?: true
     email?: true
-    note?: true
+    picture_url?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4562,7 +4651,7 @@ export namespace Prisma {
     phone?: true
     line_user_id?: true
     email?: true
-    note?: true
+    picture_url?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4574,7 +4663,7 @@ export namespace Prisma {
     phone?: true
     line_user_id?: true
     email?: true
-    note?: true
+    picture_url?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -4659,7 +4748,7 @@ export namespace Prisma {
     phone: string | null
     line_user_id: string
     email: string | null
-    note: string | null
+    picture_url: string | null
     createdAt: Date
     updatedAt: Date
     _count: CustomerCountAggregateOutputType | null
@@ -4688,7 +4777,7 @@ export namespace Prisma {
     phone?: boolean
     line_user_id?: boolean
     email?: boolean
-    note?: boolean
+    picture_url?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     appointments?: boolean | Customer$appointmentsArgs<ExtArgs>
@@ -4704,12 +4793,12 @@ export namespace Prisma {
     phone?: boolean
     line_user_id?: boolean
     email?: boolean
-    note?: boolean
+    picture_url?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line_display_name" | "fullname" | "phone" | "line_user_id" | "email" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
+  export type CustomerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "line_display_name" | "fullname" | "phone" | "line_user_id" | "email" | "picture_url" | "createdAt" | "updatedAt", ExtArgs["result"]["customer"]>
   export type CustomerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     appointments?: boolean | Customer$appointmentsArgs<ExtArgs>
     _count?: boolean | CustomerCountOutputTypeDefaultArgs<ExtArgs>
@@ -4727,7 +4816,7 @@ export namespace Prisma {
       phone: string | null
       line_user_id: string
       email: string | null
-      note: string | null
+      picture_url: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["customer"]>
@@ -5129,7 +5218,7 @@ export namespace Prisma {
     readonly phone: FieldRef<"Customer", 'String'>
     readonly line_user_id: FieldRef<"Customer", 'String'>
     readonly email: FieldRef<"Customer", 'String'>
-    readonly note: FieldRef<"Customer", 'String'>
+    readonly picture_url: FieldRef<"Customer", 'String'>
     readonly createdAt: FieldRef<"Customer", 'DateTime'>
     readonly updatedAt: FieldRef<"Customer", 'DateTime'>
   }
@@ -5564,6 +5653,8 @@ export namespace Prisma {
     customerId: string | null
     employeeId: string | null
     note: string | null
+    employeeResponse: $Enums.EmployeeResponse | null
+    offerDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5578,6 +5669,8 @@ export namespace Prisma {
     customerId: string | null
     employeeId: string | null
     note: string | null
+    employeeResponse: $Enums.EmployeeResponse | null
+    offerDate: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5592,6 +5685,9 @@ export namespace Prisma {
     customerId: number
     employeeId: number
     note: number
+    requiredTags: number
+    employeeResponse: number
+    offerDate: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -5608,6 +5704,8 @@ export namespace Prisma {
     customerId?: true
     employeeId?: true
     note?: true
+    employeeResponse?: true
+    offerDate?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5622,6 +5720,8 @@ export namespace Prisma {
     customerId?: true
     employeeId?: true
     note?: true
+    employeeResponse?: true
+    offerDate?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5636,6 +5736,9 @@ export namespace Prisma {
     customerId?: true
     employeeId?: true
     note?: true
+    requiredTags?: true
+    employeeResponse?: true
+    offerDate?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5723,6 +5826,9 @@ export namespace Prisma {
     customerId: string
     employeeId: string | null
     note: string | null
+    requiredTags: $Enums.EmployeeAbilityTag[]
+    employeeResponse: $Enums.EmployeeResponse | null
+    offerDate: Date | null
     createdAt: Date
     updatedAt: Date
     _count: AppointmentCountAggregateOutputType | null
@@ -5754,6 +5860,9 @@ export namespace Prisma {
     customerId?: boolean
     employeeId?: boolean
     note?: boolean
+    requiredTags?: boolean
+    employeeResponse?: boolean
+    offerDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
@@ -5772,11 +5881,14 @@ export namespace Prisma {
     customerId?: boolean
     employeeId?: boolean
     note?: boolean
+    requiredTags?: boolean
+    employeeResponse?: boolean
+    offerDate?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "date" | "day" | "section" | "customerId" | "employeeId" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
+  export type AppointmentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "type" | "status" | "date" | "day" | "section" | "customerId" | "employeeId" | "note" | "requiredTags" | "employeeResponse" | "offerDate" | "createdAt" | "updatedAt", ExtArgs["result"]["appointment"]>
   export type AppointmentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     customer?: boolean | CustomerDefaultArgs<ExtArgs>
     employee?: boolean | Appointment$employeeArgs<ExtArgs>
@@ -5798,6 +5910,9 @@ export namespace Prisma {
       customerId: string
       employeeId: string | null
       note: string | null
+      requiredTags: $Enums.EmployeeAbilityTag[]
+      employeeResponse: $Enums.EmployeeResponse | null
+      offerDate: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["appointment"]>
@@ -6203,6 +6318,9 @@ export namespace Prisma {
     readonly customerId: FieldRef<"Appointment", 'String'>
     readonly employeeId: FieldRef<"Appointment", 'String'>
     readonly note: FieldRef<"Appointment", 'String'>
+    readonly requiredTags: FieldRef<"Appointment", 'EmployeeAbilityTag[]'>
+    readonly employeeResponse: FieldRef<"Appointment", 'EmployeeResponse'>
+    readonly offerDate: FieldRef<"Appointment", 'DateTime'>
     readonly createdAt: FieldRef<"Appointment", 'DateTime'>
     readonly updatedAt: FieldRef<"Appointment", 'DateTime'>
   }
@@ -7616,6 +7734,13 @@ export namespace Prisma {
     isActive: 'isActive',
     profileImageUrl: 'profileImageUrl',
     bio: 'bio',
+    verificationToken: 'verificationToken',
+    tokenExpiry: 'tokenExpiry',
+    centralServerId: 'centralServerId',
+    staffId: 'staffId',
+    firstLogin: 'firstLogin',
+    centralUsername: 'centralUsername',
+    centralRoles: 'centralRoles',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7647,7 +7772,7 @@ export namespace Prisma {
     phone: 'phone',
     line_user_id: 'line_user_id',
     email: 'email',
-    note: 'note',
+    picture_url: 'picture_url',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7665,6 +7790,9 @@ export namespace Prisma {
     customerId: 'customerId',
     employeeId: 'employeeId',
     note: 'note',
+    requiredTags: 'requiredTags',
+    employeeResponse: 'employeeResponse',
+    offerDate: 'offerDate',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7755,6 +7883,13 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
    * Reference to a field of type 'EmployeeAbilityTag'
    */
   export type EnumEmployeeAbilityTagFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeAbilityTag'>
@@ -7797,6 +7932,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'EmployeeResponse'
+   */
+  export type EnumEmployeeResponseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeResponse'>
+    
+
+
+  /**
+   * Reference to a field of type 'EmployeeResponse[]'
+   */
+  export type ListEnumEmployeeResponseFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EmployeeResponse[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -7826,6 +7975,13 @@ export namespace Prisma {
     isActive?: BoolFilter<"Employee"> | boolean
     profileImageUrl?: StringNullableFilter<"Employee"> | string | null
     bio?: StringNullableFilter<"Employee"> | string | null
+    verificationToken?: StringNullableFilter<"Employee"> | string | null
+    tokenExpiry?: DateTimeNullableFilter<"Employee"> | Date | string | null
+    centralServerId?: StringNullableFilter<"Employee"> | string | null
+    staffId?: StringNullableFilter<"Employee"> | string | null
+    firstLogin?: BoolFilter<"Employee"> | boolean
+    centralUsername?: StringNullableFilter<"Employee"> | string | null
+    centralRoles?: JsonNullableFilter<"Employee">
     createdAt?: DateTimeFilter<"Employee"> | Date | string
     updatedAt?: DateTimeFilter<"Employee"> | Date | string
     appointments?: AppointmentListRelationFilter
@@ -7843,6 +7999,13 @@ export namespace Prisma {
     isActive?: SortOrder
     profileImageUrl?: SortOrder
     bio?: SortOrder
+    verificationToken?: SortOrder
+    tokenExpiry?: SortOrder
+    centralServerId?: SortOrder
+    staffId?: SortOrder
+    firstLogin?: SortOrder
+    centralUsername?: SortOrder
+    centralRoles?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     appointments?: AppointmentOrderByRelationAggregateInput
@@ -7854,6 +8017,7 @@ export namespace Prisma {
     id?: string
     email?: string
     phone?: string
+    centralServerId?: string
     AND?: EmployeeWhereInput | EmployeeWhereInput[]
     OR?: EmployeeWhereInput[]
     NOT?: EmployeeWhereInput | EmployeeWhereInput[]
@@ -7863,12 +8027,18 @@ export namespace Prisma {
     isActive?: BoolFilter<"Employee"> | boolean
     profileImageUrl?: StringNullableFilter<"Employee"> | string | null
     bio?: StringNullableFilter<"Employee"> | string | null
+    verificationToken?: StringNullableFilter<"Employee"> | string | null
+    tokenExpiry?: DateTimeNullableFilter<"Employee"> | Date | string | null
+    staffId?: StringNullableFilter<"Employee"> | string | null
+    firstLogin?: BoolFilter<"Employee"> | boolean
+    centralUsername?: StringNullableFilter<"Employee"> | string | null
+    centralRoles?: JsonNullableFilter<"Employee">
     createdAt?: DateTimeFilter<"Employee"> | Date | string
     updatedAt?: DateTimeFilter<"Employee"> | Date | string
     appointments?: AppointmentListRelationFilter
     employeeTags?: EmployeeTagListRelationFilter
     magicLinks?: MagicLinkListRelationFilter
-  }, "id" | "email" | "phone">
+  }, "id" | "email" | "phone" | "centralServerId">
 
   export type EmployeeOrderByWithAggregationInput = {
     id?: SortOrder
@@ -7880,6 +8050,13 @@ export namespace Prisma {
     isActive?: SortOrder
     profileImageUrl?: SortOrder
     bio?: SortOrder
+    verificationToken?: SortOrder
+    tokenExpiry?: SortOrder
+    centralServerId?: SortOrder
+    staffId?: SortOrder
+    firstLogin?: SortOrder
+    centralUsername?: SortOrder
+    centralRoles?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: EmployeeCountOrderByAggregateInput
@@ -7900,6 +8077,13 @@ export namespace Prisma {
     isActive?: BoolWithAggregatesFilter<"Employee"> | boolean
     profileImageUrl?: StringNullableWithAggregatesFilter<"Employee"> | string | null
     bio?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    verificationToken?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    tokenExpiry?: DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
+    centralServerId?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    staffId?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    firstLogin?: BoolWithAggregatesFilter<"Employee"> | boolean
+    centralUsername?: StringNullableWithAggregatesFilter<"Employee"> | string | null
+    centralRoles?: JsonNullableWithAggregatesFilter<"Employee">
     createdAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Employee"> | Date | string
   }
@@ -8002,7 +8186,7 @@ export namespace Prisma {
     phone?: StringNullableFilter<"Customer"> | string | null
     line_user_id?: StringFilter<"Customer"> | string
     email?: StringNullableFilter<"Customer"> | string | null
-    note?: StringNullableFilter<"Customer"> | string | null
+    picture_url?: StringNullableFilter<"Customer"> | string | null
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     appointments?: AppointmentListRelationFilter
@@ -8015,7 +8199,7 @@ export namespace Prisma {
     phone?: SortOrder
     line_user_id?: SortOrder
     email?: SortOrder
-    note?: SortOrder
+    picture_url?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     appointments?: AppointmentOrderByRelationAggregateInput
@@ -8031,7 +8215,7 @@ export namespace Prisma {
     line_display_name?: StringNullableFilter<"Customer"> | string | null
     fullname?: StringNullableFilter<"Customer"> | string | null
     email?: StringNullableFilter<"Customer"> | string | null
-    note?: StringNullableFilter<"Customer"> | string | null
+    picture_url?: StringNullableFilter<"Customer"> | string | null
     createdAt?: DateTimeFilter<"Customer"> | Date | string
     updatedAt?: DateTimeFilter<"Customer"> | Date | string
     appointments?: AppointmentListRelationFilter
@@ -8044,7 +8228,7 @@ export namespace Prisma {
     phone?: SortOrder
     line_user_id?: SortOrder
     email?: SortOrder
-    note?: SortOrder
+    picture_url?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CustomerCountOrderByAggregateInput
@@ -8062,7 +8246,7 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     line_user_id?: StringWithAggregatesFilter<"Customer"> | string
     email?: StringNullableWithAggregatesFilter<"Customer"> | string | null
-    note?: StringNullableWithAggregatesFilter<"Customer"> | string | null
+    picture_url?: StringNullableWithAggregatesFilter<"Customer"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Customer"> | Date | string
   }
@@ -8080,6 +8264,9 @@ export namespace Prisma {
     customerId?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
+    requiredTags?: EnumEmployeeAbilityTagNullableListFilter<"Appointment">
+    employeeResponse?: EnumEmployeeResponseNullableFilter<"Appointment"> | $Enums.EmployeeResponse | null
+    offerDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
@@ -8096,6 +8283,9 @@ export namespace Prisma {
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
+    requiredTags?: SortOrder
+    employeeResponse?: SortOrder
+    offerDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     customer?: CustomerOrderByWithRelationInput
@@ -8115,6 +8305,9 @@ export namespace Prisma {
     section?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
+    requiredTags?: EnumEmployeeAbilityTagNullableListFilter<"Appointment">
+    employeeResponse?: EnumEmployeeResponseNullableFilter<"Appointment"> | $Enums.EmployeeResponse | null
+    offerDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
     customer?: XOR<CustomerScalarRelationFilter, CustomerWhereInput>
@@ -8131,6 +8324,9 @@ export namespace Prisma {
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
+    requiredTags?: SortOrder
+    employeeResponse?: SortOrder
+    offerDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: AppointmentCountOrderByAggregateInput
@@ -8151,6 +8347,9 @@ export namespace Prisma {
     customerId?: StringWithAggregatesFilter<"Appointment"> | string
     employeeId?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
     note?: StringNullableWithAggregatesFilter<"Appointment"> | string | null
+    requiredTags?: EnumEmployeeAbilityTagNullableListFilter<"Appointment">
+    employeeResponse?: EnumEmployeeResponseNullableWithAggregatesFilter<"Appointment"> | $Enums.EmployeeResponse | null
+    offerDate?: DateTimeNullableWithAggregatesFilter<"Appointment"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Appointment"> | Date | string
   }
@@ -8225,6 +8424,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
@@ -8242,6 +8448,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -8258,6 +8471,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
@@ -8274,6 +8494,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -8291,6 +8518,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8304,6 +8538,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8317,6 +8558,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8400,7 +8648,7 @@ export namespace Prisma {
     phone?: string | null
     line_user_id: string
     email?: string | null
-    note?: string | null
+    picture_url?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentCreateNestedManyWithoutCustomerInput
@@ -8413,7 +8661,7 @@ export namespace Prisma {
     phone?: string | null
     line_user_id: string
     email?: string | null
-    note?: string | null
+    picture_url?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentUncheckedCreateNestedManyWithoutCustomerInput
@@ -8425,7 +8673,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUpdateManyWithoutCustomerNestedInput
@@ -8437,7 +8685,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUncheckedUpdateManyWithoutCustomerNestedInput
@@ -8450,7 +8698,7 @@ export namespace Prisma {
     phone?: string | null
     line_user_id: string
     email?: string | null
-    note?: string | null
+    picture_url?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8461,7 +8709,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8472,7 +8720,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8485,6 +8733,9 @@ export namespace Prisma {
     day: string
     section: string
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutAppointmentsInput
@@ -8501,6 +8752,9 @@ export namespace Prisma {
     customerId: string
     employeeId?: string | null
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8512,6 +8766,9 @@ export namespace Prisma {
     day?: StringFieldUpdateOperationsInput | string
     section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
@@ -8527,6 +8784,9 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8541,6 +8801,9 @@ export namespace Prisma {
     customerId: string
     employeeId?: string | null
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8552,6 +8815,9 @@ export namespace Prisma {
     day?: StringFieldUpdateOperationsInput | string
     section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8565,6 +8831,9 @@ export namespace Prisma {
     customerId?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -8670,6 +8939,30 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    isSet?: boolean
+  }
+  export type JsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    isSet?: boolean
+  }
+
   export type DateTimeFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -8721,6 +9014,13 @@ export namespace Prisma {
     isActive?: SortOrder
     profileImageUrl?: SortOrder
     bio?: SortOrder
+    verificationToken?: SortOrder
+    tokenExpiry?: SortOrder
+    centralServerId?: SortOrder
+    staffId?: SortOrder
+    firstLogin?: SortOrder
+    centralUsername?: SortOrder
+    centralRoles?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8735,6 +9035,12 @@ export namespace Prisma {
     isActive?: SortOrder
     profileImageUrl?: SortOrder
     bio?: SortOrder
+    verificationToken?: SortOrder
+    tokenExpiry?: SortOrder
+    centralServerId?: SortOrder
+    staffId?: SortOrder
+    firstLogin?: SortOrder
+    centralUsername?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8749,6 +9055,12 @@ export namespace Prisma {
     isActive?: SortOrder
     profileImageUrl?: SortOrder
     bio?: SortOrder
+    verificationToken?: SortOrder
+    tokenExpiry?: SortOrder
+    centralServerId?: SortOrder
+    staffId?: SortOrder
+    firstLogin?: SortOrder
+    centralUsername?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8806,6 +9118,36 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+  export type JsonNullableWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedJsonNullableFilter<$PrismaModel>
+    _max?: NestedJsonNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
@@ -8889,7 +9231,7 @@ export namespace Prisma {
     phone?: SortOrder
     line_user_id?: SortOrder
     email?: SortOrder
-    note?: SortOrder
+    picture_url?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8901,7 +9243,7 @@ export namespace Prisma {
     phone?: SortOrder
     line_user_id?: SortOrder
     email?: SortOrder
-    note?: SortOrder
+    picture_url?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8913,7 +9255,7 @@ export namespace Prisma {
     phone?: SortOrder
     line_user_id?: SortOrder
     email?: SortOrder
-    note?: SortOrder
+    picture_url?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8930,6 +9272,22 @@ export namespace Prisma {
     in?: $Enums.AppointmentStatus[] | ListEnumAppointmentStatusFieldRefInput<$PrismaModel>
     notIn?: $Enums.AppointmentStatus[] | ListEnumAppointmentStatusFieldRefInput<$PrismaModel>
     not?: NestedEnumAppointmentStatusFilter<$PrismaModel> | $Enums.AppointmentStatus
+  }
+
+  export type EnumEmployeeAbilityTagNullableListFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel> | null
+    has?: $Enums.EmployeeAbilityTag | EnumEmployeeAbilityTagFieldRefInput<$PrismaModel> | null
+    hasEvery?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    hasSome?: $Enums.EmployeeAbilityTag[] | ListEnumEmployeeAbilityTagFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type EnumEmployeeResponseNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeResponse | EnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel> | $Enums.EmployeeResponse | null
+    isSet?: boolean
   }
 
   export type CustomerScalarRelationFilter = {
@@ -8952,6 +9310,9 @@ export namespace Prisma {
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
+    requiredTags?: SortOrder
+    employeeResponse?: SortOrder
+    offerDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8966,6 +9327,8 @@ export namespace Prisma {
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
+    employeeResponse?: SortOrder
+    offerDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8980,6 +9343,8 @@ export namespace Prisma {
     customerId?: SortOrder
     employeeId?: SortOrder
     note?: SortOrder
+    employeeResponse?: SortOrder
+    offerDate?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -9002,6 +9367,17 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumAppointmentStatusFilter<$PrismaModel>
     _max?: NestedEnumAppointmentStatusFilter<$PrismaModel>
+  }
+
+  export type EnumEmployeeResponseNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeResponse | EnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEmployeeResponseNullableWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeResponse | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel>
+    isSet?: boolean
   }
 
   export type MagicLinkCountOrderByAggregateInput = {
@@ -9084,6 +9460,11 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+    unset?: boolean
   }
 
   export type DateTimeFieldUpdateOperationsInput = {
@@ -9294,6 +9675,10 @@ export namespace Prisma {
     deleteMany?: AppointmentScalarWhereInput | AppointmentScalarWhereInput[]
   }
 
+  export type AppointmentCreaterequiredTagsInput = {
+    set: $Enums.EmployeeAbilityTag[]
+  }
+
   export type CustomerCreateNestedOneWithoutAppointmentsInput = {
     create?: XOR<CustomerCreateWithoutAppointmentsInput, CustomerUncheckedCreateWithoutAppointmentsInput>
     connectOrCreate?: CustomerCreateOrConnectWithoutAppointmentsInput
@@ -9312,6 +9697,16 @@ export namespace Prisma {
 
   export type EnumAppointmentStatusFieldUpdateOperationsInput = {
     set?: $Enums.AppointmentStatus
+  }
+
+  export type AppointmentUpdaterequiredTagsInput = {
+    set?: $Enums.EmployeeAbilityTag[]
+    push?: $Enums.EmployeeAbilityTag | $Enums.EmployeeAbilityTag[]
+  }
+
+  export type NullableEnumEmployeeResponseFieldUpdateOperationsInput = {
+    set?: $Enums.EmployeeResponse | null
+    unset?: boolean
   }
 
   export type CustomerUpdateOneRequiredWithoutAppointmentsNestedInput = {
@@ -9385,6 +9780,18 @@ export namespace Prisma {
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+    isSet?: boolean
   }
 
   export type NestedDateTimeFilter<$PrismaModel = never> = {
@@ -9474,6 +9881,33 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+  export type NestedJsonNullableFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonNullableFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    isSet?: boolean
+  }
+
   export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
     in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
@@ -9519,6 +9953,14 @@ export namespace Prisma {
     not?: NestedEnumAppointmentStatusFilter<$PrismaModel> | $Enums.AppointmentStatus
   }
 
+  export type NestedEnumEmployeeResponseNullableFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeResponse | EnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel> | $Enums.EmployeeResponse | null
+    isSet?: boolean
+  }
+
   export type NestedEnumAppointmentTypeWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.AppointmentType | EnumAppointmentTypeFieldRefInput<$PrismaModel>
     in?: $Enums.AppointmentType[] | ListEnumAppointmentTypeFieldRefInput<$PrismaModel>
@@ -9539,6 +9981,17 @@ export namespace Prisma {
     _max?: NestedEnumAppointmentStatusFilter<$PrismaModel>
   }
 
+  export type NestedEnumEmployeeResponseNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.EmployeeResponse | EnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    in?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    notIn?: $Enums.EmployeeResponse[] | ListEnumEmployeeResponseFieldRefInput<$PrismaModel> | null
+    not?: NestedEnumEmployeeResponseNullableWithAggregatesFilter<$PrismaModel> | $Enums.EmployeeResponse | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel>
+    _max?: NestedEnumEmployeeResponseNullableFilter<$PrismaModel>
+    isSet?: boolean
+  }
+
   export type AppointmentCreateWithoutEmployeeInput = {
     id?: string
     type: $Enums.AppointmentType
@@ -9547,6 +10000,9 @@ export namespace Prisma {
     day: string
     section: string
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     customer: CustomerCreateNestedOneWithoutAppointmentsInput
@@ -9561,6 +10017,9 @@ export namespace Prisma {
     section: string
     customerId: string
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9647,6 +10106,9 @@ export namespace Prisma {
     customerId?: StringFilter<"Appointment"> | string
     employeeId?: StringNullableFilter<"Appointment"> | string | null
     note?: StringNullableFilter<"Appointment"> | string | null
+    requiredTags?: EnumEmployeeAbilityTagNullableListFilter<"Appointment">
+    employeeResponse?: EnumEmployeeResponseNullableFilter<"Appointment"> | $Enums.EmployeeResponse | null
+    offerDate?: DateTimeNullableFilter<"Appointment"> | Date | string | null
     createdAt?: DateTimeFilter<"Appointment"> | Date | string
     updatedAt?: DateTimeFilter<"Appointment"> | Date | string
   }
@@ -9749,6 +10211,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
@@ -9765,6 +10234,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -9811,6 +10287,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
@@ -9826,6 +10309,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -9859,6 +10349,9 @@ export namespace Prisma {
     day: string
     section: string
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employee?: EmployeeCreateNestedOneWithoutAppointmentsInput
@@ -9873,6 +10366,9 @@ export namespace Prisma {
     section: string
     employeeId?: string | null
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9909,7 +10405,7 @@ export namespace Prisma {
     phone?: string | null
     line_user_id: string
     email?: string | null
-    note?: string | null
+    picture_url?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9921,7 +10417,7 @@ export namespace Prisma {
     phone?: string | null
     line_user_id: string
     email?: string | null
-    note?: string | null
+    picture_url?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9941,6 +10437,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employeeTags?: EmployeeTagCreateNestedManyWithoutEmployeeInput
@@ -9957,6 +10460,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     employeeTags?: EmployeeTagUncheckedCreateNestedManyWithoutEmployeeInput
@@ -9985,7 +10495,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9996,7 +10506,7 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     line_user_id?: StringFieldUpdateOperationsInput | string
     email?: NullableStringFieldUpdateOperationsInput | string | null
-    note?: NullableStringFieldUpdateOperationsInput | string | null
+    picture_url?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10021,6 +10531,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employeeTags?: EmployeeTagUpdateManyWithoutEmployeeNestedInput
@@ -10036,6 +10553,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employeeTags?: EmployeeTagUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -10052,6 +10576,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentCreateNestedManyWithoutEmployeeInput
@@ -10068,6 +10599,13 @@ export namespace Prisma {
     isActive?: boolean
     profileImageUrl?: string | null
     bio?: string | null
+    verificationToken?: string | null
+    tokenExpiry?: Date | string | null
+    centralServerId?: string | null
+    staffId?: string | null
+    firstLogin?: boolean
+    centralUsername?: string | null
+    centralRoles?: InputJsonValue | null
     createdAt?: Date | string
     updatedAt?: Date | string
     appointments?: AppointmentUncheckedCreateNestedManyWithoutEmployeeInput
@@ -10099,6 +10637,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUpdateManyWithoutEmployeeNestedInput
@@ -10114,6 +10659,13 @@ export namespace Prisma {
     isActive?: BoolFieldUpdateOperationsInput | boolean
     profileImageUrl?: NullableStringFieldUpdateOperationsInput | string | null
     bio?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    tokenExpiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    centralServerId?: NullableStringFieldUpdateOperationsInput | string | null
+    staffId?: NullableStringFieldUpdateOperationsInput | string | null
+    firstLogin?: BoolFieldUpdateOperationsInput | boolean
+    centralUsername?: NullableStringFieldUpdateOperationsInput | string | null
+    centralRoles?: InputJsonValue | InputJsonValue | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     appointments?: AppointmentUncheckedUpdateManyWithoutEmployeeNestedInput
@@ -10129,6 +10681,9 @@ export namespace Prisma {
     section: string
     customerId: string
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10153,6 +10708,9 @@ export namespace Prisma {
     day?: StringFieldUpdateOperationsInput | string
     section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     customer?: CustomerUpdateOneRequiredWithoutAppointmentsNestedInput
@@ -10166,6 +10724,9 @@ export namespace Prisma {
     section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10178,6 +10739,9 @@ export namespace Prisma {
     section?: StringFieldUpdateOperationsInput | string
     customerId?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10241,6 +10805,9 @@ export namespace Prisma {
     section: string
     employeeId?: string | null
     note?: string | null
+    requiredTags?: AppointmentCreaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: $Enums.EmployeeResponse | null
+    offerDate?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10252,6 +10819,9 @@ export namespace Prisma {
     day?: StringFieldUpdateOperationsInput | string
     section?: StringFieldUpdateOperationsInput | string
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     employee?: EmployeeUpdateOneWithoutAppointmentsNestedInput
@@ -10265,6 +10835,9 @@ export namespace Prisma {
     section?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10277,6 +10850,9 @@ export namespace Prisma {
     section?: StringFieldUpdateOperationsInput | string
     employeeId?: NullableStringFieldUpdateOperationsInput | string | null
     note?: NullableStringFieldUpdateOperationsInput | string | null
+    requiredTags?: AppointmentUpdaterequiredTagsInput | $Enums.EmployeeAbilityTag[]
+    employeeResponse?: NullableEnumEmployeeResponseFieldUpdateOperationsInput | $Enums.EmployeeResponse | null
+    offerDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

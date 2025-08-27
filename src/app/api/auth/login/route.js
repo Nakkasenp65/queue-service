@@ -1,71 +1,127 @@
-import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import crypto from "crypto";
+import jwt from "jsonwebtoken";
+import prisma from "@/lib/prisma";
 
-// ฟังก์ชันสำหรับสร้าง HMAC signature ด้วย SHA-256
-function signHmac(payload, secret) {
-  return crypto.createHmac("sha256", secret).update(payload).digest("hex");
-}
-
-// ฟังก์ชันสำหรับเข้ารหัสข้อมูลเป็น base64 URL-safe
-function base64UrlEncode(str) {
-  return Buffer.from(str).toString("base64url");
-}
-
-// ฟังก์ชันสำหรับสร้าง JWT token ด้วย HMAC-SHA256
-function createJwt(payloadObj, secret, expiresInSeconds = 60 * 60) {
-  const header = { alg: "HS256", typ: "JWT" };
-  const now = Math.floor(Date.now() / 1000);
-  const payload = { iat: now, exp: now + expiresInSeconds, ...payloadObj };
-
-  const headerB64 = base64UrlEncode(JSON.stringify(header));
-  const payloadB64 = base64UrlEncode(JSON.stringify(payload));
-  const signature = signHmac(`${headerB64}.${payloadB64}`, secret);
-  const sigB64 = base64UrlEncode(signature);
-  return `${headerB64}.${payloadB64}.${sigB64}`;
-}
-
-// จัดการการเข้าสู่ระบบด้วยอีเมลและรหัสผ่านจากเซิร์ฟเวอร์กลาง
+/**
+ * POST /api/auth/login - Login using central server API
+ */
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password required" }, { status: 400 });
+    if (!username || !password) {
+      return NextResponse.json({ error: "กรุณากรอกชื่อผู้ใช้และรหัสผ่าน" }, { status: 400 });
     }
 
-    // ตรวจสอบข้อมูลรับรองกับเซิร์ฟเวอร์กลาง
-    // แทนที่ด้วย endpoint จริงของคุณ (เช่น POST ไปยัง https://central-server.com/verify)
-    const centralResponse = await fetch("https://central-server.com/verify", {
+    // Call central server login API
+    const response = await fetch("https://adminregister.vercel.app/api?action=login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
     });
 
-    if (!centralResponse.ok) {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    const data = await response.json();
+
+    // Handle different response status codes
+    if (!response.ok) {
+      if (response.status === 400) {
+        return NextResponse.json({ error: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" }, { status: 400 });
+      } else if (response.status === 500) {
+        return NextResponse.json({ error: "เกิดข้อผิดพลาดในระบบเซิร์ฟเวอร์กลาง" }, { status: 500 });
+      } else {
+        return NextResponse.json({ error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" }, { status: 500 });
+      }
     }
 
-    const centralData = await centralResponse.json();
-    // สมมติว่า centralData รวม employeeId หรืออีเมลสำหรับการค้นหา
+    // Success response - sync with local database
+    if (data.message === "Login successful." && data.data) {
+      const centralData = data.data;
 
-    // ดึงข้อมูลพนักงานจากฐานข้อมูลท้องถิ่นโดยใช้ข้อมูลจากเซิร์ฟเวอร์กลาง
-    const employee = await prisma.employee.findUnique({ where: { email } });
-    if (!employee) {
-      return NextResponse.json({ error: "Employee not found" }, { status: 404 });
+      // Find or create employee in local database
+      let employee = await prisma.employee.findFirst({
+        where: {
+          OR: [{ centralServerId: centralData.adminId }, { centralUsername: centralData.username }],
+        },
+      });
+
+      if (!employee) {
+        // Create new employee from central server data
+        employee = await prisma.employee.create({
+          data: {
+            centralServerId: centralData.adminId,
+            centralUsername: centralData.username,
+            fullname: centralData.fullName || centralData.username,
+            email: centralData.email || `${centralData.username}@company.com`, // Fallback email
+            staffId: centralData.staffId,
+            role: centralData.roles?.includes("admin") ? "ADMIN" : "STAFF",
+            centralRoles: centralData.roles,
+            firstLogin: true,
+            isActive: true,
+            password: "", // No local password needed
+          },
+        });
+
+        console.log("✅ New employee created from central server:", employee.id);
+      } else {
+        // Update existing employee data if needed
+        if (employee.firstLogin) {
+          employee = await prisma.employee.update({
+            where: { id: employee.id },
+            data: {
+              centralRoles: centralData.roles,
+              staffId: centralData.staffId,
+              fullname: centralData.fullName || employee.fullname,
+            },
+          });
+        }
+      }
+
+      // Create JWT using LOCAL employee ID (not central server ID)
+      const jwtSecret = process.env.MAGIC_LINK_JWT_SECRET || process.env.MAGIC_LINK_SECRET || "secret-demo";
+      const jwtToken = jwt.sign(
+        {
+          employee: {
+            id: employee.id, // Use LOCAL employee ID
+            email: employee.email,
+            fullname: employee.fullname,
+            role: employee.role,
+            staffId: employee.staffId,
+            firstLogin: employee.firstLogin,
+          },
+          centralServer: {
+            adminId: centralData.adminId,
+            username: centralData.username,
+            roles: centralData.roles,
+          },
+        },
+        jwtSecret,
+        { expiresIn: "60d" }
+      );
+
+      // Set HTTP-only cookie with the JWT token
+      const loginResponse = NextResponse.json({
+        message: "เข้าสู่ระบบสำเร็จ",
+        employeeId: employee.id,
+        firstLogin: employee.firstLogin,
+        redirectTo: employee.firstLogin ? "/queueManagement/profile" : "/queueManagement/admin",
+      });
+
+      loginResponse.cookies.set("auth_token", jwtToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 60 * 60 * 24 * 60, // 60 days
+        path: "/",
+      });
+
+      return loginResponse;
+    } else {
+      return NextResponse.json({ error: "รูปแบบการตอบกลับไม่ถูกต้อง" }, { status: 500 });
     }
-
-    // สร้าง JWT token
-    const jwtSecret = process.env.MAGIC_LINK_JWT_SECRET || process.env.MAGIC_LINK_SECRET || "secret-demo";
-    const jwt = createJwt(
-      { employee: { id: employee.id, email: employee.email, fullname: employee.fullname, role: employee.role } },
-      jwtSecret,
-      60 * 60 * 24 * 60 // 60 วัน
-    );
-
-    return NextResponse.json({ ok: true, jwt, employeeId: employee.id });
   } catch (error) {
     console.error("POST /api/auth/login error", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "เกิดข้อผิดพลาดในการเข้าสู่ระบบ" }, { status: 500 });
   }
 }

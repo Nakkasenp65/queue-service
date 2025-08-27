@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
 
 export default function EmployeeRegisterPage() {
   const [email, setEmail] = useState("");
@@ -21,16 +22,36 @@ export default function EmployeeRegisterPage() {
     return true;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setIsSubmitting(true);
+    setError("");
 
     try {
-      // Save email locally; user will complete profile later
-      localStorage.setItem("pendingEmployeeEmail", email);
-      // Redirect to login (or next step)
-      router.push("/queueManagement/login");
+      const response = await fetch("/api/employees/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Show success message
+        await Swal.fire({
+          icon: "success",
+          title: "ส่งอีเมลสำเร็จ!",
+          text: "กรุณาตรวจสอบอีเมลของคุณเพื่อยืนยันการลงทะเบียน",
+          confirmButtonText: "ตกลง",
+          confirmButtonColor: "#3b82f6",
+        });
+        router.push("/queueManagement");
+      } else {
+        setError(data.error || "เกิดข้อผิดพลาดในการส่งอีเมล");
+      }
+    } catch (error) {
+      setError("เกิดข้อผิดพลาดในการเชื่อมต่อ");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,7 +104,7 @@ export default function EmployeeRegisterPage() {
                 : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
             } text-white`}
           >
-            {isSubmitting ? "กำลังดำเนินการ..." : "Continue"}
+            {isSubmitting ? "กำลังส่งอีเมล..." : "ส่งลิงก์ยืนยัน"}
           </motion.button>
 
           <div className="text-center text-sm text-slate-600">
