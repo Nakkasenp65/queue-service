@@ -7921,12 +7921,12 @@ export namespace Prisma {
 
   export type TagWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    name?: $Enums.EmployeeAbilityTag
     AND?: TagWhereInput | TagWhereInput[]
     OR?: TagWhereInput[]
     NOT?: TagWhereInput | TagWhereInput[]
-    name?: EnumEmployeeAbilityTagFilter<"Tag"> | $Enums.EmployeeAbilityTag
     employeeTags?: EmployeeTagListRelationFilter
-  }, "id">
+  }, "id" | "name">
 
   export type TagOrderByWithAggregationInput = {
     id?: SortOrder

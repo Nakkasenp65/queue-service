@@ -33,7 +33,15 @@ export async function GET(request) {
  */
 export async function POST(request) {
   try {
-    const body = await request.json();
+    const text = await request.text();
+    let body;
+    try {
+      body = JSON.parse(text);
+    } catch (parseError) {
+      console.error("Invalid JSON received:", parseError.message, "Raw body:", text);
+      return NextResponse.json({ error: "Invalid JSON format" }, { status: 400 });
+    }
+    console.log(body);
     const {
       fullname,
       email,

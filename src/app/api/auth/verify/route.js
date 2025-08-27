@@ -2,14 +2,17 @@ import prisma from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 
+// ฟังก์ชันสำหรับสร้าง HMAC signature ด้วย SHA-256
 function signHmac(payload, secret) {
   return crypto.createHmac("sha256", secret).update(payload).digest("hex");
 }
 
+// ฟังก์ชันสำหรับเข้ารหัสข้อมูลเป็น base64 URL-safe
 function base64UrlEncode(str) {
   return Buffer.from(str).toString("base64url");
 }
 
+// ฟังก์ชันสำหรับสร้าง JWT token ด้วย HMAC-SHA256
 function createJwt(payloadObj, secret, expiresInSeconds = 60 * 60) {
   const header = { alg: "HS256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
@@ -22,6 +25,7 @@ function createJwt(payloadObj, secret, expiresInSeconds = 60 * 60) {
   return `${headerB64}.${payloadB64}.${sigB64}`;
 }
 
+// จัดการการตรวจสอบ magic link และสร้าง JWT token
 export async function POST(request) {
   try {
     const body = await request.json().catch(() => ({}));
@@ -34,7 +38,7 @@ export async function POST(request) {
     const magic = await prisma.magicLink.findUnique({ where: { token } });
     if (!magic) return NextResponse.json({ error: "invalid token" }, { status: 404 });
 
-    // validate signature if present
+    // ตรวจสอบ signature ถ้ามี
     const secret = process.env.MAGIC_LINK_SECRET || "";
     if (secret) {
       const expected = crypto
@@ -49,19 +53,19 @@ export async function POST(request) {
     if (magic.used) return NextResponse.json({ error: "token already used" }, { status: 400 });
     if (new Date() > new Date(magic.expiresAt)) return NextResponse.json({ error: "token expired" }, { status: 400 });
 
-    // fetch employee
+    // ดึงข้อมูลพนักงาน
     const employee = await prisma.employee.findUnique({ where: { id: magic.employeeId } });
     if (!employee) return NextResponse.json({ error: "employee not found" }, { status: 404 });
 
-    // mark used
+    // ทำเครื่องหมายว่าใช้แล้ว
     await prisma.magicLink.update({ where: { id: magic.id }, data: { used: true } });
 
-    // create JWT (HMAC-SHA256) including employee basics
+    // สร้าง JWT token รวมข้อมูลพนักงานพื้นฐาน
     const jwtSecret = process.env.MAGIC_LINK_JWT_SECRET || process.env.MAGIC_LINK_SECRET || "secret-demo";
     const jwt = createJwt(
       { employee: { id: employee.id, email: employee.email, fullname: employee.fullname, role: employee.role } },
       jwtSecret,
-      60 * 60 * 24
+      60 * 60 * 24 * 60
     );
 
     return NextResponse.json({ ok: true, jwt, employeeId: magic.employeeId });
