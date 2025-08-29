@@ -1,19 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Smartphone, Repeat, HandCoins, ShieldCheck, Building, Wrench } from "lucide-react";
-import ProfileModal from "@/app/components/ProfileModal";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Swal from "sweetalert2";
-
-// --- Provider & Hooks ---
 import { useLiff } from "@/app/components/Provider/LiffProvider";
 import { useCustomer } from "@/app/hooks/useCustomer";
-// 1. Import เฉพาะ Hook ที่จำเป็น
-import { useCreateAppointment } from "@/app/hooks/useAppointments";
+import { useCreateAppointment, useGetDisplayAppointment } from "@/app/hooks/useAppointments";
 
-// --- Child Components ---
 import DateTimePicker from "@/app/components/DateTimePicker";
 import DPOConsent from "@/app/components/DPOConsent";
 import UserDetailsForm from "@/app/components/UserDetailsForm";
@@ -22,11 +16,7 @@ import ServiceSelection from "@/app/components/ServiceSelection";
 export default function HomePage() {
   const router = useRouter();
   const { liffProfile } = useLiff();
-
-  // --- State Management ---
-  // State สำหรับควบคุม Flow ของหน้า (แสดง Component ไหน)
   const [appState, setAppState] = useState("selecting_service");
-  // State สำหรับเก็บข้อมูลทั้งหมดที่กรอกในฟอร์ม
   const [formData, setFormData] = useState({
     appointmentType: "onsite", // default value
     serviceType: "",
@@ -39,16 +29,11 @@ export default function HomePage() {
     email: liffProfile?.email || "",
     note: "",
   });
-  // State สำหรับเปิด/ปิด Modal
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [showDPO, setShowDPO] = useState(false);
-
-  // --- Hooks ---
   const { customer, isLoading: isCustomerLoading } = useCustomer(liffProfile?.userId || null);
   const { mutate: createAppointment, isPending: isCreating } = useCreateAppointment();
 
   const handleServiceSelect = (service) => {
-    // Logic การกำหนดประเภทนัดหมายตามบริการที่เลือก
     setFormData((prev) => ({
       ...prev,
       serviceType: service.name,
@@ -61,7 +46,6 @@ export default function HomePage() {
     localStorage.setItem("dpo_accepted", "true");
   };
 
-  // 3. แก้ไข handleCreateAppointment ให้ถูกต้องและสมบูรณ์
   const handleCreateAppointment = async () => {
     if (!formData.appointmentAt || !formData.lineUserId) {
       console.error("Missing required data: appointmentAt or lineUserId");
@@ -122,7 +106,6 @@ export default function HomePage() {
     });
   };
 
-  // Effect สำหรับจัดการ Event ทั่วไป
   useEffect(() => {
     const goHome = () => setAppState("selecting_service");
     const openProfile = () => setIsProfileOpen(true);
@@ -134,18 +117,10 @@ export default function HomePage() {
     };
   }, []);
 
-  console.log("Appointment Payload:", formData);
-
   return (
     <>
-      <ProfileModal
-        isOpen={isProfileOpen}
-        onClose={() => setIsProfileOpen(false)}
-        profile={liffProfile}
-        customer={customer}
-      />
       {showDPO && <DPOConsent onAccept={handleAcceptDPO} />}
-      <main className="min-h-screen bg-slate-50 text-gray-800 font-sans p-4">
+      <main className="min-h-screen bg-slate-100 text-gray-800 font-sans p-4">
         <div className="container flex flex-col gap-4 mx-auto">
           <AnimatePresence mode="wait">
             {/* -------------- หน้าเลือกบริการ -------------- */}
@@ -169,7 +144,7 @@ export default function HomePage() {
                   setFormData={setFormData}
                   onSubmit={handleCreateAppointment}
                   liffProfile={liffProfile}
-                  isSubmitting={isCreating} // 7. ส่ง isCreating ไป disable ปุ่ม
+                  isSubmitting={isCreating}
                 />
               </motion.div>
             )}
@@ -180,7 +155,6 @@ export default function HomePage() {
   );
 }
 
-// Helper component สำหรับจัดการ Event การกดย้อนกลับ
 function BackEventBridge({ onBack }) {
   useEffect(() => {
     const handler = () => onBack();

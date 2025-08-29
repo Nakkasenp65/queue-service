@@ -5,10 +5,11 @@ import { useState, useEffect } from "react";
 import DPOConsent from "./DPOConsent";
 import { useCustomer } from "../hooks/useCustomer";
 
-export default function UserDetailsForm({ formData, setFormData, onSubmit, liffProfile }) {
+export default function UserDetailsForm({ formData, setFormData, onSubmit, liffProfile, isSubmitting = false }) {
   const isValid = formData.customerName?.length > 0 && formData.customerPhone?.length > 0;
   const [acceptDPO, setAcceptDPO] = useState(false);
   const [showDPOContent, setShowDPOContent] = useState(false);
+  const [pressed, setPressed] = useState(false); // local immediate press feedback
 
   const { customer, isLoading, createCustomer, isCreating, error } = useCustomer(liffProfile?.userId);
 
@@ -48,10 +49,27 @@ export default function UserDetailsForm({ formData, setFormData, onSubmit, liffP
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid && acceptDPO) {
-      // Proceed to create appointment (handler passed from parent)
-      await onSubmit();
+      // Provide immediate tactile feedback and prevent double-clicks
+      try {
+        setPressed(true);
+        const res = onSubmit && onSubmit();
+        // If parent returns a promise (mutateAsync), wait for it so we can reset pressed accordingly.
+        if (res && typeof res.then === "function") {
+          await res;
+        }
+      } catch (err) {
+        // swallow - parent handles errors and shows alerts
+      } finally {
+        // We'll also rely on the parent `isSubmitting` prop to clear the pressed state when the action completes.
+        if (!isSubmitting) setPressed(false);
+      }
     }
   };
+
+  // When parent submission state changes to false, clear local pressed state
+  useEffect(() => {
+    if (!isSubmitting) setPressed(false);
+  }, [isSubmitting]);
 
   return (
     <div className="space-y-6">
@@ -146,14 +164,22 @@ export default function UserDetailsForm({ formData, setFormData, onSubmit, liffP
         {error && <div className="text-red-500 text-sm text-center mt-2">เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง</div>}
         <button
           type="submit"
-          disabled={!isValid || !acceptDPO || isLoading || isCreating}
-          className={`w-full rounded-xl py-3 text-sm font-semibold transition ${
-            isValid && acceptDPO && !isLoading && !isCreating
+          disabled={!isValid || !acceptDPO || isLoading || isCreating || isSubmitting || pressed}
+          aria-busy={isCreating || isSubmitting || pressed}
+          className={`w-full rounded-xl py-3 text-sm font-semibold transition transform active:scale-95 flex items-center justify-center gap-2 ${
+            isValid && acceptDPO && !isLoading && !isCreating && !isSubmitting
               ? "bg-blue-600 text-white hover:bg-blue-700"
               : "cursor-not-allowed bg-slate-100 text-slate-400"
           }`}
         >
-          {isLoading || isCreating ? "กำลังดำเนินการ..." : "ดำเนินการต่อ"}
+          {isCreating || isSubmitting || pressed ? (
+            <>
+              <span className="w-4 h-4 border-2 border-white/70 border-t-transparent rounded-full animate-spin inline-block" />
+              <span>{isCreating || isSubmitting ? "กำลังดำเนินการ..." : "กำลังส่ง..."}</span>
+            </>
+          ) : (
+            "ดำเนินการต่อ"
+          )}
         </button>
       </form>
 

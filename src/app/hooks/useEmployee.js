@@ -1,35 +1,35 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 
-export function useGetAppointmentsByTags(tags) {
+/**
+ * (อัปเกรด) Hook สำหรับดึงรายการ Appointment ทั้งหมดที่เกี่ยวข้องกับพนักงาน
+ * @param {object} employee - Object ข้อมูลพนักงานที่ได้จาก Central Server (มีทั้ง roles และ id)
+ */
+export function useGetAppointmentsByTags(employee) {
+  const tags = employee?.centralRole; // ดึง tags/roles จาก object
+  const employeeAdminId = employee?.adminId;
+
   return useQuery({
-    queryKey: ["employee-appointments", tags],
+    // ใช้ employeeAdminId ใน queryKey เพื่อให้แน่ใจว่าถ้าเปลี่ยนคน ข้อมูลจะโหลดใหม่
+    queryKey: ["employee-appointments", employeeAdminId],
     queryFn: async () => {
-      // สร้าง query string จาก array ของ tags
-      // ผลลัพธ์จะเป็น: "?tags=admin&tags=ENGINEER"
       const params = new URLSearchParams();
-      tags.forEach((tag) => params.append("tags", tag));
+      if (tags) {
+        tags.forEach((tag) => params.append("tags", tag));
+      }
+      params.append("employeeAdminId", employeeAdminId); // ส่ง adminId ไป
       const queryString = params.toString();
 
-      // เรียก API ไปยัง Backend พร้อมกับ query string
-      const response = await fetch(`${API_URL}/appointments/employee-appointments?${queryString}`, {
-        credentials: "include", // สำคัญมาก! เพื่อส่ง Cookie ไปด้วย
-      });
+      const response = await fetch(`${API_URL}/appointments/employee-appointments?${queryString}`);
 
-      const data = await response.json();
-
-      console.log(data);
-
-      if (data.error) {
-        throw new Error("Failed to fetch employee appointments");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch employee appointments");
       }
-      return data;
+      return response.json();
     },
-
-    // enabled: เงื่อนไขในการรัน query นี้
-    // จะทำงานก็ต่อเมื่อ `tags` ไม่ใช่ค่าว่างและมีสมาชิกใน array
-    // ป้องกันการยิง API ที่ไม่จำเป็น
-    enabled: !!tags && tags.length > 0,
+    // จะรัน query ต่อเมื่อมีข้อมูล employee และมี roles
+    enabled: !!employee && !!tags && tags.length > 0,
   });
 }
 
@@ -41,12 +41,12 @@ export function useUpdateAppointmentAction() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ appointmentId, action, offerDate }) => {
+    mutationFn: async ({ appointmentId, action, offerDate, employeeInfo }) => {
       const response = await fetch(`${API_URL}/appointments/${appointmentId}/action`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action, offerDate }), // ส่ง action และ offerDate ไปใน body
-        credentials: "include",
+        // ส่ง employeeInfo (Object) ไปใน body
+        body: JSON.stringify({ action, offerDate, employeeInfo }),
       });
 
       if (!response.ok) {
@@ -58,7 +58,7 @@ export function useUpdateAppointmentAction() {
     onSuccess: () => {
       // เมื่ออัปเดตสำเร็จ ให้สั่งให้ query 'available-appointments' โหลดข้อมูลใหม่
       // นี่คือหัวใจที่ทำให้ข้อมูลในหน้ารีเฟรชอัตโนมัติ!
-      queryClient.invalidateQueries({ queryKey: ["available-appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["employee-appointments"] });
     },
   });
 }

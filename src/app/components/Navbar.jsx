@@ -9,16 +9,15 @@ import { useRouter } from "next/navigation";
 
 // 1. Import Custom Hooks ที่จำเป็น
 import { useLiff } from "./Provider/LiffProvider";
-import { useAuth } from "./Provider/AuthProvider"; // Hook สำหรับจัดการสถานะ Login
 
 export default function Navbar({ onProfileOpen = () => {} }) {
   const { liffProfile } = useLiff();
   const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 2. ดึงสถานะการ Login และข้อมูลพนักงานมาจาก Auth Context
-  // ไม่ต้องมี useEffect หรือ useState สำหรับ isEmployee อีกต่อไป
-  const { isEmployee, isLoading } = useAuth();
+  // Mock employee data - always allow access to employee features
+  const isEmployee = true;
+  const isLoading = false;
 
   const handleMenuClick = (action) => {
     setIsMenuOpen(false);
@@ -52,9 +51,9 @@ export default function Navbar({ onProfileOpen = () => {} }) {
           <Link
             href={"/queueService"}
             onClick={() => window.dispatchEvent(new CustomEvent("go-home"))}
-            className="text-1xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-800"
+            className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-800"
           >
-            OK Number One Queue
+            OK1 Queue
           </Link>
         </div>
 
@@ -99,7 +98,7 @@ export default function Navbar({ onProfileOpen = () => {} }) {
 
                 {/* Customer Menu Items */}
                 <Link
-                  href="/queueService"
+                  href="/appointments/my-appointment"
                   onClick={() => setIsMenuOpen(false)}
                   className="w-full rounded-lg bg-slate-100 p-4 text-left flex items-center gap-3 hover:bg-slate-200 transition-colors"
                 >
@@ -108,9 +107,8 @@ export default function Navbar({ onProfileOpen = () => {} }) {
                 </Link>
 
                 {/* Employee Menu Items */}
-                {/* 3. ใช้ isEmployee จาก useAuth() โดยตรง */}
-                {/* เราสามารถเช็ค isLoading เพื่อไม่แสดงอะไรเลยจนกว่าจะโหลดเสร็จ */}
-                {!isLoading && isEmployee && (
+                {/* Always show employee menu items since we're using mock data */}
+                {isEmployee && (
                   <>
                     <div className="border-t border-slate-200 pt-4">
                       <h3 className="text-sm font-medium text-slate-600 mb-2">เมนูพนักงาน</h3>

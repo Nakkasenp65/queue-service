@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 // Best Practice: Store your API base URL in an environment variable
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+const API_BASE_URL = "http://localhost:3000/api/v1";
 
 /**
  * Builds the correct URL with query parameters for fetching appointments.
@@ -126,5 +128,19 @@ export function useCreateAppointment() {
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
     },
+  });
+}
+
+export function useGetDisplayAppointment(id) {
+  return useQuery({
+    queryKey: ["display-appointment", id],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/appointments/display/${id}`);
+      if (!data) {
+        throw new Error("Failed to fetch display appointment");
+      }
+      return data;
+    },
+    enabled: !!id, // Only run query if id is provided
   });
 }

@@ -5,6 +5,7 @@ import { useGetMyAppointment } from "@/app/hooks/useAppointments";
 import { useLiff } from "@/app/components/Provider/LiffProvider";
 import { Calendar, Clock, MapPin, User, Share2, Phone, Wrench, X } from "lucide-react";
 import Swal from "sweetalert2";
+import axios from "axios";
 
 export default function MyAppointmentPage() {
   const { liffProfile, actions } = useLiff();
@@ -154,13 +155,10 @@ export default function MyAppointmentPage() {
         await Swal.fire({ icon: "error", title: "ไม่พบข้อมูลผู้ใช้", text: "ไม่สามารถยกเลิกได้" });
         return;
       }
+      const { data } = await axios.post(`http://localhost:3000/api/v1/appointments/cancel/${myAppointment.id}`);
+      console.log(data);
 
-      const res = await fetch(`/api/appointments/my-appointment?lineUserId=${encodeURIComponent(lineUserId)}`, {
-        method: "DELETE",
-      });
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
+      if (!data) {
         await Swal.fire({ icon: "error", title: "ยกเลิกไม่สำเร็จ", text: data.message || "เกิดข้อผิดพลาด" });
         return;
       }

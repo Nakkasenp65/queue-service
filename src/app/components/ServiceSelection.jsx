@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Smartphone, Repeat, HandCoins, ShieldCheck, Building, Wrench, Info, History } from "lucide-react";
 import LatestAppointmentCard from "./LatestAppointmentCard";
+import { useGetDisplayAppointment } from "../hooks/useAppointments";
 
 const services = [
   { name: "ซ่อมมือถือ", icon: Wrench },
@@ -50,10 +51,16 @@ const cardTap = {
 };
 
 export default function ServiceSelection({ customer, onServiceSelect }) {
+  const {
+    data: appointmentData,
+    isLoading: appointmentLoading,
+    error: appointmentError,
+  } = useGetDisplayAppointment(customer?.id || null);
+
   return (
     <motion.div className="flex flex-col gap-8">
       {/* === Latest Appointment Section === */}
-      <LatestAppointmentCard appointments={customer?.appointments || []} />
+      <LatestAppointmentCard appointment={appointmentData} loading={appointmentLoading} />
 
       {/* === Services Section === */}
       <motion.section variants={containerVariants} initial="hidden" animate="visible">
