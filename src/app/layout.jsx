@@ -1,6 +1,7 @@
 import "./globals.css";
 import Providers from "./components/Provider/Providers";
 import Navbar from "./components/Navbar";
+import { AuthProvider } from "./components/Provider/AuthProvider";
 
 export const metadata = {
   title: "Create Next App",
@@ -12,8 +13,10 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`antialiased`}>
         <Providers>
-          <Navbar />
-          {children}
+          <AuthProvider>
+            <Navbar />
+            {children}
+          </AuthProvider>
         </Providers>
       </body>
     </html>

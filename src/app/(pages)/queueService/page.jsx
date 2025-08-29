@@ -1,102 +1,54 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Smartphone, Repeat, HandCoins, ShieldCheck, Building, Wrench, Info, History, User } from "lucide-react";
+import { Smartphone, Repeat, HandCoins, ShieldCheck, Building, Wrench } from "lucide-react";
 import ProfileModal from "@/app/components/ProfileModal";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+
+// --- Provider & Hooks ---
 import { useLiff } from "@/app/components/Provider/LiffProvider";
 import { useCustomer } from "@/app/hooks/useCustomer";
-import { useGetAppointments } from "@/app/hooks/useAppointments";
+// 1. Import เฉพาะ Hook ที่จำเป็น
+import { useCreateAppointment } from "@/app/hooks/useAppointments";
+
+// --- Child Components ---
 import DateTimePicker from "@/app/components/DateTimePicker";
 import DPOConsent from "@/app/components/DPOConsent";
 import UserDetailsForm from "@/app/components/UserDetailsForm";
 import ServiceSelection from "@/app/components/ServiceSelection";
-import { useRouter } from "next/navigation";
-
-const services = [
-  { name: "ซ่อมมือถือ", icon: Wrench },
-  { name: "ซื้อขายมือถือ", icon: Smartphone },
-  { name: "จำนำมือถือ", icon: HandCoins },
-  { name: "จำนำไอคลาวด์", icon: ShieldCheck },
-  { name: "รีไฟแนนซ์", icon: Repeat },
-  { name: "อื่นๆ", icon: Building },
-];
-
-const moreInfo = [
-  { name: "เกี่ยวกับเรา", icon: Info },
-  { name: "ประวัติการจอง", icon: History },
-];
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      type: "spring",
-      stiffness: 100,
-    },
-  },
-};
-
-const cardHover = {
-  scale: 1.05,
-  transition: { type: "spring", stiffness: 300 },
-};
-
-const cardTap = {
-  scale: 0.95,
-};
 
 export default function HomePage() {
   const router = useRouter();
-  const [appState, setAppState] = useState("selecting_service"); // selecting_service -> user_details -> dpo_consent -> appointment_status
-  const { liffProfile, error } = useLiff();
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [showDPO, setShowDPO] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { liffProfile } = useLiff();
+
+  // --- State Management ---
+  // State สำหรับควบคุม Flow ของหน้า (แสดง Component ไหน)
+  const [appState, setAppState] = useState("selecting_service");
+  // State สำหรับเก็บข้อมูลทั้งหมดที่กรอกในฟอร์ม
   const [formData, setFormData] = useState({
-    appointmentType: "in-store",
+    appointmentType: "onsite", // default value
     serviceType: "",
-    branch: "",
-    locationDetails: "",
     customerName: "",
     customerPhone: "",
     appointmentAt: "",
-    status: "",
-    lineUserId: "",
-    lineDisplayName: "",
-    lineProfilePicUrl: "",
-    depositSlipUrl: "",
-    timestamps: "",
-    note: "", // Add note field to initial state
+    lineUserId: liffProfile?.userId || "",
+    lineDisplayName: liffProfile?.displayName || "",
+    lineProfilePicUrl: liffProfile?.pictureUrl || "",
+    email: liffProfile?.email || "",
+    note: "",
   });
+  // State สำหรับเปิด/ปิด Modal
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [showDPO, setShowDPO] = useState(false);
 
+  // --- Hooks ---
   const { customer, isLoading: isCustomerLoading } = useCustomer(liffProfile?.userId || null);
-  const { data: appointments, createAppointment, isCreating } = useGetAppointments(liffProfile?.userId);
+  const { mutate: createAppointment, isPending: isCreating } = useCreateAppointment();
 
   const handleServiceSelect = (service) => {
-    if (service.name === "รีไฟแนนซ์" || service.name === "ซื้อขายมือถือ") {
-      setFormData((prev) => ({
-        ...prev,
-        appointmentType: "off-store",
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        appointmentType: "in-store",
-      }));
-    }
+    // Logic การกำหนดประเภทนัดหมายตามบริการที่เลือก
     setFormData((prev) => ({
       ...prev,
       serviceType: service.name,
@@ -109,17 +61,14 @@ export default function HomePage() {
     localStorage.setItem("dpo_accepted", "true");
   };
 
-  // จองคิว
+  // 3. แก้ไข handleCreateAppointment ให้ถูกต้องและสมบูรณ์
   const handleCreateAppointment = async () => {
     if (!formData.appointmentAt || !formData.lineUserId) {
-      console.error("Missing required data:", {
-        appointmentAt: formData.appointmentAt,
-        lineUserId: formData.lineUserId,
-      });
+      console.error("Missing required data: appointmentAt or lineUserId");
+      Swal.fire("ข้อมูลไม่ครบ", "กรุณาเลือกวันและเวลาที่ต้องการนัดหมาย", "warning");
       return;
     }
 
-    // Automatic tag assignment based on service
     const getRequiredTags = (serviceType) => {
       switch (serviceType) {
         case "รีไฟแนนซ์":
@@ -131,49 +80,61 @@ export default function HomePage() {
       }
     };
 
-    try {
-      const newAppointment = await createAppointment({
-        // Customer data - will be created if doesn't exist
-        customerName: formData.customerName,
-        customerPhone: formData.customerPhone,
-        lineUserId: formData.lineUserId,
-        lineDisplayName: formData.lineDisplayName,
-        lineProfilePicUrl: formData.lineProfilePicUrl,
+    // 4. (สำคัญ) ปรับ Payload ให้ Key ตรงกับที่ Backend Controller คาดหวัง
+    const appointmentPayload = {
+      // Customer data for findOrCreate logic in backend
+      fullname: formData.customerName,
+      phone: formData.customerPhone,
+      line_user_id: formData.lineUserId,
+      line_display_name: formData.lineDisplayName,
+      picture_url: formData.lineProfilePicUrl,
+      email: formData.email,
+      // Appointment data
+      appointmentAt: formData.appointmentAt,
+      date: formData.appointmentAt,
+      type: formData.appointmentType.toUpperCase(), // ONSITE, OFFSITE, ONLINE
+      note: formData.note || `Service: ${formData.serviceType}`,
+      requiredTags: getRequiredTags(formData.serviceType),
+    };
 
-        // Appointment data
-        appointmentAt: formData.appointmentAt,
-        serviceType: formData.serviceType,
-        appointmentType: formData.appointmentType,
-        note: formData.note || `Service: ${formData.serviceType}`, // Use custom note or fallback
-
-        // Automatic tags based on service
-        requiredTags: getRequiredTags(formData.serviceType),
-      });
-      console.log(newAppointment);
-      // ไปหน้ารายการนัดหมาย
-      router.push("/appointments/my-appointment");
-    } catch (error) {
-      console.error("Failed to create appointment:", error);
-    }
+    // 5. เรียกใช้ Mutation และจัดการผลลัพธ์ใน callback
+    createAppointment(appointmentPayload, {
+      onSuccess: (newAppointment) => {
+        console.log("Successfully created appointment:", newAppointment);
+        Swal.fire({
+          title: "จองคิวสำเร็จ!",
+          text: "การนัดหมายของคุณได้รับการบันทึกแล้ว",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        // 6. (สำคัญ) ย้าย router.push มาไว้ที่นี่ เพื่อให้ทำงานหลังจองสำเร็จเท่านั้น
+        router.push("/appointments/my-appointment");
+      },
+      onError: (error) => {
+        console.error("Failed to create appointment:", error);
+        Swal.fire({
+          title: "เกิดข้อผิดพลาด",
+          text: error.message || "ไม่สามารถสร้างนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
+          icon: "error",
+        });
+      },
+    });
   };
 
+  // Effect สำหรับจัดการ Event ทั่วไป
   useEffect(() => {
     const goHome = () => setAppState("selecting_service");
-    const goAppointments = () => setAppState("appointment_status");
     const openProfile = () => setIsProfileOpen(true);
     window.addEventListener("go-home", goHome);
-    window.addEventListener("go-appointments", goAppointments);
     window.addEventListener("open-profile", openProfile);
     return () => {
       window.removeEventListener("go-home", goHome);
-      window.removeEventListener("go-appointments", goAppointments);
       window.removeEventListener("open-profile", openProfile);
     };
   }, []);
 
-  console.log("Check liff Profile: ", liffProfile);
-  console.log("Check customer: ", customer);
-  console.log("Check appointment: ", appointments);
+  console.log("Appointment Payload:", formData);
 
   return (
     <>
@@ -195,12 +156,7 @@ export default function HomePage() {
             {/* -------------- หน้าแสดงคิว เลือกวันที่ -------------- */}
             {appState === "selecting_date_time" && (
               <motion.div key="date_time_picker">
-                <DateTimePicker
-                  formData={formData}
-                  setFormData={setFormData}
-                  setAppState={setAppState}
-                  onComplete={() => setAppState("user_details")}
-                />
+                <DateTimePicker formData={formData} setFormData={setFormData} setAppState={setAppState} />
               </motion.div>
             )}
 
@@ -213,6 +169,7 @@ export default function HomePage() {
                   setFormData={setFormData}
                   onSubmit={handleCreateAppointment}
                   liffProfile={liffProfile}
+                  isSubmitting={isCreating} // 7. ส่ง isCreating ไป disable ปุ่ม
                 />
               </motion.div>
             )}
@@ -223,6 +180,7 @@ export default function HomePage() {
   );
 }
 
+// Helper component สำหรับจัดการ Event การกดย้อนกลับ
 function BackEventBridge({ onBack }) {
   useEffect(() => {
     const handler = () => onBack();

@@ -21,7 +21,7 @@ export function useCustomer(lineUserId) {
       setError(null);
 
       try {
-        const response = await fetch(`/api/customers/${lineUserId}`);
+        const response = await fetch(`http://localhost:3000/api/v1/customers/${lineUserId}`);
 
         if (response.status === 404) {
           // Customer doesn't exist - this is expected for new users

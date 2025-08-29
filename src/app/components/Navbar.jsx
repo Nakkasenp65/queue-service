@@ -1,34 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import { User, Calendar, Users } from "lucide-react";
-import { useLiff } from "./Provider/LiffProvider";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+// 1. Import Custom Hooks ที่จำเป็น
+import { useLiff } from "./Provider/LiffProvider";
+import { useAuth } from "./Provider/AuthProvider"; // Hook สำหรับจัดการสถานะ Login
+
 export default function Navbar({ onProfileOpen = () => {} }) {
   const { liffProfile } = useLiff();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isEmployee, setIsEmployee] = useState(false);
   const router = useRouter();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  useEffect(() => {
-    // Check if user is an employee by calling the API
-    const checkEmployeeStatus = async () => {
-      try {
-        const response = await fetch("/api/auth/check-role");
-        const data = await response.json();
-        setIsEmployee(data.isEmployee);
-      } catch (error) {
-        console.error("Error checking employee status:", error);
-        setIsEmployee(false);
-      }
-    };
-
-    checkEmployeeStatus();
-  }, []);
+  // 2. ดึงสถานะการ Login และข้อมูลพนักงานมาจาก Auth Context
+  // ไม่ต้องมี useEffect หรือ useState สำหรับ isEmployee อีกต่อไป
+  const { isEmployee, isLoading } = useAuth();
 
   const handleMenuClick = (action) => {
     setIsMenuOpen(false);
@@ -118,7 +108,9 @@ export default function Navbar({ onProfileOpen = () => {} }) {
                 </Link>
 
                 {/* Employee Menu Items */}
-                {isEmployee && (
+                {/* 3. ใช้ isEmployee จาก useAuth() โดยตรง */}
+                {/* เราสามารถเช็ค isLoading เพื่อไม่แสดงอะไรเลยจนกว่าจะโหลดเสร็จ */}
+                {!isLoading && isEmployee && (
                   <>
                     <div className="border-t border-slate-200 pt-4">
                       <h3 className="text-sm font-medium text-slate-600 mb-2">เมนูพนักงาน</h3>

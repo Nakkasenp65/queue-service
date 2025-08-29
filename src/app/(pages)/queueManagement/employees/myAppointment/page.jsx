@@ -1,21 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building,
   Smartphone,
   Wrench,
-  Check,
-  X,
   Clock,
   Calendar,
   User,
   Phone,
-  Mail,
-  Filter,
   ChevronDown,
-  Eye,
   CheckCircle2,
   XCircle,
   ClockIcon,
@@ -23,90 +18,81 @@ import {
 import DateTimeOfferPicker from "@/app/components/DateTimeOfferPicker";
 import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
+import { useAuth } from "@/app/components/Provider/AuthProvider";
+// 1. Import Hooks ที่จำเป็นสำหรับการจัดการ Server State
+import { useGetAppointmentsByTags, useUpdateAppointmentAction } from "@/app/hooks/useEmployee";
 
 export default function EmployeeAppointmentsPage() {
-  const [appointments, setAppointments] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState("");
+  const router = useRouter();
+  const { employee, isLoading: authLoading } = useAuth();
+
+  // 2. ใช้ React Query จัดการ Server State ทั้งหมด
+  const {
+    data: appointmentsData,
+    isLoading,
+    error,
+    refetch: refetchAppointments,
+  } = useGetAppointmentsByTags(employee?.centralRole);
+
+  console.log(employee);
+  console.log(appointmentsData);
+
+  // ป้องกันกรณีที่ API คืนค่าเป็น object หรือ undefined แทน array
+  const appointments = Array.isArray(appointmentsData)
+    ? appointmentsData
+    : Array.isArray(appointmentsData?.data)
+    ? appointmentsData.data
+    : [];
+
+  //    - mutate: updateAppointmentAction -> ฟังก์ชันสำหรับยิง API เพื่ออัปเดตข้อมูล
+  //    - isPending: isUpdating -> สถานะกำลังอัปเดต (เผื่อใช้ disable ปุ่ม)
+  const { mutate: updateAppointmentAction, isPending: isUpdating } = useUpdateAppointmentAction();
+
+  // 3. State ที่เหลือเป็น UI State ที่จัดการใน Component นี้เท่านั้น
   const [filterStatus, setFilterStatus] = useState("ALL");
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
-  const router = useRouter();
 
   const statusFilters = [
-    { value: "ALL", label: "ทั้งหมด", count: 0 },
-    { value: "PENDING", label: "รอดำเนินการ", count: 0 },
-    { value: "ACCEPTED_BY_EMPLOYEE", label: "รับทำแล้ว", count: 0 },
-    { value: "REJECTED_BY_EMPLOYEE", label: "ปฏิเสธแล้ว", count: 0 },
-    { value: "OFFERED", label: "เสนอเวลาใหม่", count: 0 },
+    { value: "ALL", label: "ทั้งหมด" },
+    { value: "PENDING", label: "รอดำเนินการ" },
+    { value: "ACCEPTED_BY_EMPLOYEE", label: "รับทำแล้ว" },
+    { value: "REJECTED_BY_EMPLOYEE", label: "ปฏิเสธแล้ว" },
+    { value: "OFFERED", label: "เสนอเวลาใหม่" },
   ];
 
-  useEffect(() => {
-    fetchMyAppointments();
-  }, []);
+  // 4. Action Handler ที่เรียกใช้ Mutation Hook
+  const handleAppointmentAction = (appointmentId, action, offerDate = null) => {
+    const actionText = {
+      ACCEPT: "รับทำ",
+      REJECT: "ปฏิเสธ",
+      OFFER: "เสนอเวลาใหม่",
+    };
 
-  const fetchMyAppointments = async () => {
-    try {
-      setIsLoading(true);
-      const response = await fetch("/api/employees/appointments?employeeId=current");
-
-      if (response.status === 401) {
-        router.push("/queueManagement/login");
-        return;
+    updateAppointmentAction(
+      { appointmentId, action, offerDate },
+      {
+        onSuccess: () => {
+          Swal.fire({
+            title: "สำเร็จ!",
+            text: `${actionText[action]}นัดหมายเรียบร้อยแล้ว`,
+            icon: "success",
+            timer: 2000,
+            showConfirmButton: false,
+          });
+          setShowDatePicker(null); // ปิด DatePicker หลังเสนอเวลาสำเร็จ
+          // ไม่ต้องเรียก refetchAppointments() เอง เพราะ onSuccess ใน Hook จะทำให้ข้อมูลอัปเดตอัตโนมัติ
+        },
+        onError: (err) => {
+          Swal.fire({
+            title: "เกิดข้อผิดพลาด",
+            text: err.message || "ไม่สามารถอัปเดตนัดหมายได้",
+            icon: "error",
+          });
+        },
       }
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch appointments");
-      }
-
-      const data = await response.json();
-      console.log("Received appointments data:", data);
-      console.log("Is array:", Array.isArray(data));
-      console.log("Length:", data.length);
-      setAppointments(data);
-    } catch (error) {
-      console.error("Error fetching appointments:", error);
-      setError("ไม่สามารถโหลดข้อมูลนัดหมายได้");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAppointmentAction = async (appointmentId, action, offerDate = null) => {
-    try {
-      const payload = {
-        appointmentId,
-        action,
-        ...(offerDate && { offerDate }),
-      };
-
-      // For now, just show success message - later connect to API
-      const actionText = {
-        ACCEPT: "รับทำ",
-        REJECT: "ปฏิเสธ",
-        OFFER: "เสนอเวลาใหม่",
-      };
-
-      await Swal.fire({
-        title: "สำเร็จ!",
-        text: `${actionText[action]}นัดหมายเรียบร้อยแล้ว`,
-        icon: "success",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-
-      // Refresh appointments
-      fetchMyAppointments();
-      setShowDatePicker(null);
-    } catch (error) {
-      console.error("Error updating appointment:", error);
-      Swal.fire({
-        title: "เกิดข้อผิดพลาด",
-        text: "ไม่สามารถอัปเดตนัดหมายได้ กรุณาลองใหม่",
-        icon: "error",
-      });
-    }
+    );
   };
 
   const handleOfferDateTime = (appointmentId) => {
@@ -118,34 +104,23 @@ export default function EmployeeAppointmentsPage() {
       });
       return;
     }
-
     const offerDate = new Date(`${selectedDate}T${selectedTime}`);
     handleAppointmentAction(appointmentId, "OFFER", offerDate);
   };
 
-  const filteredAppointments = appointments.filter((appointment) => {
+  const filteredAppointments = appointments?.filter((appointment) => {
     if (filterStatus === "ALL") return true;
     return appointment.status === filterStatus;
   });
 
-  // Update filter counts
   const updatedFilters = statusFilters.map((filter) => ({
     ...filter,
     count:
       filter.value === "ALL" ? appointments.length : appointments.filter((apt) => apt.status === filter.value).length,
   }));
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("th-TH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
-
-  if (isLoading) {
+  // 5. ปรับปรุง Loading และ Error State ให้ใช้จาก Hook
+  if (authLoading || isLoading) {
     return (
       <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <div className="text-center">
@@ -162,9 +137,9 @@ export default function EmployeeAppointmentsPage() {
         <div className="text-center">
           <div className="text-red-500 text-4xl mb-4">❌</div>
           <h1 className="text-xl font-semibold text-slate-900 mb-2">เกิดข้อผิดพลาด</h1>
-          <p className="text-slate-600 mb-4">{error}</p>
+          <p className="text-slate-600 mb-4">{error.message}</p>
           <button
-            onClick={fetchMyAppointments}
+            onClick={() => refetchAppointments()}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             ลองใหม่
@@ -185,9 +160,9 @@ export default function EmployeeAppointmentsPage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
             <div className="mb-4 md:mb-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-1 md:mb-2">
-                นัดหมายของฉัน
+                นัดหมายสำหรับคุณ
               </h1>
-              <p className="text-slate-600 text-base sm:text-lg">จัดการและตอบกลับนัดหมายของลูกค้า</p>
+              <p className="text-slate-600 text-base sm:text-lg">จัดการและตอบกลับนัดหมายที่ตรงกับทักษะของคุณ</p>
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
@@ -195,7 +170,7 @@ export default function EmployeeAppointmentsPage() {
                 <span className="font-semibold">{filteredAppointments.length} รายการ</span>
               </div>
               <button
-                onClick={fetchMyAppointments}
+                onClick={() => refetchAppointments()}
                 className="px-4 py-2 sm:px-6 sm:py-3 bg-white border border-slate-200 rounded-2xl hover:bg-slate-50 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
               >
                 <div className="flex items-center gap-2">
@@ -359,12 +334,7 @@ const AppointmentCard = ({
       <div
         className={`relative bg-white backdrop-blur-lg rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden ${type.borderColor}`}
       >
-        {/* Gradient Top Border */}
-        {/* <div className={`h-2 bg-gradient-to-r ${type.gradient}`} /> */}
-
-        {/* Card Content */}
         <div className="p-6">
-          {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center gap-3">
               <div className={`p-3 rounded-2xl bg-gradient-to-br ${type.bgGradient} border ${type.borderColor}`}>
@@ -384,7 +354,6 @@ const AppointmentCard = ({
             </div>
           </div>
 
-          {/* Customer Info */}
           <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-2xl p-4 mb-4 border border-slate-200/50">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
@@ -410,7 +379,6 @@ const AppointmentCard = ({
             )}
           </div>
 
-          {/* Tags */}
           {appointment.requiredTags && appointment.requiredTags.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-4">
               {appointment.requiredTags.map((tag) => (
@@ -424,7 +392,6 @@ const AppointmentCard = ({
             </div>
           )}
 
-          {/* Date & Time */}
           <div className="grid grid-cols-2 gap-3 mb-6">
             <div className="flex items-center gap-2 bg-white/70 rounded-xl p-3 border border-slate-200/50">
               <Calendar className="w-5 h-5 text-blue-500" />
@@ -454,7 +421,6 @@ const AppointmentCard = ({
             </div>
           </div>
 
-          {/* Action Buttons - Only show for pending appointments */}
           {isPending && (
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
@@ -494,7 +460,6 @@ const AppointmentCard = ({
                 />
               </motion.button>
 
-              {/* Date/Time Picker as a separate component */}
               <DateTimeOfferPicker
                 isOpen={showDatePicker === appointment.id}
                 selectedDate={selectedDate}
@@ -506,7 +471,6 @@ const AppointmentCard = ({
             </div>
           )}
 
-          {/* Footer */}
           <div className="mt-4 pt-4 border-t border-slate-200/50">
             <p className="text-xs text-slate-500">
               สร้างเมื่อ:{" "}

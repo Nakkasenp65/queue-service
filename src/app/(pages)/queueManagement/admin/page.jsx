@@ -1,23 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-
 export default function AdminPage() {
-  const router = useRouter();
-  const [authChecked, setAuthChecked] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("admin_token");
-    if (!token) {
-      router.replace("/queueManagement/login");
-    } else {
-      setAuthChecked(true);
-    }
-  }, [router]);
-
-  if (!authChecked) return null;
-
   return (
     <main className="min-h-screen p-6 bg-slate-50">
       <div className="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow-lg">

@@ -12,6 +12,8 @@ export default function MyAppointmentPage() {
   const [sharing, setSharing] = useState(false);
   const [isCancelling, setIsCancelling] = useState(false);
 
+  console.log("MyAppointmentPage render", { myAppointment, isLoading, error });
+
   const statusThai = (status) => {
     switch (status) {
       case "PENDING":

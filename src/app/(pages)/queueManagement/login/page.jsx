@@ -6,6 +6,10 @@ import { User, Lock, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+// 1. (Best Practice) ดึง API URL มาจาก Environment Variable
+// เพื่อให้ง่ายต่อการเปลี่ยน URL ตอนนำขึ้น Production
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
+
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -21,25 +25,33 @@ export default function LoginPage() {
     }
     setIsSubmitting(true);
     setError(null);
-
+    console.log("Logging in with:", { username, password });
     try {
-      const response = await fetch("/api/auth/login", {
+      // 2. เปลี่ยน URL ใน fetch ให้ชี้ไปที่ Backend ของเรา
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }), // Keep email field for API compatibility
+        body: JSON.stringify({ username, password }),
+        // 3. (สำคัญมาก) เพิ่ม credentials: 'include'
+        // เพื่ออนุญาตให้ Browser ส่งและรับ Cookie ข้าม Domain ได้
+        credentials: "include",
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "เข้าสู่ระบบล้มเหลว");
+        // 4. ปรับปรุงการแสดงผล Error ให้ตรงกับ Response จาก Backend ใหม่
+        setError(data.message || "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง");
         return;
       }
 
-      // Success: Cookie is set by the server, redirect to admin
+      // ถ้าสำเร็จ: Server จะทำการ Set Cookie ให้เอง, เราแค่ Redirect ก็พอ
+      // สามารถใช้ data.redirectTo จาก server ได้ถ้าต้องการ
+      console.log("Login successful:", data);
       router.push("/queueManagement/admin");
     } catch (error) {
-      setError("เกิดข้อผิดพลาดในการเข้าสู่ระบบ");
+      console.error("Login failed:", error);
+      setError("ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้");
     } finally {
       setIsSubmitting(false);
     }
@@ -64,6 +76,7 @@ export default function LoginPage() {
         </motion.div>
 
         <motion.form onSubmit={handleSubmit} className="space-y-4" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+          {/* ... ส่วนของ Form เหมือนเดิม ไม่ต้องแก้ไข ... */}
           <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200">
             <div className="space-y-4">
               <div>
@@ -114,13 +127,6 @@ export default function LoginPage() {
           >
             {isSubmitting ? "กำลังเข้าสู่ระบบ..." : "เข้าสู่ระบบ"}
           </motion.button>
-
-          <div className="text-center text-sm text-slate-600">
-            ยังไม่มีบัญชี?{" "}
-            <Link href="/queueManagement/register" className="text-blue-500 font-medium">
-              ลงทะเบียนพนักงาน
-            </Link>
-          </div>
         </motion.form>
       </div>
     </div>
