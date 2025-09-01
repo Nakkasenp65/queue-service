@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-// import { useGetDisplayAppointments } from '@/app/hooks/useAppointments'; // (สำคัญ) เราจะ Comment บรรทัดนี้ออกไปก่อน
 import { Wifi } from "lucide-react";
 
 // Custom Hook สำหรับสร้างนาฬิกาที่อัปเดตทุกวินาที
@@ -151,11 +150,6 @@ export default function QueueDisplayPage() {
       clearInterval(updateInterval);
     };
   }, []); // รัน Effect นี้แค่ครั้งเดียวตอนเริ่ม
-
-  // (สำคัญ) Comment บรรทัดนี้ออกไปก่อนเพื่อใช้ Mock Data
-  // const { data: appointments = [], isLoading, error } = useGetDisplayAppointments();
-
-  // ========================================================================
 
   const formatQueueNumber = (id) => {
     if (!id) return "---";

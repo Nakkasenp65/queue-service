@@ -1,15 +1,17 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @config "../../tailwind.config.js";
 
 @font-face {
-  font-family: "LINESeedSansTH";
-  src: url("https://cdn.jsdelivr.net/gh/ok1developer/NO1Money/LINESeedSansTH_W_Rg.woff") format("woff");
+  font-family: 'LINESeedSansTH';
+  src: url('https://cdn.jsdelivr.net/gh/ok1developer/NO1Money/LINESeedSansTH_W_Rg.woff')
+    format('woff');
   font-weight: 400;
 }
 
 @font-face {
-  font-family: "LINESeedSansTH";
-  src: url("https://cdn.jsdelivr.net/gh/ok1developer/NO1Money/LINESeedSansTH_W_Bd.woff") format("woff");
+  font-family: 'LINESeedSansTH';
+  src: url('https://cdn.jsdelivr.net/gh/ok1developer/NO1Money/LINESeedSansTH_W_Bd.woff')
+    format('woff');
   font-weight: 700;
 }
 
@@ -93,12 +95,6 @@
   }
 }
 
-.gradient-bg {
-  background: linear-gradient(270deg, #0d0221, #ff0073, #4a00e0, #000428);
-  background-size: 400% 400%;
-  animation: gradient-animation 18s ease infinite;
-}
-
 @keyframes gradient-animation {
   0% {
     background-position: 0% 50%;
@@ -138,7 +134,7 @@
   --danger-red: #ff4d6d;
   --success-green: #4ccd99;
   --info-blue: #4d8aff;
-  --font-main: "LINESeedSansTH", sans-serif;
+  --font-main: 'LINESeedSansTH', sans-serif;
   --shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.15);
   --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.2);
@@ -217,7 +213,7 @@ body {
   --animate-shining: shining 8s infinite linear;
   --animate-floating: floater 8s infinite;
 
-  --font-family-main: "LINESeedSansTH", sans-serif;
+  --font-family-main: 'LINESeedSansTH', sans-serif;
 
   --inset-shadow-md: inset 0 2px 3px rgba(0, 0, 0, 0.25);
   --inset-shadow-lg: inset 0px 0px 24px 24px rgba(0, 0, 0, 24);
@@ -266,7 +262,7 @@ body::-webkit-scrollbar {
 }
 
 .cta-gradient-bg:not(:disabled)::before {
-  content: "";
+  content: '';
   position: absolute;
   top: 0;
   left: 0;
@@ -290,7 +286,7 @@ body::-webkit-scrollbar {
 }
 
 .cta-button:not(:disabled)::after {
-  content: "";
+  content: '';
   position: absolute;
   top: -50%;
   left: -50%;
