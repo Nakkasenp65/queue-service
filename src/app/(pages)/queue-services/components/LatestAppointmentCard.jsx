@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 import {
   Smartphone,
   Building,
@@ -13,8 +13,8 @@ import {
   XCircle,
   CalendarOff,
   CheckCircle2,
-} from 'lucide-react';
-import InfoPill from '../../../components/InfoPill';
+} from "lucide-react";
+import InfoPill from "./InfoPill";
 
 export default function LatestAppointmentCard({ appointment, loading }) {
   const cardVariants = {
@@ -23,7 +23,7 @@ export default function LatestAppointmentCard({ appointment, loading }) {
       opacity: 1,
       y: 0,
       scale: 1,
-      transition: { type: 'spring', stiffness: 100, damping: 20 },
+      transition: { type: "spring", stiffness: 100, damping: 20 },
     },
   };
 
@@ -32,7 +32,7 @@ export default function LatestAppointmentCard({ appointment, loading }) {
       <motion.div variants={cardVariants} initial="initial" animate="animate">
         <motion.div
           className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/50 shadow-sm"
-          style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+          style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
         >
           <div className="p-6 pl-8">
             <div className="flex items-center gap-3">
@@ -56,28 +56,28 @@ export default function LatestAppointmentCard({ appointment, loading }) {
 
   const typeMap = {
     ONSITE: {
-      label: 'หน้าร้าน',
-      grad: 'from-sky-900 via-sky-700 to-sky-400',
+      label: "หน้าร้าน",
+      grad: "from-sky-900 via-sky-700 to-sky-400",
       icon: <Building className="h-5 w-5" />,
     },
     ONLINE: {
-      label: 'ออนไลน์',
-      grad: 'from-indigo-950 via-indigo-700 to-sky-500',
+      label: "ออนไลน์",
+      grad: "from-indigo-950 via-indigo-700 to-sky-500",
       icon: <Smartphone className="h-5 w-5" />,
     },
     OFFSITE: {
-      label: 'นอกสถานที่',
-      grad: 'from-slate-900 via-slate-700 to-zinc-500',
+      label: "นอกสถานที่",
+      grad: "from-slate-900 via-slate-700 to-zinc-500",
       icon: <Wrench className="h-5 w-5" />,
     },
   };
 
   const statusMap = {
-    PENDING: { label: 'รอดำเนินการ', badge: 'bg-slate-100 text-slate-700', Icon: Calendar },
-    CONFIRMED: { label: 'ยืนยันแล้ว', badge: 'bg-blue-50 text-blue-700', Icon: BadgeCheck },
-    COMPLETED: { label: 'เสร็จสิ้น', badge: 'bg-emerald-50 text-emerald-700', Icon: CheckCircle2 },
-    CANCELLED: { label: 'ยกเลิก', badge: 'bg-rose-50 text-rose-700', Icon: XCircle },
-    NO_SHOW: { label: 'ไม่มาตามนัด', badge: 'bg-amber-50 text-amber-800', Icon: CalendarOff },
+    PENDING: { label: "รอดำเนินการ", badge: "bg-slate-100 text-slate-700", Icon: Calendar },
+    CONFIRMED: { label: "ยืนยันแล้ว", badge: "bg-blue-50 text-blue-700", Icon: BadgeCheck },
+    COMPLETED: { label: "เสร็จสิ้น", badge: "bg-emerald-50 text-emerald-700", Icon: CheckCircle2 },
+    CANCELLED: { label: "ยกเลิก", badge: "bg-rose-50 text-rose-700", Icon: XCircle },
+    NO_SHOW: { label: "ไม่มาตามนัด", badge: "bg-amber-50 text-amber-800", Icon: CalendarOff },
   };
 
   const type = typeMap[appointment.type] || typeMap.ONSITE;
@@ -89,10 +89,10 @@ export default function LatestAppointmentCard({ appointment, loading }) {
         <motion.div
           whileHover={{
             y: -5,
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+            boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
           }}
           className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/50 shadow-lg"
-          style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
+          style={{ backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
         >
           {/* Decorative Gradient Border */}
 
@@ -125,17 +125,17 @@ export default function LatestAppointmentCard({ appointment, loading }) {
             <div className="grid grid-cols-1 gap-4 text-sm text-slate-600 sm:grid-cols-2">
               <InfoPill
                 icon={<Calendar className="h-4 w-4 text-blue-500" />}
-                label={new Date(appointment.date).toLocaleDateString('th-TH', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                label={new Date(appointment.date).toLocaleDateString("th-TH", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}
               />
               <InfoPill
                 icon={<Clock className="h-4 w-4 text-indigo-500" />}
-                label={`${new Date(appointment.date).toLocaleTimeString('th-TH', {
-                  hour: '2-digit',
-                  minute: '2-digit',
+                label={`${new Date(appointment.date).toLocaleTimeString("th-TH", {
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })} น.`}
               />
             </div>
@@ -144,11 +144,11 @@ export default function LatestAppointmentCard({ appointment, loading }) {
             <div className="mt-5 border-t border-slate-200/90 pt-4">
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-500">พนักงาน:</span>
-                {appointment.employee && appointment.employee.name ? (
+                {appointment.adminInfo && appointment.adminInfo.fullName ? (
                   <div className="flex items-center gap-2 rounded-full bg-blue-50 px-2.5 py-1">
                     <User className="h-4 w-4 text-blue-600" />
                     <span className="text-xs font-semibold text-blue-800">
-                      {appointment.employee.name}
+                      {appointment.adminInfo.fullName}
                     </span>
                   </div>
                 ) : (

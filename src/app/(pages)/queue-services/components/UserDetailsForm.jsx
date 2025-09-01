@@ -1,10 +1,8 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import DPOConsent from './DPOConsent';
-import { useCustomer } from '../hooks/useCustomer';
-import { Asterisk, CheckCircle2, Circle, CircleCheckBig } from 'lucide-react';
+import { Asterisk, Circle, CircleCheckBig } from 'lucide-react';
 
 export default function UserDetailsForm({
   formData,
@@ -15,11 +13,14 @@ export default function UserDetailsForm({
   customer,
   isLoading,
   isCreating,
+  acceptDPO,
+  setAcceptDPO,
+  showDPOContent,
+  setShowDPOContent,
+  pressed,
+  setPressed,
 }) {
   const isValid = formData.customerName?.length > 0 && formData.customerPhone?.length > 0;
-  const [acceptDPO, setAcceptDPO] = useState(false);
-  const [showDPOContent, setShowDPOContent] = useState(false);
-  const [pressed, setPressed] = useState(false); // local immediate press feedback
 
   // Check for existing customer data in localStorage or from query
   useEffect(() => {
@@ -57,20 +58,7 @@ export default function UserDetailsForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isValid && acceptDPO) {
-      // Provide immediate tactile feedback and prevent double-clicks
-      try {
-        setPressed(true);
-        const res = onSubmit && onSubmit();
-        // If parent returns a promise (mutateAsync), wait for it so we can reset pressed accordingly.
-        if (res && typeof res.then === 'function') {
-          await res;
-        }
-      } catch (err) {
-        // swallow - parent handles errors and shows alerts
-      } finally {
-        // We'll also rely on the parent `isSubmitting` prop to clear the pressed state when the action completes.
-        if (!isSubmitting) setPressed(false);
-      }
+      onSubmit && onSubmit();
     }
   };
 

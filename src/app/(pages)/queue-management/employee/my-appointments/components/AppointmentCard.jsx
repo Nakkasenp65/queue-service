@@ -11,8 +11,12 @@ import {
   CheckCircle2,
   XCircle,
   ClockIcon,
+  AlertCircle,
+  BadgeCheck,
+  CalendarOff,
 } from "lucide-react";
 import DateTimeOfferPicker from "@/app/components/DateTimeOfferPicker";
+import Image from "next/image";
 
 export default function AppointmentCard({
   appointment,
@@ -31,58 +35,91 @@ export default function AppointmentCard({
       label: "หน้าร้าน",
       gradient: "from-blue-500 via-blue-600 to-indigo-600",
       bgGradient: "from-blue-50 to-indigo-50",
-      icon: <Building className="w-6 h-6 text-blue-600" />,
+      icon: <Building className="h-6 w-6" />,
       borderColor: "border-blue-200",
     },
     ONLINE: {
       label: "ออนไลน์",
       gradient: "from-emerald-500 via-green-600 to-teal-600",
       bgGradient: "from-emerald-50 to-teal-50",
-      icon: <Smartphone className="w-6 h-6" />,
+      icon: <Smartphone className="h-6 w-6" />,
       borderColor: "border-emerald-200",
     },
     OFFSITE: {
       label: "นอกสถานที่",
       gradient: "from-purple-500 via-pink-600 to-rose-600",
       bgGradient: "from-purple-50 to-pink-50",
-      icon: <Wrench className="w-6 h-6" />,
+      icon: <Wrench className="h-6 w-6" />,
       borderColor: "border-purple-200",
     },
   };
 
+  // --- UPDATED: Added all relevant statuses from the schema ---
   const statusMap = {
     PENDING: {
       label: "รอตอบกลับ",
       color: "text-amber-600",
       bg: "bg-amber-50",
       border: "border-amber-200",
-      icon: <ClockIcon className="w-4 h-4" />,
+      icon: <ClockIcon className="h-4 w-4" />,
+    },
+    CONFIRMED: {
+      label: "ลูกค้ายืนยัน",
+      color: "text-sky-600",
+      bg: "bg-sky-50",
+      border: "border-sky-200",
+      icon: <BadgeCheck className="h-4 w-4" />,
     },
     ACCEPTED_BY_EMPLOYEE: {
       label: "รับทำแล้ว",
       color: "text-emerald-600",
       bg: "bg-emerald-50",
       border: "border-emerald-200",
-      icon: <CheckCircle2 className="w-4 h-4" />,
+      icon: <CheckCircle2 className="h-4 w-4" />,
     },
     REJECTED_BY_EMPLOYEE: {
       label: "ปฏิเสธแล้ว",
       color: "text-red-600",
       bg: "bg-red-50",
       border: "border-red-200",
-      icon: <XCircle className="w-4 h-4" />,
+      icon: <XCircle className="h-4 w-4" />,
     },
     OFFERED: {
       label: "เสนอเวลาใหม่",
       color: "text-blue-600",
       bg: "bg-blue-50",
       border: "border-blue-200",
-      icon: <Clock className="w-4 h-4" />,
+      icon: <Clock className="h-4 w-4" />,
+    },
+    CANCELLED: {
+      label: "ยกเลิกแล้ว",
+      color: "text-slate-600",
+      bg: "bg-slate-100",
+      border: "border-slate-200",
+      icon: <CalendarOff className="h-4 w-4" />,
+    },
+    // Fallback for any other status not explicitly defined
+    UNKNOWN: {
+      label: "สถานะไม่ทราบ",
+      color: "text-gray-600",
+      bg: "bg-gray-100",
+      border: "border-gray-200",
+      icon: <AlertCircle className="h-4 w-4" />,
     },
   };
 
-  const type = typeMap[appointment.type] || typeMap.ONSITE;
-  const status = statusMap[appointment.status] || statusMap.PENDING;
+  const type = typeMap[appointment.type] || {
+    label: "ไม่ระบุ",
+    gradient: "from-gray-500 to-gray-600",
+    bgGradient: "from-gray-50 to-gray-50",
+    icon: <Building className="h-6 w-6" />,
+    borderColor: "border-gray-200",
+  };
+  // --- UPDATED: Changed fallback to a generic UNKNOWN status ---
+  const status = statusMap[appointment.status] || statusMap.UNKNOWN;
+  console.log("type ", type);
+
+  // This logic is correct, buttons should only show for PENDING appointments.
   const isPending = appointment.status === "PENDING";
 
   return (
@@ -94,20 +131,24 @@ export default function AppointmentCard({
       className="group"
     >
       <div
-        className={`relative bg-white backdrop-blur-lg rounded-3xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden ${type.borderColor}`}
+        className={`relative overflow-hidden rounded-3xl border bg-white shadow-xl backdrop-blur-lg transition-all duration-300 hover:shadow-2xl ${type.borderColor}`}
       >
         <div className="p-6">
-          <div className="flex items-start justify-between mb-4">
+          <div className="mb-4 flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-3 rounded-2xl bg-gradient-to-br ${type.bgGradient} border ${type.borderColor}`}>
-                <div className={`text-gradient bg-gradient-to-r ${type.gradient} bg-clip-text text-transparent`}>
+              <div
+                className={`rounded-2xl bg-gradient-to-br p-3 ${type.bgGradient} border ${type.borderColor}`}
+              >
+                <div
+                  className={`text-gradient bg-gradient-to-r ${type.gradient} bg-clip-text text-transparent`}
+                >
                   {type.icon}
                 </div>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-slate-900">{type.label}</h3>
+                <h3 className="text-lg font-bold text-slate-900">{type.label}</h3>
                 <div
-                  className={`inline-flex items-center gap-2 px-3 py-1 rounded-full ${status.bg} ${status.border} border`}
+                  className={`inline-flex items-center gap-2 rounded-full px-3 py-1 ${status.bg} border ${status.border}`}
                 >
                   {status.icon}
                   <span className={`text-sm font-medium ${status.color}`}>{status.label}</span>
@@ -116,16 +157,30 @@ export default function AppointmentCard({
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100/50 rounded-2xl p-4 mb-4 border border-slate-200/50">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-white" />
+          <div className="mb-4 rounded-2xl border border-slate-200/50 bg-gradient-to-br from-slate-50 to-slate-100/50 p-4">
+            <div className="mb-3 flex items-center gap-3">
+              <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-indigo-600">
+                {appointment.customer?.picture_url ? (
+                  <Image
+                    src={appointment.customer.picture_url}
+                    width={48}
+                    height={48}
+                    alt={appointment.customer.fullname || "user-profile-image"}
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <User className="h-6 w-6 text-white" />
+                )}
               </div>
               <div>
-                <h4 className="font-bold text-slate-900 text-lg">{appointment.customer?.fullname || "ไม่ระบุชื่อ"}</h4>
+                <h4 className="text-lg font-bold text-slate-900">
+                  {appointment.customer?.fullname ||
+                    appointment.customer?.line_display_name ||
+                    "ไม่ระบุชื่อ"}
+                </h4>
                 {appointment.customer?.phone && (
                   <div className="flex items-center gap-2 text-slate-600">
-                    <Phone className="w-4 h-4" />
+                    <Phone className="h-4 w-4" />
                     <span className="text-sm">{appointment.customer.phone}</span>
                   </div>
                 )}
@@ -133,8 +188,8 @@ export default function AppointmentCard({
             </div>
 
             {appointment.note && (
-              <div className="bg-white/70 rounded-xl p-3 border border-slate-200/50">
-                <p className="text-sm text-slate-700 leading-relaxed">
+              <div className="rounded-xl border border-slate-200/50 bg-white/70 p-3">
+                <p className="text-sm leading-relaxed text-slate-700">
                   <span className="font-medium text-slate-900">รายละเอียด:</span> {appointment.note}
                 </p>
               </div>
@@ -142,11 +197,11 @@ export default function AppointmentCard({
           </div>
 
           {appointment.requiredTags && appointment.requiredTags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
+            <div className="mb-4 flex flex-wrap gap-2">
               {appointment.requiredTags.map((tag) => (
                 <span
                   key={tag}
-                  className={`px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${type.gradient} text-white shadow-sm`}
+                  className={`rounded-full bg-gradient-to-r px-3 py-1 text-xs font-medium ${type.gradient} text-white shadow-sm`}
                 >
                   {tag}
                 </span>
@@ -154,11 +209,11 @@ export default function AppointmentCard({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <div className="flex items-center gap-2 bg-white/70 rounded-xl p-3 border border-slate-200/50">
-              <Calendar className="w-5 h-5 text-blue-500" />
+          <div className="mb-6 grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/50 bg-white/70 p-3">
+              <Calendar className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="text-xs text-slate-500 font-medium">วันที่</p>
+                <p className="text-xs font-medium text-slate-500">วันที่</p>
                 <p className="text-sm font-semibold text-slate-900">
                   {new Date(appointment.date).toLocaleDateString("th-TH", {
                     day: "numeric",
@@ -168,10 +223,10 @@ export default function AppointmentCard({
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2 bg-white/70 rounded-xl p-3 border border-slate-200/50">
-              <Clock className="w-5 h-5 text-indigo-500" />
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200/50 bg-white/70 p-3">
+              <Clock className="h-5 w-5 text-indigo-500" />
               <div>
-                <p className="text-xs text-slate-500 font-medium">เวลา</p>
+                <p className="text-xs font-medium text-slate-500">เวลา</p>
                 <p className="text-sm font-semibold text-slate-900">
                   {new Date(appointment.date).toLocaleTimeString("th-TH", {
                     hour: "2-digit",
@@ -190,9 +245,9 @@ export default function AppointmentCard({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onAction(appointment.id, "ACCEPT")}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
                 >
-                  <CheckCircle2 className="w-5 h-5" />
+                  <CheckCircle2 className="h-5 w-5" />
                   รับทำ
                 </motion.button>
 
@@ -200,9 +255,9 @@ export default function AppointmentCard({
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => onAction(appointment.id, "REJECT")}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-red-500 to-rose-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
                 >
-                  <XCircle className="w-5 h-5" />
+                  <XCircle className="h-5 w-5" />
                   ปฏิเสธ
                 </motion.button>
               </div>
@@ -210,13 +265,15 @@ export default function AppointmentCard({
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setShowDatePicker(showDatePicker === appointment.id ? null : appointment.id)}
-                className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                onClick={() =>
+                  setShowDatePicker(showDatePicker === appointment.id ? null : appointment.id)
+                }
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
               >
-                <Clock className="w-5 h-5" />
+                <Clock className="h-5 w-5" />
                 เสนอเวลาใหม่
                 <ChevronDown
-                  className={`w-5 h-5 transition-transform duration-200 ${
+                  className={`h-5 w-5 transition-transform duration-200 ${
                     showDatePicker === appointment.id ? "rotate-180" : ""
                   }`}
                 />
@@ -233,7 +290,7 @@ export default function AppointmentCard({
             </div>
           )}
 
-          <div className="mt-4 pt-4 border-t border-slate-200/50">
+          <div className="mt-4 border-t border-slate-200/50 pt-4">
             <p className="text-xs text-slate-500">
               สร้างเมื่อ:{" "}
               {new Date(appointment.createdAt).toLocaleDateString("th-TH", {

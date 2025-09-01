@@ -1,10 +1,10 @@
-import './globals.css';
-import Providers from './components/Provider/Providers';
-import Navbar from './components/Navbar';
+import "./globals.css";
+import Providers from "./components/Provider/Providers";
+import Navbar from "./components/Navbar";
 
 export const metadata = {
-  title: 'OKM บริการจองคิวออนไลน์ ',
-  description: 'ระบบบริการจองคิวออนไลน์สำหรับลูกค้า',
+  title: "OKM บริการจองคิวออนไลน์ ",
+  description: "ระบบบริการจองคิวออนไลน์สำหรับลูกค้า",
 };
 
 export default function RootLayout({ children }) {
@@ -13,7 +13,9 @@ export default function RootLayout({ children }) {
       <body className={`antialiased`}>
         <Providers suppressHydrationWarning>
           <Navbar />
-          {children}
+          <div id="navbar-distance" className="py-20">
+            {children}
+          </div>
         </Providers>
       </body>
     </html>

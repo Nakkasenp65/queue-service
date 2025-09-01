@@ -1,10 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from '@/lib/axios';
-import { isAxiosError } from 'axios';
+import { useQuery } from "@tanstack/react-query";
+import axios from "@/lib/axios";
+import { isAxiosError } from "axios";
 
 export function useGetCustomer(lineUserId) {
   return useQuery({
-    queryKey: ['customer', lineUserId],
+    queryKey: ["customer", lineUserId],
     enabled: !!lineUserId, // don't fetch without an id
     retry: (failureCount, error) => {
       if (isAxiosError(error)) {
@@ -17,14 +17,15 @@ export function useGetCustomer(lineUserId) {
     queryFn: async () => {
       if (!lineUserId) return null;
       try {
-        const { data } = await axios.get(`/customers/${encodeURIComponent(lineUserId)}`);
-        return data ?? null;
+        const { data } = await axios.get(`/v1/customers/${encodeURIComponent(lineUserId)}`);
+        if (data.message === "Customer not found or not registered") {
+          return null;
+        }
+        return data;
       } catch (error) {
-        // Treat 404 as "no customer yet"
         if (isAxiosError(error) && error.response?.status === 404) {
           return null;
         }
-        // Other errors should surface via React Query's isError
         throw error;
       }
     },

@@ -1,66 +1,67 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Clock, Calendar } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Swal from 'sweetalert2';
-// 1. Import Hooks ที่ถูกต้อง (useAuth ไม่ต้องใช้แล้ว)
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Clock, Calendar, ArrowLeft } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Swal from "sweetalert2";
+
+import AppointmentCard from "./components/AppointmentCard";
 import {
-  useGetAppointmentsByTags,
+  useGetEmployeeAppointmentByTags,
+  useGetEmployeeAppointments,
   useUpdateAppointmentAction,
-} from '@/app/(pages)/queue-management/employees/hooks/useEmployee';
-import AppointmentCard from './components/AppointmentCard';
+} from "../hooks/useEmployee";
 
 export default function EmployeeAppointmentsPage() {
+  const router = useRouter();
+
   const employee = {
-    adminId: '68aea10ba4d0d8f4b37327cc',
-    username: 'nakasen',
-    fullName: 'นาคเสน พุทธเจริญ',
-    staffId: 'OKM011',
-    centralRole: ['admin', 'ENGINEER'],
+    adminId: "68aea10ba4d0d8f4b37327cc",
+    username: "nakasen",
+    fullName: "นาคเสน พุทธเจริญ",
+    staffId: "OKM011",
+    centralRole: ["admin", "ENGINEER"],
   };
 
-  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterStatus, setFilterStatus] = useState("ALL");
 
   const {
     data: appointments = [],
     isLoading,
     error,
     refetch: refetchAppointments,
-  } = useGetAppointmentsByTags(employee);
+  } = useGetEmployeeAppointmentByTags(employee.centralRole);
 
   const { mutate: updateAppointmentAction, isPending: isUpdating } = useUpdateAppointmentAction();
 
   const [showDatePicker, setShowDatePicker] = useState(null);
-  const [selectedDate, setSelectedDate] = useState('');
-  const [selectedTime, setSelectedTime] = useState('');
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
 
   const statusFilters = [
-    { value: 'ALL', label: 'ทั้งหมด' },
-    { value: 'PENDING', label: 'รอดำเนินการ' },
-    { value: 'ACCEPTED_BY_EMPLOYEE', label: 'รับทำแล้ว' },
-    { value: 'REJECTED_BY_EMPLOYEE', label: 'ปฏิเสธแล้ว' },
-    { value: 'OFFERED', label: 'เสนอเวลาใหม่' },
+    { value: "ALL", label: "ทั้งหมด" },
+    { value: "PENDING", label: "รอดำเนินการ" },
+    { value: "ACCEPTED_BY_EMPLOYEE", label: "รับทำแล้ว" },
+    { value: "REJECTED_BY_EMPLOYEE", label: "ปฏิเสธแล้ว" },
+    { value: "OFFERED", label: "เสนอเวลาใหม่" },
   ];
 
   const handleAppointmentAction = (appointmentId, action, offerDate = null) => {
     const actionText = {
-      ACCEPT: 'รับทำ',
-      REJECT: 'ปฏิเสธ',
-      OFFER: 'เสนอเวลาใหม่',
+      ACCEPT: "รับทำ",
+      REJECT: "ปฏิเสธ",
+      OFFER: "เสนอเวลาใหม่",
     };
 
-    // (สำคัญ) ส่ง employee object ทั้งก้อนเข้าไปใน payload
-    // เพื่อให้ Backend สามารถ stringify และบันทึกลง employeeInfo ได้
     updateAppointmentAction(
       { appointmentId, action, offerDate, employeeInfo: employee },
       {
         onSuccess: () => {
           Swal.fire({
-            title: 'สำเร็จ!',
+            title: "สำเร็จ!",
             text: `${actionText[action]}นัดหมายเรียบร้อยแล้ว`,
-            icon: 'success',
+            icon: "success",
             timer: 2000,
             showConfirmButton: false,
           });
@@ -68,9 +69,9 @@ export default function EmployeeAppointmentsPage() {
         },
         onError: (err) => {
           Swal.fire({
-            title: 'เกิดข้อผิดพลาด',
-            text: err.message || 'ไม่สามารถอัปเดตนัดหมายได้',
-            icon: 'error',
+            title: "เกิดข้อผิดพลาด",
+            text: err.message || "ไม่สามารถอัปเดตนัดหมายได้",
+            icon: "error",
           });
         },
       },
@@ -79,29 +80,26 @@ export default function EmployeeAppointmentsPage() {
 
   const handleOfferDateTime = (appointmentId) => {
     if (!selectedDate || !selectedTime) {
-      Swal.fire({ title: 'กรุณาเลือกวันที่และเวลา', icon: 'warning' });
+      Swal.fire({ title: "กรุณาเลือกวันที่และเวลา", icon: "warning" });
       return;
     }
     const offerDate = new Date(`${selectedDate}T${selectedTime}`);
-    handleAppointmentAction(appointmentId, 'OFFER', offerDate);
+    handleAppointmentAction(appointmentId, "OFFER", offerDate);
   };
 
-  // 5. (สำคัญ) ทำการ Filter ข้อมูลที่ฝั่ง Frontend
   const filteredAppointments = appointments?.filter((appointment) => {
-    if (filterStatus === 'ALL') return true;
+    if (filterStatus === "ALL") return true;
     return appointment.status === filterStatus;
   });
 
-  // 6. (สำคัญ) การคำนวณ Count จะทำงานถูกต้อง เพราะใช้ `appointments` (ข้อมูลทั้งหมด)
   const updatedFilters = statusFilters.map((filter) => ({
     ...filter,
     count:
-      filter.value === 'ALL'
+      filter.value === "ALL"
         ? appointments.length
         : appointments.filter((apt) => apt.status === filter.value).length,
   }));
 
-  // Loading และ Error UI
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50 p-6">
@@ -134,6 +132,31 @@ export default function EmployeeAppointmentsPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-2 sm:p-4 md:p-6">
       <div className="mx-auto max-w-7xl">
+        {/* Breadcrumb Navigation */}
+        <div className="mb-4">
+          <button
+            onClick={() => router.push("/queue-management/employee")}
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-white/50 hover:text-slate-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            กลับไปแดชบอร์ด
+          </button>
+          <nav className="mt-2">
+            <ol className="flex items-center gap-2 text-sm text-slate-500">
+              <li>
+                <button
+                  onClick={() => router.push("/queue-management/employee")}
+                  className="transition-colors hover:text-slate-700"
+                >
+                  แดชบอร์ดพนักงาน
+                </button>
+              </li>
+              <li>/</li>
+              <li className="font-medium text-slate-800">นัดหมายทั้งหมด</li>
+            </ol>
+          </nav>
+        </div>
+
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -173,16 +196,16 @@ export default function EmployeeAppointmentsPage() {
                 onClick={() => setFilterStatus(filter.value)}
                 className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
                   filterStatus === filter.value
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg'
-                    : 'border border-slate-200 bg-white/70 text-slate-600 hover:bg-white'
+                    ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg"
+                    : "border border-slate-200 bg-white/70 text-slate-600 hover:bg-white"
                 }`}
               >
                 {filter.label}
                 <span
                   className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
                     filterStatus === filter.value
-                      ? 'bg-white/20 text-white'
-                      : 'bg-slate-100 text-slate-500'
+                      ? "bg-white/20 text-white"
+                      : "bg-slate-100 text-slate-500"
                   }`}
                 >
                   {filter.count}
@@ -207,8 +230,8 @@ export default function EmployeeAppointmentsPage() {
                 ไม่มีนัดหมาย
               </h2>
               <p className="text-base text-slate-600 sm:text-lg">
-                {filterStatus === 'ALL'
-                  ? 'ยังไม่มีนัดหมายที่เกี่ยวข้องในขณะนี้'
+                {filterStatus === "ALL"
+                  ? "ยังไม่มีนัดหมายที่เกี่ยวข้องในขณะนี้"
                   : `ไม่มีนัดหมายที่มีสถานะ "${updatedFilters.find((f) => f.value === filterStatus)?.label}"`}
               </p>
             </div>
