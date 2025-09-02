@@ -3,7 +3,7 @@ import axios from "@/lib/axios";
 
 export const useGetDashboardAppointment = () => {
   return useQuery({
-    queryKey: ["dashboard-appointments"],
+    queryKey: ["dashboardAppointments"],
     queryFn: async () => {
       const { data } = await axios.get("/v2/appointments/dashboard");
       return data;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Calendar,
@@ -12,17 +12,30 @@ import {
   X,
   CalendarPlus,
   History,
-  RotateCw,
-  Home,
   CheckCircle2,
   XCircle,
   ChevronLeft,
+  User,
+  AlertCircle,
+  CheckCircle,
+  Sparkles,
+  Upload,
+  CreditCard,
+  Loader2,
+  ShieldCheck,
+  ShieldAlert,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
-import axios from "axios";
-import { useGetCustomerAppointmentDetails } from "@/app/(pages)/queue-services/hooks/useAppointments";
+import jsQR from "jsqr";
+import {
+  useCancelAppointment,
+  useAcceptOffer,
+  useRejectOffer,
+  useGetCustomerAppointmentDetails,
+  useSubmitPaymentSlip,
+} from "./hooks/useAppointment";
 import { useLiff } from "@/app/components/Provider/LiffProvider";
-import { useAppointmentActions } from "./hooks/useAppointment";
 import BottomNavbar from "../../queue-services/components/BottomNavbar";
 
 const statusThai = (status) => {
@@ -40,70 +53,130 @@ const statusThai = (status) => {
     case "OFFERED":
       return "เสนอเวลาใหม่";
     case "ACCEPTED_BY_EMPLOYEE":
-      return "รับโดยพนักงาน";
+      return "พนักงานรับเรื่องแล้ว";
     case "REJECTED_BY_EMPLOYEE":
       return "ปฏิเสธโดยพนักงาน";
+    // New Payment Statuses
+    case "WAITING_FOR_PAYMENT":
+      return "รอชำระเงินมัดจำ";
+    case "PAYMENT_RECEIVED":
+      return "กำลังตรวจสอบการชำระเงิน";
+    case "PAYMENT_CONFIRMED":
+      return "ชำระเงินแล้ว";
+    case "PAYMENT_INVALID":
+      return "การชำระเงินไม่ถูกต้อง";
     default:
       return status || "-";
   }
 };
 
-const statusColor = (status) => {
+const statusConfig = (status) => {
   switch (status) {
     case "CONFIRMED":
-      return "from-green-500 to-emerald-600 text-white";
+      return {
+        gradient: "from-emerald-500 to-teal-600",
+        icon: CheckCircle,
+        bgColor: "bg-emerald-50",
+        textColor: "text-emerald-700",
+        borderColor: "border-emerald-200",
+      };
     case "COMPLETED":
-      return "from-slate-400 to-slate-500 text-white";
+      return {
+        gradient: "from-slate-500 to-slate-600",
+        icon: CheckCircle,
+        bgColor: "bg-slate-50",
+        textColor: "text-slate-700",
+        borderColor: "border-slate-200",
+      };
     case "CANCELLED":
-      return "from-rose-500 to-red-600 text-white";
-    case "NO_SHOW":
-      return "from-amber-400 to-yellow-500 text-black";
+      return {
+        gradient: "from-rose-500 to-red-600",
+        icon: XCircle,
+        bgColor: "bg-rose-50",
+        textColor: "text-rose-700",
+        borderColor: "border-rose-200",
+      };
     case "OFFERED":
-      return "from-indigo-500 to-violet-600 text-white";
+      return {
+        gradient: "from-violet-500 to-purple-600",
+        icon: Sparkles,
+        bgColor: "bg-violet-50",
+        textColor: "text-violet-700",
+        borderColor: "border-violet-200",
+      };
     case "ACCEPTED_BY_EMPLOYEE":
-      return "from-emerald-400 to-teal-500 text-white";
+      return {
+        gradient: "from-blue-500 to-indigo-600",
+        icon: User,
+        bgColor: "bg-blue-50",
+        textColor: "text-blue-700",
+        borderColor: "border-blue-200",
+      };
     case "REJECTED_BY_EMPLOYEE":
-      return "from-rose-400 to-fuchsia-500 text-white";
+      return {
+        gradient: "from-orange-500 to-red-500",
+        icon: AlertCircle,
+        bgColor: "bg-orange-50",
+        textColor: "text-orange-700",
+        borderColor: "border-orange-200",
+      };
+    // New Payment Statuses Config
+    case "WAITING_FOR_PAYMENT":
+      return {
+        gradient: "from-amber-500 to-orange-500",
+        icon: CreditCard,
+        bgColor: "bg-amber-50",
+        textColor: "text-amber-700",
+        borderColor: "border-amber-200",
+      };
+    case "PAYMENT_RECEIVED":
+      return {
+        gradient: "from-cyan-500 to-blue-500",
+        icon: Loader2,
+        bgColor: "bg-cyan-50",
+        textColor: "text-cyan-700",
+        borderColor: "border-cyan-200",
+      };
+    case "PAYMENT_CONFIRMED":
+      return {
+        gradient: "from-lime-500 to-green-500",
+        icon: ShieldCheck,
+        bgColor: "bg-lime-50",
+        textColor: "text-lime-700",
+        borderColor: "border-lime-200",
+      };
+    case "PAYMENT_INVALID":
+      return {
+        gradient: "from-red-500 to-rose-500",
+        icon: ShieldAlert,
+        bgColor: "bg-red-50",
+        textColor: "text-red-700",
+        borderColor: "border-red-200",
+      };
     default:
-      return "from-blue-500 to-cyan-500 text-white";
+      return {
+        gradient: "from-blue-500 to-cyan-500",
+        icon: Clock,
+        bgColor: "bg-blue-50",
+        textColor: "text-blue-700",
+        borderColor: "border-blue-200",
+      };
   }
 };
 
 const formatDate = (iso) =>
   new Date(iso).toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
-
 const formatTime = (hourNumberLike) => `${hourNumberLike}:00 น.`;
 
-// เผื่อกรณี backend ส่ง field แตกต่าง: รองรับได้ทั้ง offeredDate/offeredSection หรือ myAppointment.offer.{date,section}
 function getOfferedInfo(appt) {
-  if (!appt) return { hasOffer: false };
-  const offerObj = appt.offer || {};
-  const dateISO = appt.offeredDate || offerObj.date || null;
-  const section = appt.offeredSection ?? offerObj.section ?? null;
-  const startSlot = appt.offeredStartSlot ?? offerObj.startSlot ?? null;
-  const durationSlots = appt.offeredDurationSlots ?? offerObj.durationSlots ?? 1;
-
-  if (dateISO && (section || section === 0)) {
-    return {
-      hasOffer: true,
-      dateText: formatDate(dateISO),
-      timeText: formatTime(section),
-      raw: { dateISO, section, startSlot, durationSlots },
-    };
-  }
-
-  if (dateISO && (startSlot || startSlot === 0)) {
-    const startHour = 11 + Number(startSlot);
-    const endHour = startHour + Number(durationSlots || 1);
-    return {
-      hasOffer: true,
-      dateText: formatDate(dateISO),
-      timeText: `${String(startHour).padStart(2, "0")}:00–${String(endHour).padStart(2, "0")}:00 น.`,
-      raw: { dateISO, section: startHour, startSlot, durationSlots },
-    };
-  }
-
-  return { hasOffer: false };
+  if (!appt || !appt.offerDate) return { hasOffer: false };
+  return {
+    hasOffer: true,
+    dateText: formatDate(appt.offerDate),
+    timeText:
+      new Date(appt.offerDate).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }) +
+      " น.",
+  };
 }
 
 export default function MyAppointmentPage() {
@@ -115,16 +188,20 @@ export default function MyAppointmentPage() {
     refetch,
   } = useGetCustomerAppointmentDetails(liffProfile?.userId);
 
-  // Use appointment action hooks
-  const appointmentActions = useAppointmentActions();
-
   const [sharing, setSharing] = useState(false);
-  // Remove manual loading states - now handled by mutations
-  // const [isCancelling, setIsCancelling] = useState(false);
-  // const [isAccepting, setIsAccepting] = useState(false);
-  // const [isRejecting, setIsRejecting] = useState(false);
+  const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
+  const { mutate: acceptOffer, isPending: isAccepting } = useAcceptOffer();
+  const { mutate: rejectOffer, isPending: isRejecting } = useRejectOffer();
+  const { mutate: submitSlip, isPending: isSubmittingSlip } = useSubmitPaymentSlip();
 
-  // Loading flower animation
+  const [paymentSlipFile, setPaymentSlipFile] = useState(null);
+  const [paymentSlipPreview, setPaymentSlipPreview] = useState(null);
+
+  // Backwards-compatible alias for code that still references `paymentSlip`
+  const paymentSlip = paymentSlipFile
+    ? { file: paymentSlipFile, preview: paymentSlipPreview, hasQR: null }
+    : null;
+
   const loadingVariants = [
     { petals: 6, radius: 38, from: "from-pink-500", to: "to-rose-400" },
     { petals: 8, radius: 42, from: "from-indigo-500", to: "to-sky-400" },
@@ -137,9 +214,9 @@ export default function MyAppointmentPage() {
     "กำลังจัดคิวให้เหมาะสมที่สุด…",
     "กำลังประมวลผลข้อมูลล่าสุด…",
   ];
-
   const [variantIndex, setVariantIndex] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
+
   useEffect(() => {
     if (!isLoading) return;
     const id = setInterval(() => {
@@ -152,13 +229,44 @@ export default function MyAppointmentPage() {
   const parseService = (note) => {
     if (!note) return "-";
     const marker = "Service:";
-    if (note.includes(marker)) return note.split(marker)[1].trim();
-    return note;
+    return note.includes(marker) ? note.split(marker)[1].trim() : note;
   };
 
-  /* =========================
-     Actions: Share / Location / Cancel / Accept / Reject Offer
-  ========================= */
+  const handleSlipSelect = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/"))
+      return Swal.fire("ไฟล์ไม่ถูกต้อง", "กรุณาเลือกไฟล์รูปภาพเท่านั้น", "error");
+    if (file.size > 5 * 1024 * 1024)
+      return Swal.fire("ไฟล์ใหญ่เกินไป", "กรุณาเลือกไฟล์ที่มีขนาดไม่เกิน 5MB", "error");
+
+    setPaymentSlipFile(file);
+    const reader = new FileReader();
+    reader.onload = (e) => setPaymentSlipPreview(e.target.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmitSlip = async () => {
+    if (!paymentSlipFile || !myAppointment) return;
+
+    // =================================================================================
+    // !! CRITICAL TODO !!
+    // You must implement a service to upload the `paymentSlipFile` to your own storage
+    // (like AWS S3, Google Cloud Storage, or your own server) and get a URL back.
+    // The code below SIMULATES this process.
+    // =================================================================================
+
+    // Step 1: (SIMULATED) Upload the file and get a URL
+    console.log("Uploading file:", paymentSlipFile.name);
+    // Replace this with your actual upload function call
+    // const uploadResponse = await yourFileUploadService(paymentSlipFile);
+    // const slipUrl = uploadResponse.url;
+    const slipUrl = `https://your-storage-service.com/slips/${myAppointment.id}_${Date.now()}.jpg`; // Simulated URL
+
+    // Step 2: Call the mutation with the appointment ID and the real URL
+    submitSlip({ appointmentId: myAppointment.id, slipUrl });
+  };
+
   const handleShareQueue = async () => {
     if (!actions || !myAppointment) return;
     setSharing(true);
@@ -167,7 +275,6 @@ export default function MyAppointmentPage() {
       const message = `การจองของฉัน\nบริการ: ${serviceText}\nวันที่: ${formatDate(
         myAppointment.date,
       )}\nเวลา: ${formatTime(myAppointment.section)}\nสถานะ: ${statusThai(myAppointment.status)}`;
-
       await actions.share(message);
     } catch (e) {
       console.error("share error", e);
@@ -185,7 +292,6 @@ export default function MyAppointmentPage() {
       const shopAddress = process.env.NEXT_PUBLIC_SHOP_ADDRESS || "";
       const lat = process.env.NEXT_PUBLIC_SHOP_LAT;
       const lng = process.env.NEXT_PUBLIC_SHOP_LNG;
-
       await actions.shareLocation({
         latitude: lat,
         longitude: lng,
@@ -201,50 +307,85 @@ export default function MyAppointmentPage() {
   };
 
   const handleCancel = async () => {
-    await appointmentActions.handleCancel(myAppointment, {
-      parseService,
-      formatDate,
-      formatTime,
+    if (!myAppointment) return;
+    const result = await Swal.fire({
+      title: "ยืนยันการยกเลิกการจอง?",
+      html: `คุณต้องการยกเลิกการจอง<br/><strong>${parseService(myAppointment.note)}</strong><br/>วันที่ ${formatDate(
+        myAppointment.date,
+      )} เวลา ${formatTime(myAppointment.section)}`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "ยืนยัน",
+      cancelButtonText: "ยกเลิก",
+      reverseButtons: true,
     });
+    if (result.isConfirmed) {
+      cancelAppointment(myAppointment.id);
+    }
   };
 
   const handleAcceptOffer = async () => {
-    await appointmentActions.handleAcceptOffer(myAppointment, getOfferedInfo);
+    if (!myAppointment) return;
+    const offered = getOfferedInfo(myAppointment);
+    const confirm = await Swal.fire({
+      title: "ยืนยันรับเวลาใหม่?",
+      html: offered.hasOffer
+        ? `วันที่: <b>${offered.dateText}</b><br/>เวลา: <b>${offered.timeText}</b>`
+        : "ยืนยันรับเวลาใหม่",
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "รับเวลาใหม่",
+      cancelButtonText: "ยกเลิก",
+    });
+    if (confirm.isConfirmed) {
+      acceptOffer(myAppointment.id);
+    }
   };
 
   const handleRejectOffer = async () => {
-    await appointmentActions.handleRejectOffer(myAppointment);
+    if (!myAppointment) return;
+    const { value: reason } = await Swal.fire({
+      title: "ปฏิเสธเวลาใหม่?",
+      input: "text",
+      inputPlaceholder: "ระบุเหตุผล (ถ้ามี)",
+      showCancelButton: true,
+      confirmButtonText: "ปฏิเสธ",
+      cancelButtonText: "ยกเลิก",
+    });
+    if (reason !== undefined) {
+      rejectOffer({
+        appointmentId: myAppointment.id,
+        reason: reason || "",
+      });
+    }
   };
 
-  /* =========================
-     Loading / Error / Empty
-  ========================= */
   if (isLoading) {
     const v = loadingVariants[variantIndex] ?? loadingVariants[0];
     const petals = Array.from({ length: v.petals });
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-white p-6 font-sans text-gray-800">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6 font-sans text-gray-800">
         <div className="mx-auto w-full max-w-sm text-center">
           <div className="relative mx-auto h-44 w-44">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/60 to-white/10 shadow-xl ring-1 ring-black/5 backdrop-blur-md" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/80 to-white/40 shadow-2xl ring-1 ring-black/5 backdrop-blur-sm" />
             <div className="absolute inset-0 animate-spin" style={{ animationDuration: "6s" }}>
               <div className="relative h-full w-full">
                 {petals.map((_, i) => (
                   <span
                     key={i}
-                    className={`absolute top-1/2 left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br ${v.from} ${v.to} shadow-md`}
+                    className={`absolute top-1/2 left-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br ${v.from} ${v.to} shadow-lg`}
                     style={{
                       transform: `rotate(${(360 / v.petals) * i}deg) translateY(-${v.radius}px)`,
                     }}
                   />
                 ))}
-                <span className="absolute top-1/2 left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-amber-300 to-orange-400 shadow-lg ring-2 ring-white/70" />
+                <span className="absolute top-1/2 left-1/2 h-9 w-9 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gradient-to-br from-amber-300 to-orange-400 shadow-lg ring-4 ring-white/50" />
               </div>
             </div>
           </div>
-          <div className="mt-6">
-            <div className="text-base font-semibold text-slate-700">กำลังจัดเตรียมข้อมูลคิว</div>
-            <div className="mt-1 text-sm text-slate-500">{loadingMessages[messageIndex]}</div>
+          <div className="mt-8">
+            <div className="text-lg font-bold text-slate-800">กำลังจัดเตรียมข้อมูลคิว</div>
+            <div className="mt-2 text-sm text-slate-500">{loadingMessages[messageIndex]}</div>
           </div>
         </div>
       </main>
@@ -252,138 +393,343 @@ export default function MyAppointmentPage() {
   }
 
   if (error) {
-    return <div className="p-10 text-center text-red-600">เกิดข้อผิดพลาด: {error.message}</div>;
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-6">
+        <div className="text-center">
+          <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg">
+            <AlertCircle size={32} />
+          </div>
+          <h1 className="mb-2 text-xl font-bold text-slate-900">เกิดข้อผิดพลาด</h1>
+          <p className="mb-6 text-slate-600">{error.message}</p>
+          <button
+            onClick={refetch}
+            className="rounded-xl bg-rose-600 px-6 py-3 font-semibold text-white shadow-lg hover:bg-rose-700"
+          >
+            ลองใหม่อีกครั้ง
+          </button>
+        </div>
+      </main>
+    );
   }
 
   if (!myAppointment || myAppointment.status === "CANCELLED") {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-white p-6 font-sans text-gray-800">
-        <div className="mx-auto max-w-md text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-blue-950 via-indigo-700 to-purple-500 text-white shadow-lg">
-            <CalendarPlus size={28} />
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 font-sans text-gray-800">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mx-auto max-w-md text-center"
+        >
+          <div className="mx-auto mb-8 flex h-24 w-24 items-center justify-center rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 text-white shadow-2xl">
+            <CalendarPlus size={36} />
           </div>
-          <h1 className="text-xl font-bold text-slate-900">ยังไม่มีการจอง</h1>
-          <p className="mt-1 text-slate-600">คุณยังไม่มีคิวที่กำลังจะถึง เริ่มจองคิวใหม่ได้เลย</p>
-          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <h1 className="mb-3 text-2xl font-bold text-slate-900">ยังไม่มีการจอง</h1>
+          <p className="mb-8 text-slate-600">คุณยังไม่มีคิวที่กำลังจะถึง เริ่มจองคิวใหม่ได้เลย</p>
+          <div className="flex flex-col gap-3">
             <Link
               href="/queue-services"
-              className="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+              className="inline-flex transform items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 font-semibold text-white shadow-xl transition-all duration-200 hover:scale-105 hover:shadow-2xl"
             >
-              <CalendarPlus size={16} /> จองคิวใหม่
+              <CalendarPlus size={20} /> จองคิวใหม่
             </Link>
             <Link
-              href="/appointments/history"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 hover:bg-slate-50"
+              href="/queue-history"
+              className="inline-flex transform items-center justify-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-6 py-4 font-semibold text-slate-700 shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl"
             >
-              <History size={16} /> ประวัติ
+              <History size={20} /> ดูประวัติการจอง
             </Link>
           </div>
-        </div>
+        </motion.div>
         <BottomNavbar />
       </main>
     );
   }
 
-  console.log(myAppointment);
-
   const serviceText = parseService(myAppointment.note);
   const translatedStatus = statusThai(myAppointment.status);
-  const statusGradientClass = statusColor(myAppointment.status);
+  const statusInfo = statusConfig(myAppointment.status);
+  const StatusIcon = statusInfo.icon;
   const offered = getOfferedInfo(myAppointment);
-
-  // แสดงปุ่มเมื่อสถานะเป็น OFFERED
   const hasOffer = myAppointment.status === "OFFERED";
+  const isOffsiteAppointment = myAppointment.type === "OFFSITE";
+  const showPaymentSection =
+    isOffsiteAppointment &&
+    ["WAITING_FOR_PAYMENT", "PAYMENT_RECEIVED", "PAYMENT_CONFIRMED", "PAYMENT_INVALID"].includes(
+      myAppointment.status,
+    );
 
   return (
-    <main className="relative min-h-screen p-4 pb-24 text-gray-800">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-4 flex items-center justify-between">
+    <main className="relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 pb-32">
+      <div className="mx-auto max-w-4xl px-4 py-6">
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 flex items-center justify-between"
+        >
           <Link
             href="/queue-services"
-            className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
+            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white/80 px-4 py-2.5 font-medium text-slate-600 shadow-sm backdrop-blur-sm transition-all duration-200 hover:bg-white hover:shadow-md"
           >
-            <ChevronLeft size={16} /> กลับ
+            <ChevronLeft size={18} /> กลับ
           </Link>
-          <div className="text-xs text-gray-500">
+          <div className="rounded-lg bg-white/60 px-3 py-1.5 text-xs text-slate-500 backdrop-blur-sm">
             อัปเดตล่าสุด: {new Date(myAppointment.updatedAt).toLocaleString("th-TH")}
           </div>
-        </header>
+        </motion.header>
 
-        <article className="overflow-hidden rounded-2xl">
-          <div className="p-4">
-            <div
-              className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${statusGradientClass} px-3 py-1 text-sm font-semibold`}
-            >
-              <span className="inline-block h-2 w-2 rounded-full bg-white/80" />
-              {translatedStatus}
-            </div>
-
-            <h2 className="mt-4 flex items-center gap-2 text-lg font-bold text-slate-800">
-              <Wrench size={16} /> บริการ
-            </h2>
-            <div className="mt-2 inline-block rounded-lg bg-gradient-to-r from-indigo-600 to-pink-500 px-3 py-1.5 text-sm font-semibold text-white">
-              {serviceText}
-            </div>
-
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 p-3 text-white">
-                <Calendar size={18} />
+        <motion.div className="space-y-6">
+          <div
+            className={`relative overflow-hidden rounded-2xl ${statusInfo.bgColor} ${statusInfo.borderColor} border-2 p-6 shadow-lg`}
+          >
+            <div className="absolute top-0 right-0 h-32 w-32 translate-x-16 -translate-y-16 rounded-full bg-white/20"></div>
+            <div className="relative flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br ${statusInfo.gradient} text-white shadow-lg`}
+                >
+                  <StatusIcon size={24} />
+                </div>
                 <div>
-                  <div className="text-[11px] opacity-90">วันที่เดิม</div>
-                  <div className="text-base font-semibold">{formatDate(myAppointment.date)}</div>
+                  <div className="text-sm font-medium text-slate-600">สถานะปัจจุบัน</div>
+                  <div className={`text-xl font-bold ${statusInfo.textColor}`}>
+                    {translatedStatus}
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-rose-400 to-orange-400 p-3 text-white">
-                <Clock size={18} />
-                <div>
-                  <div className="text-[11px] opacity-90">เวลาเดิม</div>
-                  <div className="text-base font-semibold">{formatTime(myAppointment.section)}</div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-slate-600">ประเภท</div>
+                <div className={`font-semibold ${statusInfo.textColor}`}>
+                  {myAppointment.type === "ONSITE"
+                    ? "หน้าร้าน"
+                    : myAppointment.type === "ONLINE"
+                      ? "ออนไลน์"
+                      : myAppointment.type === "OFFSITE"
+                        ? "นอกสถานที่"
+                        : myAppointment.type}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* --- SECTION FOR OFFERED TIME --- */}
-            {hasOffer && (
-              <div className="mt-4 rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                <div className="text-sm font-semibold text-indigo-900">เวลาใหม่ที่เสนอให้</div>
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  <div className="flex items-center gap-2 rounded-lg bg-white p-3 text-slate-800 shadow-sm ring-1 ring-indigo-100">
-                    <Calendar size={18} className="text-indigo-600" />
+          <div className="flex flex-col gap-4">
+            <div className="overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200">
+              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 p-4 text-white">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20">
+                    <Wrench size={20} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-medium opacity-90">บริการที่จอง</div>
+                    <div className="text-lg font-bold">{serviceText}</div>
+                  </div>
+                </div>
+              </div>
+              {myAppointment.note && myAppointment.note !== `Service: ${serviceText}` && (
+                <div className="p-4">
+                  <div className="mb-2 text-sm font-medium text-slate-600">รายละเอียดเพิ่มเติม</div>
+                  <div className="text-slate-700">{myAppointment.note}</div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-4">
+              <div className="flex-1 overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200">
+                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <Calendar size={24} />
                     <div>
-                      <div className="text-[11px] opacity-70">วันที่เสนอ</div>
-                      <div className="text-base font-semibold">
-                        {myAppointment.offerDate ? formatDate(myAppointment.offerDate) : "-"}
+                      <div className="text-sm font-medium">วันที่นัดหมาย</div>
+                      <div className="text-lg font-bold">{formatDate(myAppointment.date)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-max overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200">
+                <div className="bg-gradient-to-br from-rose-500 to-orange-500 p-4 text-white">
+                  <div className="flex items-center gap-3">
+                    <Clock size={24} />
+                    <div>
+                      <div className="text-sm font-medium">เวลานัดหมาย</div>
+                      <div className="text-lg font-bold">{formatTime(myAppointment.section)}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <button
+                onClick={handleShareQueue}
+                disabled={sharing}
+                className="flex-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Share2 size={18} className="text-blue-600" />
+                  <span className="font-medium text-slate-700">แชร์คิว</span>
+                </div>
+              </button>
+              <button
+                onClick={handleShareLocation}
+                disabled={sharing}
+                className="flex-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <MapPin size={18} className="text-green-600" />
+                  <span className="font-medium text-slate-700">ตำแหน่ง</span>
+                </div>
+              </button>
+              <a
+                href={`tel:${process.env.NEXT_PUBLIC_SHOP_PHONE || ""}`}
+                className="flex-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Phone size={18} className="text-orange-600" />
+                  <span className="font-medium text-slate-700">โทร</span>
+                </div>
+              </a>
+            </div>
+
+            {myAppointment.status === "PENDING" && (
+              <button
+                onClick={handleCancel}
+                disabled={isCancelling}
+                className="flex w-full transform items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 p-4 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-50"
+              >
+                {isCancelling ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    กำลังยกเลิก...
+                  </div>
+                ) : (
+                  <>
+                    <X size={20} />
+                    ยกเลิกการจอง
+                  </>
+                )}
+              </button>
+            )}
+          </div>
+
+          <AnimatePresence>
+            {showPaymentSection && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                layout
+                className="mt-6 overflow-hidden rounded-2xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-lg"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-white shadow-lg">
+                    <CreditCard size={20} />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-amber-900">ค่ามัดจำบริการนอกสถานที่</div>
+                    <div className="text-sm text-amber-700">
+                      จำนวน 200 บาท (จะได้รับคืนหลังเสร็จสิ้นบริการ)
+                    </div>
+                  </div>
+                </div>
+
+                {(myAppointment.status === "WAITING_FOR_PAYMENT" ||
+                  myAppointment.status === "PAYMENT_INVALID") && (
+                  <div>
+                    {myAppointment.status === "PAYMENT_INVALID" && (
+                      <div className="mb-4 rounded-lg bg-red-100 p-3 text-center text-sm font-semibold text-red-800">
+                        การชำระเงินครั้งก่อนไม่ถูกต้อง กรุณาแนบสลิปอีกครั้ง
+                      </div>
+                    )}
+                    <PaymentUploadUI
+                      onSlipSelect={handleSlipSelect}
+                      onSubmit={handleSubmitSlip}
+                      slipPreview={paymentSlipPreview}
+                      isSubmitting={isSubmittingSlip}
+                      onClearSlip={() => {
+                        setPaymentSlipFile(null);
+                        setPaymentSlipPreview(null);
+                      }}
+                    />
+                  </div>
+                )}
+
+                {myAppointment.status === "PAYMENT_RECEIVED" && (
+                  <div className="rounded-lg bg-cyan-100 p-4 text-center">
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-cyan-700" />
+                    <p className="mt-2 font-semibold text-cyan-800">เราได้รับสลิปของคุณแล้ว</p>
+                    <p className="text-sm text-cyan-700">กำลังรอเจ้าหน้าที่ตรวจสอบและยืนยัน</p>
+                  </div>
+                )}
+
+                {myAppointment.status === "PAYMENT_CONFIRMED" && (
+                  <div className="rounded-lg bg-green-100 p-4 text-center">
+                    <ShieldCheck className="mx-auto h-8 w-8 text-green-700" />
+                    <p className="mt-2 font-semibold text-green-800">ชำระเงินมัดจำเรียบร้อย</p>
+                    <p className="text-sm text-green-700">พนักงานจะยืนยันนัดหมายในขั้นตอนสุดท้าย</p>
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {hasOffer && offered.hasOffer && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden rounded-2xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 p-6 shadow-lg"
+              >
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 text-white shadow-lg">
+                    <Sparkles size={20} />
+                  </div>
+                  <div>
+                    <div className="text-lg font-bold text-violet-900">เวลาใหม่ที่เสนอให้</div>
+                    <div className="text-sm text-violet-700">กรุณาตัดสินใจภายในเวลาที่กำหนด</div>
+                  </div>
+                </div>
+
+                <div className="mb-6 flex gap-4">
+                  <div className="flex-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-violet-100">
+                    <div className="flex items-center gap-3">
+                      <Calendar size={18} className="text-violet-600" />
+                      <div>
+                        <div className="text-xs font-medium text-violet-600">วันที่เสนอ</div>
+                        <div className="font-bold text-slate-800">{offered.dateText}</div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 rounded-lg bg-white p-3 text-slate-800 shadow-sm ring-1 ring-indigo-100">
-                    <Clock size={18} className="text-indigo-600" />
-                    <div>
-                      <div className="text-[11px] opacity-70">เวลาเสนอ</div>
-                      <div className="text-base font-semibold">
-                        {myAppointment.offerDate
-                          ? new Date(myAppointment.offerDate).toLocaleTimeString("th-TH", {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }) + " น."
-                          : "-"}
+                  <div className="flex-1 rounded-xl bg-white p-4 shadow-sm ring-1 ring-violet-100">
+                    <div className="flex items-center gap-3">
+                      <Clock size={18} className="text-violet-600" />
+                      <div>
+                        <div className="text-xs font-medium text-violet-600">เวลาเสนอ</div>
+                        <div className="font-bold text-slate-800">{offered.timeText}</div>
                       </div>
                     </div>
                   </div>
                 </div>
-                <p className="mt-3 text-xs text-indigo-900/80">
-                  *โปรดตอบรับหรือปฏิเสธเพื่อยืนยันนัดหมาย ระบบจะสำรองคิวไว้ช่วงสั้น ๆ เท่านั้น
-                </p>
 
-                {/* ปุ่มตอบรับ/ปฏิเสธ */}
-                <div className="mt-4 flex gap-3">
+                <div className="mb-4 rounded-lg bg-violet-100 p-3">
+                  <div className="text-xs text-violet-800">
+                    💡 <strong>หมายเหตุ:</strong> โปรดตอบรับหรือปฏิเสธเพื่อยืนยันนัดหมาย
+                    ระบบจะสำรองคิวไว้ช่วงสั้น ๆ เท่านั้น
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
                   <button
                     onClick={handleRejectOffer}
-                    disabled={appointmentActions.isRejecting || appointmentActions.isAccepting}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-600 shadow-sm hover:bg-rose-50 disabled:opacity-50"
+                    disabled={isRejecting || isAccepting}
+                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border-2 border-rose-200 bg-white px-4 py-3 font-semibold text-rose-600 shadow-sm transition-all duration-200 hover:bg-rose-50 disabled:opacity-50"
                   >
-                    {appointmentActions.isRejecting ? (
-                      "กำลังส่ง..."
+                    {isRejecting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-rose-400 border-t-transparent"></div>
+                        กำลังส่ง...
+                      </div>
                     ) : (
                       <>
                         <XCircle size={18} /> ปฏิเสธ
@@ -392,11 +738,14 @@ export default function MyAppointmentPage() {
                   </button>
                   <button
                     onClick={handleAcceptOffer}
-                    disabled={appointmentActions.isAccepting || appointmentActions.isRejecting}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700 disabled:opacity-50"
+                    disabled={isAccepting || isRejecting}
+                    className="inline-flex flex-1 transform items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:scale-105 hover:shadow-xl disabled:opacity-50"
                   >
-                    {appointmentActions.isAccepting ? (
-                      "กำลังยืนยัน..."
+                    {isAccepting ? (
+                      <div className="flex items-center gap-2">
+                        <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                        กำลังยืนยัน...
+                      </div>
                     ) : (
                       <>
                         <CheckCircle2 size={18} /> รับเวลาใหม่
@@ -404,56 +753,60 @@ export default function MyAppointmentPage() {
                     )}
                   </button>
                 </div>
-              </div>
+              </motion.div>
             )}
-
-            <div className="mt-5 rounded-xl bg-slate-50 p-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="text-sm font-semibold">รายละเอียดเพิ่มเติม</h3>
-                  <p className="mt-1 text-sm text-gray-600">{myAppointment.note || "-"}</p>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-gray-500">ประเภท</div>
-                  <div className="font-medium">{myAppointment.type}</div>
-                </div>
-              </div>
-              <div className="mt-4 grid grid-cols-3 gap-2">
-                <button
-                  onClick={handleShareQueue}
-                  disabled={sharing}
-                  className="col-span-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:shadow-md"
-                >
-                  <Share2 size={16} className="mr-1 inline-block" /> แชร์คิว
-                </button>
-                <button
-                  onClick={handleShareLocation}
-                  disabled={sharing}
-                  className="col-span-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:shadow-md"
-                >
-                  <MapPin size={16} className="mr-1 inline-block" /> ตำแหน่ง
-                </button>
-                <a
-                  href={`tel:${process.env.NEXT_PUBLIC_SHOP_PHONE || ""}`}
-                  className="col-span-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-center text-sm hover:shadow-md"
-                >
-                  <Phone size={16} className="mr-1 inline-block" /> โทร
-                </a>
-              </div>
-              <button
-                onClick={handleCancel}
-                disabled={myAppointment.status !== "PENDING" || appointmentActions.isCancelling}
-                className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold ${myAppointment.status === "PENDING" && !appointmentActions.isCancelling ? "bg-rose-600 text-white hover:bg-rose-700" : "cursor-not-allowed bg-slate-100 text-slate-500"}`}
-              >
-                <X size={16} className="inline-block" />
-                {appointmentActions.isCancelling ? "กำลังยกเลิก..." : "ยกเลิกการจอง"}
-              </button>
-            </div>
-          </div>
-        </article>
+          </AnimatePresence>
+        </motion.div>
       </div>
-
       <BottomNavbar />
     </main>
+  );
+}
+
+function PaymentUploadUI({ onSlipSelect, onSubmit, slipPreview, isSubmitting, onClearSlip }) {
+  return (
+    <div>
+      {!slipPreview ? (
+        <label className="flex w-full cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-amber-300 bg-white p-6 text-center transition-colors hover:bg-amber-50">
+          <Upload size={24} className="text-amber-600" />
+          <span className="mt-2 font-medium text-amber-800">อัปโหลดสลิป</span>
+          <span className="mt-1 text-xs text-amber-600">ไฟล์รูปภาพ (ไม่เกิน 5MB)</span>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={onSlipSelect}
+            className="hidden"
+            disabled={isSubmitting}
+          />
+        </label>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 rounded-lg bg-white p-3 shadow-sm">
+            <img src={slipPreview} alt="Preview" className="h-16 w-16 rounded-lg object-cover" />
+            <div className="flex-1 font-medium text-slate-800">สลิปที่เลือก</div>
+            <button
+              onClick={onClearSlip}
+              className="rounded-full p-1 text-slate-400 hover:bg-slate-100"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <button
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 font-semibold text-white shadow-lg transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                กำลังส่ง...
+              </>
+            ) : (
+              "ยืนยันการชำระเงิน"
+            )}
+          </button>
+        </div>
+      )}
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react";
 export default function NotificationBell({ unreadCount, isOpen, setIsOpen, children }) {
   const panelRef = useRef(null);
 
+  // Effect to handle clicks outside the notification panel to close it
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (panelRef.current && !panelRef.current.contains(event.target)) {
@@ -19,7 +20,7 @@ export default function NotificationBell({ unreadCount, isOpen, setIsOpen, child
     <div className="relative" ref={panelRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="rounded-full bg-white p-2 text-slate-500 shadow-sm ring-1 ring-slate-200 hover:bg-slate-100"
+        className="rounded-full bg-white p-2 text-slate-500 shadow-sm ring-1 ring-slate-200 transition-colors hover:bg-slate-100"
       >
         <Bell className="h-6 w-6" />
         {unreadCount > 0 && (
@@ -28,6 +29,7 @@ export default function NotificationBell({ unreadCount, isOpen, setIsOpen, child
           </span>
         )}
       </button>
+      {/* AnimatePresence handles the mounting and unmounting animations */}
       <AnimatePresence>{isOpen && children}</AnimatePresence>
     </div>
   );

@@ -13,9 +13,7 @@ export default function RootLayout({ children }) {
       <body className={`antialiased`}>
         <Providers suppressHydrationWarning>
           <Navbar />
-          <div id="navbar-distance" className="py-20">
-            {children}
-          </div>
+          {children}
         </Providers>
       </body>
     </html>

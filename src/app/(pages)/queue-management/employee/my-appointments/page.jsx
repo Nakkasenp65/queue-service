@@ -16,13 +16,15 @@ import {
 export default function EmployeeAppointmentsPage() {
   const router = useRouter();
 
+  // TESTING PROFILE DELETE THIS ON PRODUCTION
   const employee = {
     adminId: "68aea10ba4d0d8f4b37327cc",
     username: "nakasen",
     fullName: "นาคเสน พุทธเจริญ",
     staffId: "OKM011",
-    centralRole: ["admin", "ENGINEER"],
+    centralRole: ["admin", "ENGINEER", "REFINANCE"],
   };
+  // TESTING PROFILE DELETE THIS ON PRODUCTION
 
   const [filterStatus, setFilterStatus] = useState("ALL");
 
@@ -38,6 +40,7 @@ export default function EmployeeAppointmentsPage() {
   const [showDatePicker, setShowDatePicker] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
+  const [loadingActions, setLoadingActions] = useState({}); // Track loading state for each appointment action
 
   const statusFilters = [
     { value: "ALL", label: "ทั้งหมด" },
@@ -54,6 +57,10 @@ export default function EmployeeAppointmentsPage() {
       OFFER: "เสนอเวลาใหม่",
     };
 
+    // Set loading state for this specific appointment and action
+    const loadingKey = `${appointmentId}-${action}`;
+    setLoadingActions((prev) => ({ ...prev, [loadingKey]: true }));
+
     updateAppointmentAction(
       { appointmentId, action, offerDate, employeeInfo: employee },
       {
@@ -66,12 +73,24 @@ export default function EmployeeAppointmentsPage() {
             showConfirmButton: false,
           });
           setShowDatePicker(null);
+          // Clear loading state
+          setLoadingActions((prev) => {
+            const newState = { ...prev };
+            delete newState[loadingKey];
+            return newState;
+          });
         },
         onError: (err) => {
           Swal.fire({
             title: "เกิดข้อผิดพลาด",
             text: err.message || "ไม่สามารถอัปเดตนัดหมายได้",
             icon: "error",
+          });
+          // Clear loading state
+          setLoadingActions((prev) => {
+            const newState = { ...prev };
+            delete newState[loadingKey];
+            return newState;
           });
         },
       },
@@ -252,6 +271,7 @@ export default function EmployeeAppointmentsPage() {
                   selectedTime={selectedTime}
                   setSelectedTime={setSelectedTime}
                   onOfferDateTime={handleOfferDateTime}
+                  loadingActions={loadingActions}
                 />
               ))}
             </AnimatePresence>

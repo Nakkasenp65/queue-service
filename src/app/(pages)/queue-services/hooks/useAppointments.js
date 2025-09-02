@@ -4,9 +4,6 @@ import axios from "@/lib/axios";
 // const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
 const API_BASE_URL = "http://localhost:3000/api/v1";
 
-/**
- * Builds the correct URL with query parameters for fetching appointments.
- */
 const buildUrl = (startAt, endAt, query, lineUserId) => {
   const params = new URLSearchParams();
 
@@ -28,14 +25,6 @@ const buildUrl = (startAt, endAt, query, lineUserId) => {
   return `${API_BASE_URL}/appointments?${params.toString()}`;
 };
 
-/**
- * Hook to fetch a list of appointments, typically for a calendar view.
- * @param {object} params - The query parameters.
- * @param {string|Date} [params.startAt] - The start date for the range.
- * @param {string|Date} [params.endAt] - The end date for the range.
- * @param {string} [params.query] - A search query.
- * @param {string} [params.lineUserId] - The user's LINE ID to filter by.
- */
 export function useGetAppointments(params = {}) {
   const { startAt, endAt, query, lineUserId } = params;
 
@@ -55,43 +44,16 @@ export function useGetAppointments(params = {}) {
   });
 }
 
-/**
- * Hook สำหรับดึงข้อมูลคิวที่ว่างในวันที่เลือก
- * @param {Date} date - วันที่ต้องการตรวจสอบ
- */
 export function useGetAvailability(date) {
   return useQuery({
-    queryKey: ["availability", date?.toISOString().split("T")[0]], // ใช้แค่วันที่ ไม่เอาเวลา
+    queryKey: ["availability", date?.toISOString().split("T")[0]],
     queryFn: async () => {
-      const response = await fetch(
+      const { data } = await axios.get(
         `${API_BASE_URL}/appointments/availability?date=${date.toISOString()}`,
       );
-      if (!response.ok) {
-        throw new Error("Failed to fetch availability");
-      }
-      return response.json();
-    },
-    enabled: !!date, // รัน query ต่อเมื่อมี `date` เท่านั้น
-  });
-}
-
-/**
- * Hook to fetch all appointments for the currently logged-in user.
- * @param {string} lineUserId - The user's LINE ID.
- */
-export function useGetCustomerAppointmentDetails(line_user_id) {
-  return useQuery({
-    queryKey: ["my-appointments", line_user_id],
-    queryFn: async () => {
-      if (!line_user_id) return [];
-      const { data } = await axios.get(`v1/appointments/my-appointment/${line_user_id}`);
-      if (!data) {
-        throw new Error("Failed to fetch user appointments");
-      }
-      // Your backend returns an array, so we return it directly.
       return data;
     },
-    enabled: !!line_user_id, // Only run query if lineUserId is provided
+    enabled: !!date, // รัน query ต่อเมื่อมี `date` เท่านั้น
   });
 }
 
@@ -119,6 +81,19 @@ export function useGetDisplayAppointment(id) {
       }
     },
     enabled: !!id,
+  });
+}
+
+export function useGetCustomerNotification(line_user_id) {
+  return useQuery({
+    queryKey: ["notification", line_user_id],
+    queryFn: async () => {
+      const { data } = await axios.get(`/v1/notifications/customer/${line_user_id}`);
+      return data;
+    },
+    staleTime: 60 * 1000,
+    enabled: !!line_user_id,
+    refetchInterval: 30 * 1000 * 3,
   });
 }
 

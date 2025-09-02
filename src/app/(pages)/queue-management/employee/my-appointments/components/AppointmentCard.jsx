@@ -29,6 +29,7 @@ export default function AppointmentCard({
   selectedTime,
   setSelectedTime,
   onOfferDateTime,
+  loadingActions = {},
 }) {
   const typeMap = {
     ONSITE: {
@@ -121,6 +122,12 @@ export default function AppointmentCard({
 
   // This logic is correct, buttons should only show for PENDING appointments.
   const isPending = appointment.status === "PENDING";
+
+  // Check loading states for each action
+  const isAcceptLoading = loadingActions[`${appointment.id}-ACCEPT`];
+  const isRejectLoading = loadingActions[`${appointment.id}-REJECT`];
+  const isOfferLoading = loadingActions[`${appointment.id}-OFFER`];
+  const isAnyLoading = isAcceptLoading || isRejectLoading || isOfferLoading;
 
   return (
     <motion.div
@@ -242,33 +249,66 @@ export default function AppointmentCard({
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: isAnyLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isAnyLoading ? 1 : 0.98 }}
                   onClick={() => onAction(appointment.id, "ACCEPT")}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+                  disabled={isAnyLoading}
+                  className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 ${
+                    isAnyLoading
+                      ? "cursor-not-allowed bg-gray-400"
+                      : "bg-gradient-to-r from-emerald-500 to-green-600 hover:shadow-xl"
+                  }`}
                 >
-                  <CheckCircle2 className="h-5 w-5" />
-                  รับทำ
+                  {isAcceptLoading ? (
+                    <>
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      กำลังรับทำ...
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="h-5 w-5" />
+                      รับทำ
+                    </>
+                  )}
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: isAnyLoading ? 1 : 1.02 }}
+                  whileTap={{ scale: isAnyLoading ? 1 : 0.98 }}
                   onClick={() => onAction(appointment.id, "REJECT")}
-                  className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+                  disabled={isAnyLoading}
+                  className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 ${
+                    isAnyLoading
+                      ? "cursor-not-allowed bg-gray-400"
+                      : "bg-gradient-to-r from-red-500 to-rose-600 hover:shadow-xl"
+                  }`}
                 >
-                  <XCircle className="h-5 w-5" />
-                  ปฏิเสธ
+                  {isRejectLoading ? (
+                    <>
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      กำลังปฏิเสธ...
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5" />
+                      ปฏิเสธ
+                    </>
+                  )}
                 </motion.button>
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: isAnyLoading ? 1 : 1.02 }}
+                whileTap={{ scale: isAnyLoading ? 1 : 0.98 }}
                 onClick={() =>
                   setShowDatePicker(showDatePicker === appointment.id ? null : appointment.id)
                 }
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 hover:shadow-xl"
+                disabled={isAnyLoading}
+                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white shadow-lg transition-all duration-200 ${
+                  isAnyLoading
+                    ? "cursor-not-allowed bg-gray-400"
+                    : "bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-xl"
+                }`}
               >
                 <Clock className="h-5 w-5" />
                 เสนอเวลาใหม่
@@ -286,6 +326,7 @@ export default function AppointmentCard({
                 selectedTime={selectedTime}
                 setSelectedTime={setSelectedTime}
                 onConfirm={() => onOfferDateTime(appointment.id)}
+                isLoading={isOfferLoading}
               />
             </div>
           )}

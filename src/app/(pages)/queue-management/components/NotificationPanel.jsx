@@ -1,13 +1,41 @@
 import { motion } from "framer-motion";
-import { Bell, CalendarPlus, Megaphone, UserCheck, X, XCircle, Mail } from "lucide-react";
+import {
+  Bell,
+  CalendarPlus,
+  Megaphone,
+  UserCheck,
+  X,
+  XCircle,
+  Mail,
+  Edit,
+  CheckCircle,
+  LogIn,
+  Gift,
+} from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { th } from "date-fns/locale";
+import Link from "next/link";
 
+// Expanded to include more types from your Prisma schema
 const NOTIFICATION_META = {
+  // Existing types
   NEW_BOOKING_REQUEST: { icon: CalendarPlus, color: "text-blue-500" },
   BOOKING_CANCELLED_BY_USER_ALERT: { icon: XCircle, color: "text-rose-500" },
   SYSTEM_ANNOUNCEMENT: { icon: Megaphone, color: "text-purple-500" },
   FEEDBACK_REQUEST: { icon: UserCheck, color: "text-emerald-500" },
+
+  // Added types based on schema
+  BOOKING_MODIFIED_BY_USER: { icon: Edit, color: "text-amber-500" },
+  BOOKING_MODIFIED_BY_STAFF: { icon: Edit, color: "text-amber-500" },
+  QUEUE_CHECK_IN: { icon: LogIn, color: "text-cyan-500" },
+  BOOKING_RECEIVED: { icon: Mail, color: "text-slate-500" },
+  BOOKING_CONFIRMED: { icon: CheckCircle, color: "text-green-500" },
+  BOOKING_REJECTED: { icon: XCircle, color: "text-rose-500" },
+  BOOKING_CANCELLED_BY_STAFF: { icon: XCircle, color: "text-rose-500" },
+  BOOKING_CANCELLED_BY_USER: { icon: XCircle, color: "text-rose-500" },
+  PROMOTION_ALERT: { icon: Gift, color: "text-pink-500" },
+
+  // Default fallback
   DEFAULT: { icon: Bell, color: "text-slate-500" },
 };
 
@@ -17,6 +45,8 @@ export default function NotificationPanel({
   onMarkAllAsRead,
   onClose,
 }) {
+  // The component now expects the `notifications` prop to be the real data
+  // from the `useGetEmployeeNotificationsByTags` hook.
   const sortedNotifications = [...notifications].sort(
     (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
   );
@@ -46,13 +76,16 @@ export default function NotificationPanel({
       <div className="max-h-96 overflow-y-auto">
         {sortedNotifications.length > 0 ? (
           sortedNotifications.map((n) => {
+            // The 'type' from Prisma is mapped to 'notificationType' by the hook or in the parent component
             const meta = NOTIFICATION_META[n.notificationType] || NOTIFICATION_META.DEFAULT;
             const Icon = meta.icon;
             return (
               <div
-                key={n.id}
-                onClick={() => onMarkAsRead(n.id)}
-                className="flex cursor-pointer items-start gap-3 border-b border-slate-100 p-3 hover:bg-slate-50"
+                key={n.id} // Works with string ID from MongoDB
+                onClick={() => !n.isRead && onMarkAsRead(n.id)}
+                className={`flex cursor-pointer items-start gap-3 border-b border-slate-100 p-3 transition-colors ${
+                  n.isRead ? "bg-white" : "bg-blue-50/50 hover:bg-slate-50"
+                }`}
               >
                 {!n.isRead && (
                   <div className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-blue-500"></div>
@@ -82,9 +115,12 @@ export default function NotificationPanel({
         )}
       </div>
       <div className="rounded-b-2xl bg-slate-50 p-2 text-center">
-        <button className="text-sm font-medium text-blue-600 hover:text-blue-800">
+        <Link
+          href={"/queue-management/employee/notification"}
+          className="text-sm font-medium text-blue-600 hover:text-blue-800"
+        >
           ดูการแจ้งเตือนทั้งหมด
-        </button>
+        </Link>
       </div>
     </motion.div>
   );

@@ -1,21 +1,26 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import axios from "../../../../../lib/axios";
 import Swal from "sweetalert2";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
+export function useGetCustomerAppointmentDetails(line_user_id) {
+  return useQuery({
+    queryKey: ["my-appointments", line_user_id],
+    queryFn: async () => {
+      if (!line_user_id) return [];
+      const { data } = await axios.get(`v1/appointments/my-appointment/${line_user_id}`);
+      return data;
+    },
+    enabled: !!line_user_id, // Only run query if lineUserId is provided
+  });
+}
 
-/**
- * Hook for cancelling an appointment
- */
 export function useCancelAppointment() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (appointmentId) => {
-      const response = await axios.post(
-        `http://localhost:3000${API_BASE}/appointments/cancel/${appointmentId}`,
-      );
-      return response.data;
+      const { data } = await axios.post(`/v1/appointments/cancel/${appointmentId}`);
+      return data;
     },
     onSuccess: (data, appointmentId) => {
       // Invalidate related queries to refresh data
@@ -41,23 +46,18 @@ export function useCancelAppointment() {
   });
 }
 
-/**
- * Hook for accepting an offer (reschedule)
- */
 export function useAcceptOffer() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (appointmentId) => {
-      const response = await axios.patch(
-        `http://localhost:3000${API_BASE}/appointments/offer/${appointmentId}/accept`,
-      );
-      return response.data;
+      const { data } = await axios.patch(`/v1/appointments/offer/${appointmentId}/accept`);
+      return data;
     },
     onSuccess: () => {
       // Invalidate related queries to refresh data
       queryClient.invalidateQueries({ queryKey: ["customer-appointment"] });
-      queryClient.invalidateQueries({ queryKey: ["appointments"] });
+      queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
 
       // Show success message
       Swal.fire({
@@ -78,9 +78,6 @@ export function useAcceptOffer() {
   });
 }
 
-/**
- * Hook for rejecting an offer (reschedule)
- */
 export function useRejectOffer() {
   const queryClient = useQueryClient();
 
@@ -116,87 +113,33 @@ export function useRejectOffer() {
   });
 }
 
-/**
- * Combined hook that provides all appointment mutation actions
- * This is the main hook to use in components
- */
-export function useAppointmentActions() {
-  const cancelMutation = useCancelAppointment();
-  const acceptOfferMutation = useAcceptOffer();
-  const rejectOfferMutation = useRejectOffer();
-
-  return {
-    // Individual mutations
-    cancelMutation,
-    acceptOfferMutation,
-    rejectOfferMutation,
-
-    // Convenience action handlers that include confirmation dialogs
-    handleCancel: async (appointment, { parseService, formatDate, formatTime }) => {
-      if (!appointment) return;
-
-      const result = await Swal.fire({
-        title: "ยืนยันการยกเลิกการจอง?",
-        html: `คุณต้องการยกเลิกการจอง<br/><strong>${parseService(appointment.note)}</strong><br/>วันที่ ${formatDate(
-          appointment.date,
-        )} เวลา ${formatTime(appointment.section)}`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "ยืนยัน",
-        cancelButtonText: "ยกเลิก",
-        reverseButtons: true,
-      });
-
-      if (result.isConfirmed) {
-        cancelMutation.mutate(appointment.id);
-      }
+export function useSubmitPaymentSlip() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ appointmentId, slipUrl }) => {
+      // This function sends the slip URL to your backend
+      const { data } = await axios.patch(`/v1/appointments/${appointmentId}/payment`, { slipUrl });
+      return data;
     },
-
-    handleAcceptOffer: async (appointment, getOfferedInfo) => {
-      if (!appointment) return;
-      const offered = getOfferedInfo(appointment);
-
-      const confirm = await Swal.fire({
-        title: "ยืนยันรับเวลาใหม่?",
-        html: offered.hasOffer
-          ? `วันที่: <b>${offered.dateText}</b><br/>เวลา: <b>${offered.timeText}</b>`
-          : "ยืนยันรับเวลาใหม่",
-        icon: "question",
-        showCancelButton: true,
-        confirmButtonText: "รับเวลาใหม่",
-        cancelButtonText: "ยกเลิก",
+    onSuccess: (data) => {
+      Swal.fire({
+        title: "ส่งสลิปสำเร็จ!",
+        text: "สลิปของคุณถูกส่งแล้ว เจ้าหน้าที่จะดำเนินการตรวจสอบโดยเร็วที่สุด",
+        icon: "success",
+        timer: 2500,
+        showConfirmButton: false,
       });
-
-      if (confirm.isConfirmed) {
-        acceptOfferMutation.mutate(appointment.id);
-      }
+      // This is crucial: it tells react-query to refetch the appointment details,
+      // which will update the status on the page automatically.
+      queryClient.invalidateQueries({ queryKey: ["customerAppointmentDetails"] });
     },
-
-    handleRejectOffer: async (appointment) => {
-      if (!appointment) return;
-
-      const { value: reason } = await Swal.fire({
-        title: "ปฏิเสธเวลาใหม่?",
-        input: "text",
-        inputPlaceholder: "ระบุเหตุผล (ถ้ามี)",
-        showCancelButton: true,
-        confirmButtonText: "ปฏิเสธ",
-        cancelButtonText: "ยกเลิก",
+    onError: (error) => {
+      console.error("Submit slip error:", error);
+      Swal.fire({
+        title: "เกิดข้อผิดพลาด",
+        text: error.response?.data?.message || "ไม่สามารถส่งสลิปได้ กรุณาลองใหม่อีกครั้ง",
+        icon: "error",
       });
-
-      if (reason !== undefined) {
-        rejectOfferMutation.mutate({
-          appointmentId: appointment.id,
-          reason: reason || "",
-        });
-      }
     },
-
-    // Loading states
-    isLoading:
-      cancelMutation.isPending || acceptOfferMutation.isPending || rejectOfferMutation.isPending,
-    isCancelling: cancelMutation.isPending,
-    isAccepting: acceptOfferMutation.isPending,
-    isRejecting: rejectOfferMutation.isPending,
-  };
+  });
 }

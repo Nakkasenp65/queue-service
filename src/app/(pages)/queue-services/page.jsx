@@ -17,7 +17,6 @@ import UserDetailsForm from "@/app/(pages)/queue-services/components/UserDetails
 import ServiceSelection from "@/app/(pages)/queue-services/components/ServiceSelection";
 import LatestAppointmentCard from "@/app/(pages)/queue-services/components/LatestAppointmentCard";
 import BottomNavbar from "./components/BottomNavbar";
-import Navbar from "@/app/components/Navbar";
 
 export default function HomePage() {
   // ------------------ INITIAL DATA ------------------
@@ -57,6 +56,8 @@ export default function HomePage() {
     lineProfilePicUrl: liffProfile?.pictureUrl || "",
     email: liffProfile?.email || "",
     note: "",
+    locationCategory: null, // <-- ADDED: To store location category { label, value }
+    locationDetail: null, // <-- ADDED: To store specific location { label, value }
   });
 
   const handleServiceSelect = (service) => {
@@ -77,6 +78,16 @@ export default function HomePage() {
     if (!formData.appointmentAt || !formData.lineUserId) {
       console.error("Missing required data: appointmentAt or lineUserId");
       Swal.fire("ข้อมูลไม่ครบ", "กรุณาเลือกวันและเวลาที่ต้องการนัดหมาย", "warning");
+      return;
+    }
+
+    // For offsite refinance, ensure location is selected
+    if (
+      formData.serviceType === "รีไฟแนนซ์" &&
+      formData.appointmentType === "offsite" &&
+      !formData.locationDetail
+    ) {
+      Swal.fire("ข้อมูลไม่ครบ", "กรุณาเลือกสถานที่นัดหมายนอกสถานที่", "warning");
       return;
     }
 
@@ -102,13 +113,23 @@ export default function HomePage() {
       picture_url: formData.lineProfilePicUrl,
     };
 
+    // Append location details to the note if available
+    let finalNote = formData.note || `Service: ${formData.serviceType}`;
+    if (
+      formData.appointmentType === "offsite" &&
+      formData.locationCategory &&
+      formData.locationDetail
+    ) {
+      finalNote += `\nสถานที่นัดหมาย: ${formData.locationCategory.label} - ${formData.locationDetail.label}`;
+    }
+
     const appointment = {
       appointmentType: formData.appointmentType,
       serviceType: formData.serviceType,
       appointmentAt: formData.appointmentAt,
       date: formData.appointmentAt,
       type: formData.appointmentType.toUpperCase(),
-      note: formData.note || `Service: ${formData.serviceType}`,
+      note: finalNote,
       requiredTags: getRequiredTags(formData.serviceType),
     };
 
@@ -165,44 +186,52 @@ export default function HomePage() {
 
   useEffect(() => {
     const goHome = () => setAppState("selecting_service");
-    const openProfile = () => setIsProfileOpen(true);
     window.addEventListener("go-home", goHome);
-    window.addEventListener("open-profile", openProfile);
     return () => {
       window.removeEventListener("go-home", goHome);
-      window.removeEventListener("open-profile", openProfile);
     };
   }, []);
 
-  // When parent submission state changes to false, clear local pressed state
   useEffect(() => {
     if (!isCreating) setPressed(false);
   }, [isCreating]);
 
   return (
-    <div>
+    <div className="py-24">
       {showDPO && <DPOConsent onAccept={handleAcceptDPO} />}
-      <Navbar />
       <section className="relative flex min-h-screen flex-col font-sans text-gray-800">
         <div className="flex h-full flex-col gap-4 p-4">
-          {/* Added pt-24 for navbar space */}
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {appState === "selecting_service" && (
-              <motion.div key="service_selection_view" className="flex flex-col gap-4">
-                {customerData && (
-                  <LatestAppointmentCard
-                    appointment={customerData?.appointments[0] || null}
-                    loading={customerLoading}
-                  />
-                )}
-
+              <motion.div
+                key="service_selection_view"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 20 }}
+                transition={{ duration: 0.2 }}
+                className="flex flex-col gap-8"
+              >
                 <ServiceSelection customer={customerData} onServiceSelect={handleServiceSelect} />
+                {customerData && (
+                  <div className="flex flex-col gap-2">
+                    <h1 className="text-lg font-bold">รายการคิวปัจจุบัน</h1>
+                    <LatestAppointmentCard
+                      appointment={customerData?.appointments[0] || null}
+                      loading={customerLoading}
+                    />
+                  </div>
+                )}
               </motion.div>
             )}
 
-            {/* -------------- หน้าแสดงคิว เลือกวันที่ -------------- */}
             {appState === "selecting_date_time" && (
-              <motion.div key="date_time_picker">
+              <motion.div
+                key="date_time_picker"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
                 <DateTimePicker
                   formData={formData}
                   setFormData={setFormData}
@@ -217,10 +246,14 @@ export default function HomePage() {
               </motion.div>
             )}
 
-            {/* -------------- หน้ากรอกรายละเอียดผู้ใช้ + DPO -------------- */}
             {appState === "user_details" && (
-              <motion.div key="user_details">
-                <BackEventBridge onBack={() => setAppState("selecting_date_time")} />
+              <motion.div
+                key="user_details"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.2 }}
+              >
                 <UserDetailsForm
                   formData={formData}
                   setFormData={setFormData}
@@ -228,8 +261,8 @@ export default function HomePage() {
                   customer={customerData}
                   isLoading={customerLoading}
                   liffProfile={liffProfile}
-                  isSubmitting={isCreating}
-                  isCreating={isCreating}
+                  isSubmitting={isCreating || isCreatingNewUser}
+                  isCreating={isCreating || isCreatingNewUser}
                   acceptDPO={acceptDPO}
                   setAcceptDPO={setAcceptDPO}
                   showDPOContent={showDPOContent}
@@ -242,19 +275,9 @@ export default function HomePage() {
           </AnimatePresence>
         </div>
         <div>
-          {/* Bottom Navigation */}
           <BottomNavbar liffProfile={liffProfile} />
         </div>
       </section>
     </div>
   );
-}
-
-function BackEventBridge({ onBack }) {
-  useEffect(() => {
-    const handler = () => onBack();
-    window.addEventListener("go-back-to-datetime", handler);
-    return () => window.removeEventListener("go-back-to-datetime", handler);
-  }, [onBack]);
-  return null;
 }
