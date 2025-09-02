@@ -22,11 +22,9 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { useGetCustomerAppointmentDetails } from "@/app/(pages)/queue-services/hooks/useAppointments";
 import { useLiff } from "@/app/components/Provider/LiffProvider";
+import { useAppointmentActions } from "./hooks/useAppointment";
 import BottomNavbar from "../../queue-services/components/BottomNavbar";
 
-/* =========================
-   Helpers
-========================= */
 const statusThai = (status) => {
   switch (status) {
     case "PENDING":
@@ -49,6 +47,7 @@ const statusThai = (status) => {
       return status || "-";
   }
 };
+
 const statusColor = (status) => {
   switch (status) {
     case "CONFIRMED":
@@ -116,10 +115,14 @@ export default function MyAppointmentPage() {
     refetch,
   } = useGetCustomerAppointmentDetails(liffProfile?.userId);
 
+  // Use appointment action hooks
+  const appointmentActions = useAppointmentActions();
+
   const [sharing, setSharing] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
-  const [isAccepting, setIsAccepting] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+  // Remove manual loading states - now handled by mutations
+  // const [isCancelling, setIsCancelling] = useState(false);
+  // const [isAccepting, setIsAccepting] = useState(false);
+  // const [isRejecting, setIsRejecting] = useState(false);
 
   // Loading flower animation
   const loadingVariants = [
@@ -128,11 +131,13 @@ export default function MyAppointmentPage() {
     { petals: 10, radius: 46, from: "from-emerald-500", to: "to-lime-400" },
     { petals: 12, radius: 50, from: "from-violet-500", to: "to-fuchsia-400" },
   ];
+
   const loadingMessages = [
     "กำลังดึงข้อมูลการจองของคุณ…",
     "กำลังจัดคิวให้เหมาะสมที่สุด…",
     "กำลังประมวลผลข้อมูลล่าสุด…",
   ];
+
   const [variantIndex, setVariantIndex] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
   useEffect(() => {
@@ -196,105 +201,19 @@ export default function MyAppointmentPage() {
   };
 
   const handleCancel = async () => {
-    if (!myAppointment) return;
-
-    const result = await Swal.fire({
-      title: "ยืนยันการยกเลิกการจอง?",
-      html: `คุณต้องการยกเลิกการจอง<br/><strong>${parseService(myAppointment.note)}</strong><br/>วันที่ ${formatDate(
-        myAppointment.date,
-      )} เวลา ${formatTime(myAppointment.section)}`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "ยืนยัน",
-      cancelButtonText: "ยกเลิก",
-      reverseButtons: true,
+    await appointmentActions.handleCancel(myAppointment, {
+      parseService,
+      formatDate,
+      formatTime,
     });
-    if (!result.isConfirmed) return;
-
-    setIsCancelling(true);
-    try {
-      await axios.post(`http://localhost:3000/api/v1/appointments/cancel/${myAppointment.id}`);
-      await Swal.fire({
-        icon: "success",
-        title: "ยกเลิกเรียบร้อย",
-        timer: 1200,
-        showConfirmButton: false,
-      });
-      refetch?.();
-    } catch (e) {
-      console.error("cancel error", e);
-      await Swal.fire({ icon: "error", title: "เกิดข้อผิดพลาด", text: "ไม่สามารถยกเลิกได้" });
-    } finally {
-      setIsCancelling(false);
-    }
   };
 
   const handleAcceptOffer = async () => {
-    if (!myAppointment) return;
-    const offered = getOfferedInfo(myAppointment);
-    const confirm = await Swal.fire({
-      title: "ยืนยันรับเวลาใหม่?",
-      html: offered.hasOffer
-        ? `วันที่: <b>${offered.dateText}</b><br/>เวลา: <b>${offered.timeText}</b>`
-        : "ยืนยันรับเวลาใหม่",
-      icon: "question",
-      showCancelButton: true,
-      confirmButtonText: "รับเวลาใหม่",
-      cancelButtonText: "ยกเลิก",
-    });
-    if (!confirm.isConfirmed) return;
-
-    setIsAccepting(true);
-    try {
-      await axios.patch(
-        `http://localhost:3000/api/v1/appointments/offer/${myAppointment.id}/accept`,
-      );
-      await Swal.fire({
-        icon: "success",
-        title: "ยืนยันสำเร็จ",
-        timer: 1100,
-        showConfirmButton: false,
-      });
-      refetch?.();
-    } catch (e) {
-      console.error("accept-offer error", e);
-      await Swal.fire({ icon: "error", title: "ยืนยันไม่สำเร็จ", text: "โปรดลองใหม่อีกครั้ง" });
-    } finally {
-      setIsAccepting(false);
-    }
+    await appointmentActions.handleAcceptOffer(myAppointment, getOfferedInfo);
   };
 
   const handleRejectOffer = async () => {
-    if (!myAppointment) return;
-    const { value: reason } = await Swal.fire({
-      title: "ปฏิเสธเวลาใหม่?",
-      input: "text",
-      inputPlaceholder: "ระบุเหตุผล (ถ้ามี)",
-      showCancelButton: true,
-      confirmButtonText: "ปฏิเสธ",
-      cancelButtonText: "ยกเลิก",
-    });
-    if (reason === undefined) return;
-
-    setIsRejecting(true);
-    try {
-      await axios.patch(
-        `http://localhost:3000/api/v1/appointments/offer/${myAppointment.id}/reject`,
-        { reason: reason || "" },
-      );
-      await Swal.fire({
-        icon: "success",
-        title: "ส่งคำตอบแล้ว",
-        timer: 1100,
-        showConfirmButton: false,
-      });
-      refetch?.();
-    } catch (e) {
-      console.error("reject-offer error", e);
-      await Swal.fire({ icon: "error", title: "ปฏิเสธไม่สำเร็จ", text: "โปรดลองใหม่อีกครั้ง" });
-    } finally {
-      setIsRejecting(false);
-    }
+    await appointmentActions.handleRejectOffer(myAppointment);
   };
 
   /* =========================
@@ -460,10 +379,10 @@ export default function MyAppointmentPage() {
                 <div className="mt-4 flex gap-3">
                   <button
                     onClick={handleRejectOffer}
-                    disabled={isRejecting || isAccepting}
+                    disabled={appointmentActions.isRejecting || appointmentActions.isAccepting}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-white px-4 py-3 text-sm font-semibold text-rose-600 shadow-sm hover:bg-rose-50 disabled:opacity-50"
                   >
-                    {isRejecting ? (
+                    {appointmentActions.isRejecting ? (
                       "กำลังส่ง..."
                     ) : (
                       <>
@@ -473,10 +392,10 @@ export default function MyAppointmentPage() {
                   </button>
                   <button
                     onClick={handleAcceptOffer}
-                    disabled={isAccepting || isRejecting}
+                    disabled={appointmentActions.isAccepting || appointmentActions.isRejecting}
                     className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg hover:bg-emerald-700 disabled:opacity-50"
                   >
-                    {isAccepting ? (
+                    {appointmentActions.isAccepting ? (
                       "กำลังยืนยัน..."
                     ) : (
                       <>
@@ -523,11 +442,11 @@ export default function MyAppointmentPage() {
               </div>
               <button
                 onClick={handleCancel}
-                disabled={myAppointment.status !== "PENDING" || isCancelling}
-                className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold ${myAppointment.status === "PENDING" && !isCancelling ? "bg-rose-600 text-white hover:bg-rose-700" : "cursor-not-allowed bg-slate-100 text-slate-500"}`}
+                disabled={myAppointment.status !== "PENDING" || appointmentActions.isCancelling}
+                className={`mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold ${myAppointment.status === "PENDING" && !appointmentActions.isCancelling ? "bg-rose-600 text-white hover:bg-rose-700" : "cursor-not-allowed bg-slate-100 text-slate-500"}`}
               >
                 <X size={16} className="inline-block" />
-                {isCancelling ? "กำลังยกเลิก..." : "ยกเลิกการจอง"}
+                {appointmentActions.isCancelling ? "กำลังยกเลิก..." : "ยกเลิกการจอง"}
               </button>
             </div>
           </div>
