@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import Link from 'next/link';
+import { useState, useMemo } from "react";
+import Link from "next/link";
 import {
   User,
   Phone,
@@ -22,9 +22,10 @@ import {
   ExternalLink,
   UserCheck,
   UserX,
-} from 'lucide-react';
-import { useLiff } from '@/app/components/Provider/LiffProvider';
-import { useGetCustomer } from '@/app/(pages)/queue-services/hooks/useCustomer';
+} from "lucide-react";
+import { useLiff } from "@/app/components/Provider/LiffProvider";
+import { useGetCustomer } from "@/app/(pages)/queue-services/hooks/useCustomer";
+import BottomNavbar from "../queue-services/components/BottomNavbar";
 
 export default function ProfilePage() {
   const { liffProfile } = useLiff();
@@ -37,18 +38,18 @@ export default function ProfilePage() {
   const hasProfile = Boolean(customerData);
   const displayData = hasProfile
     ? {
-        displayName: customerData.fullname || customerData.line_display_name || 'ไม่ระบุชื่อ',
-        phone: customerData.phone || 'ไม่ระบุ',
-        email: customerData.email || 'ไม่ระบุ',
+        displayName: customerData.fullname || customerData.line_display_name || "ไม่ระบุชื่อ",
+        phone: customerData.phone || "ไม่ระบุ",
+        email: customerData.email || "ไม่ระบุ",
         pictureUrl: customerData.picture_url || liffProfile?.pictureUrl,
         lineDisplayName: customerData.line_display_name || liffProfile?.displayName,
         joinDate: customerData.createdAt ? new Date(customerData.createdAt) : null,
         totalAppointments: customerData.appointments?.length || 0,
       }
     : {
-        displayName: liffProfile?.displayName || 'ผู้ใช้ LINE',
-        phone: 'ยังไม่ได้ลงทะเบียน',
-        email: liffProfile?.email || 'ยังไม่ได้ลงทะเบียน',
+        displayName: liffProfile?.displayName || "ผู้ใช้ LINE",
+        phone: "ยังไม่ได้ลงทะเบียน",
+        email: liffProfile?.email || "ยังไม่ได้ลงทะเบียน",
         pictureUrl: liffProfile?.pictureUrl,
         lineDisplayName: liffProfile?.displayName,
         joinDate: null,
@@ -84,7 +85,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-28">
+    <main className="relative min-h-screen bg-gradient-to-b from-slate-50 to-white pb-28">
       {/* Header with gradient */}
       <header className="bg-gradient-to-b from-blue-950 via-indigo-700 to-purple-600 px-5 pt-24 pb-6 text-white shadow">
         <div className="mx-auto max-w-xl">
@@ -120,11 +121,11 @@ export default function ProfilePage() {
             <div className="flex-1">
               <h1 className="text-lg font-semibold">{displayData.displayName}</h1>
               <p className="text-sm text-white/80">
-                {hasProfile ? 'สมาชิกที่ลงทะเบียนแล้ว' : 'ยังไม่ได้ลงทะเบียน'}
+                {hasProfile ? "สมาชิกที่ลงทะเบียนแล้ว" : "ยังไม่ได้ลงทะเบียน"}
               </p>
               {displayData.joinDate && (
                 <p className="mt-1 text-xs text-white/60">
-                  สมาชิกตั้งแต่ {displayData.joinDate.toLocaleDateString('th-TH')}
+                  สมาชิกตั้งแต่ {displayData.joinDate.toLocaleDateString("th-TH")}
                 </p>
               )}
             </div>
@@ -233,7 +234,7 @@ export default function ProfilePage() {
           <ActionCard
             icon={Calendar}
             title="ประวัติการจอง"
-            subtitle={hasProfile ? `${displayData.totalAppointments} ครั้ง` : 'ไม่มีข้อมูล'}
+            subtitle={hasProfile ? `${displayData.totalAppointments} ครั้ง` : "ไม่มีข้อมูล"}
             href="/appointments/queue-history"
             gradient="from-blue-900 via-blue-700 to-sky-500"
           />
@@ -274,7 +275,7 @@ export default function ProfilePage() {
               href="#"
               onClick={() => {
                 // Handle logout logic here
-                console.log('Logout clicked');
+                console.log("Logout clicked");
               }}
               isDestructive
             />
@@ -282,14 +283,15 @@ export default function ProfilePage() {
         </div>
 
         {/* Development Info */}
-        {process.env.NODE_ENV === 'development' && (
+        {process.env.NODE_ENV === "development" && (
           <div className="rounded-lg bg-slate-100 p-3 text-xs text-slate-600">
-            <p className="font-mono">Profile Status: {hasProfile ? 'Registered' : 'LIFF Only'}</p>
-            <p className="font-mono">LINE User ID: {liffProfile?.userId || 'Not available'}</p>
+            <p className="font-mono">Profile Status: {hasProfile ? "Registered" : "LIFF Only"}</p>
+            <p className="font-mono">LINE User ID: {liffProfile?.userId || "Not available"}</p>
             {customerData && <p className="font-mono">Customer ID: {customerData.id}</p>}
           </div>
         )}
       </section>
+      <BottomNavbar />
     </main>
   );
 }
@@ -315,7 +317,7 @@ function InfoRow({ icon: Icon, label, value, isPlaceholder }) {
       <div className="flex-1">
         <div className="text-xs text-slate-500">{label}</div>
         <div
-          className={`text-sm font-medium ${isPlaceholder ? 'text-slate-400 italic' : 'text-slate-900'}`}
+          className={`text-sm font-medium ${isPlaceholder ? "text-slate-400 italic" : "text-slate-900"}`}
         >
           {value}
         </div>
@@ -348,25 +350,25 @@ function ActionCard({ icon: Icon, title, subtitle, href, gradient }) {
 }
 
 function SettingRow({ icon: Icon, title, subtitle, href, onClick, isDestructive }) {
-  const Component = href === '#' ? 'button' : Link;
-  const props = href === '#' ? { onClick, type: 'button' } : { href };
+  const Component = href === "#" ? "button" : Link;
+  const props = href === "#" ? { onClick, type: "button" } : { href };
 
   return (
     <Component
       {...props}
       className={`flex w-full items-center gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${
-        isDestructive ? 'hover:bg-red-50' : ''
+        isDestructive ? "hover:bg-red-50" : ""
       }`}
     >
       <div
         className={`flex h-8 w-8 items-center justify-center rounded-lg ${
-          isDestructive ? 'bg-red-100' : 'bg-slate-100'
+          isDestructive ? "bg-red-100" : "bg-slate-100"
         }`}
       >
-        <Icon className={`h-4 w-4 ${isDestructive ? 'text-red-600' : 'text-slate-600'}`} />
+        <Icon className={`h-4 w-4 ${isDestructive ? "text-red-600" : "text-slate-600"}`} />
       </div>
       <div className="flex-1">
-        <div className={`text-sm font-medium ${isDestructive ? 'text-red-600' : 'text-slate-900'}`}>
+        <div className={`text-sm font-medium ${isDestructive ? "text-red-600" : "text-slate-900"}`}>
           {title}
         </div>
         <div className="text-xs text-slate-500">{subtitle}</div>
