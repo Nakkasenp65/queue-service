@@ -81,7 +81,7 @@ export default function TodaySchedule({ router, appointments = [], loading = fal
           <span className="text-sm text-gray-500">{todaySchedule.length} นัด</span>
           <button
             onClick={() => router.push("/queue-management/employee/my-appointments")}
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700"
           >
             ดูทั้งหมด
             <ArrowRight className="h-4 w-4" />

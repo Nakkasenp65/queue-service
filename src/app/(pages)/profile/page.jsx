@@ -10,12 +10,10 @@ import {
   Edit3,
   Settings,
   LogOut,
-  Camera,
   CheckCircle2,
   XCircle,
   CalendarOff,
   BadgeCheck,
-  History,
   Bell,
   Shield,
   HelpCircle,
@@ -28,30 +26,32 @@ import { useGetCustomer } from "@/app/(pages)/queue-services/hooks/useCustomer";
 import BottomNavbar from "../queue-services/components/BottomNavbar";
 
 export default function ProfilePage() {
+  // ดึง liffProfile มาจาก provider
   const { liffProfile } = useLiff();
   const { data: customerData, isLoading: customerLoading } = useGetCustomer(
-    liffProfile?.userId || null,
+    liffProfile?.sub || null,
   );
   const [isEditing, setIsEditing] = useState(false);
 
-  // Determine if user has a profile or is using LIFF only
+  // check ค่า true false จาก customerData
   const hasProfile = Boolean(customerData);
+  // ตรวจสอบว่าเป็นสมาชิกแล้วไหม
   const displayData = hasProfile
     ? {
         displayName: customerData.fullname || customerData.line_display_name || "ไม่ระบุชื่อ",
         phone: customerData.phone || "ไม่ระบุ",
         email: customerData.email || "ไม่ระบุ",
-        pictureUrl: customerData.picture_url || liffProfile?.pictureUrl,
+        pictureUrl: customerData.picture_url || liffProfile?.picture,
         lineDisplayName: customerData.line_display_name || liffProfile?.displayName,
         joinDate: customerData.createdAt ? new Date(customerData.createdAt) : null,
         totalAppointments: customerData.appointments?.length || 0,
       }
     : {
-        displayName: liffProfile?.displayName || "ผู้ใช้ LINE",
+        displayName: liffProfile?.name || "ผู้ใช้ LINE",
         phone: "ยังไม่ได้ลงทะเบียน",
         email: liffProfile?.email || "ยังไม่ได้ลงทะเบียน",
-        pictureUrl: liffProfile?.pictureUrl,
-        lineDisplayName: liffProfile?.displayName,
+        pictureUrl: liffProfile?.picture,
+        lineDisplayName: liffProfile?.name,
         joinDate: null,
         totalAppointments: 0,
       };
@@ -73,7 +73,7 @@ export default function ProfilePage() {
 
   if (customerLoading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-slate-50 to-white">
         <div className="flex items-center justify-center py-20">
           <div className="text-center">
             <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-b-2 border-blue-600"></div>
@@ -85,9 +85,9 @@ export default function ProfilePage() {
   }
 
   return (
-    <main className="relative min-h-screen bg-gradient-to-b from-slate-50 to-white pb-28">
+    <main className="relative min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header with gradient */}
-      <header className="bg-gradient-to-b from-blue-950 via-indigo-700 to-purple-600 px-5 pt-24 pb-6 text-white shadow">
+      <header className="bg-gradient-to-b from-blue-950 via-indigo-700 to-purple-600 p-4 pt-40 text-white shadow">
         <div className="mx-auto max-w-xl">
           <div className="flex items-start gap-4">
             {/* Profile Picture */}
@@ -286,7 +286,7 @@ export default function ProfilePage() {
         {process.env.NODE_ENV === "development" && (
           <div className="rounded-lg bg-slate-100 p-3 text-xs text-slate-600">
             <p className="font-mono">Profile Status: {hasProfile ? "Registered" : "LIFF Only"}</p>
-            <p className="font-mono">LINE User ID: {liffProfile?.userId || "Not available"}</p>
+            <p className="font-mono">LINE User ID: {liffProfile?.sub || "Not available"}</p>
             {customerData && <p className="font-mono">Customer ID: {customerData.id}</p>}
           </div>
         )}

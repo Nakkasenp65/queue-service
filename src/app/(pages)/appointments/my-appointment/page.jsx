@@ -186,7 +186,7 @@ export default function MyAppointmentPage() {
     isLoading,
     error,
     refetch,
-  } = useGetCustomerAppointmentDetails(liffProfile?.userId);
+  } = useGetCustomerAppointmentDetails(liffProfile?.sub);
 
   const [sharing, setSharing] = useState(false);
   const { mutate: cancelAppointment, isPending: isCancelling } = useCancelAppointment();
@@ -249,21 +249,12 @@ export default function MyAppointmentPage() {
   const handleSubmitSlip = async () => {
     if (!paymentSlipFile || !myAppointment) return;
 
-    // =================================================================================
-    // !! CRITICAL TODO !!
-    // You must implement a service to upload the `paymentSlipFile` to your own storage
-    // (like AWS S3, Google Cloud Storage, or your own server) and get a URL back.
-    // The code below SIMULATES this process.
-    // =================================================================================
-
-    // Step 1: (SIMULATED) Upload the file and get a URL
     console.log("Uploading file:", paymentSlipFile.name);
     // Replace this with your actual upload function call
     // const uploadResponse = await yourFileUploadService(paymentSlipFile);
     // const slipUrl = uploadResponse.url;
     const slipUrl = `https://your-storage-service.com/slips/${myAppointment.id}_${Date.now()}.jpg`; // Simulated URL
 
-    // Step 2: Call the mutation with the appointment ID and the real URL
     submitSlip({ appointmentId: myAppointment.id, slipUrl });
   };
 
@@ -364,7 +355,7 @@ export default function MyAppointmentPage() {
     const v = loadingVariants[variantIndex] ?? loadingVariants[0];
     const petals = Array.from({ length: v.petals });
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6 font-sans text-gray-800">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-cyan-50 p-6 py-24 font-sans text-gray-800">
         <div className="mx-auto w-full max-w-sm text-center">
           <div className="relative mx-auto h-44 w-44">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/80 to-white/40 shadow-2xl ring-1 ring-black/5 backdrop-blur-sm" />
@@ -394,7 +385,7 @@ export default function MyAppointmentPage() {
 
   if (error) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-6">
+      <main className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-6 py-24">
         <div className="text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-rose-500 to-red-600 text-white shadow-lg">
             <AlertCircle size={32} />
@@ -414,7 +405,7 @@ export default function MyAppointmentPage() {
 
   if (!myAppointment || myAppointment.status === "CANCELLED") {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 font-sans text-gray-800">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 p-6 py-24 font-sans text-gray-800">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -534,8 +525,8 @@ export default function MyAppointmentPage() {
 
             <div className="flex gap-4">
               <div className="flex-1 overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200">
-                <div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-4 text-white">
-                  <div className="flex items-center gap-3">
+                <div className="h-full bg-gradient-to-br from-cyan-500 to-blue-600 p-4 text-white">
+                  <div className="flex h-full items-center gap-3">
                     <Calendar size={24} />
                     <div>
                       <div className="text-sm font-medium">วันที่นัดหมาย</div>
@@ -546,8 +537,8 @@ export default function MyAppointmentPage() {
               </div>
 
               <div className="w-max overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-slate-200">
-                <div className="bg-gradient-to-br from-rose-500 to-orange-500 p-4 text-white">
-                  <div className="flex items-center gap-3">
+                <div className="h-full bg-gradient-to-br from-rose-500 to-orange-500 p-4 text-white">
+                  <div className="flex h-full items-center gap-3">
                     <Clock size={24} />
                     <div>
                       <div className="text-sm font-medium">เวลานัดหมาย</div>

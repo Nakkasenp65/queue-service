@@ -7,62 +7,58 @@ import { motion, AnimatePresence } from "framer-motion";
 import Swal from "sweetalert2";
 
 import AppointmentCard from "./components/AppointmentCard";
-import {
-  useGetEmployeeAppointmentByTags,
-  useGetEmployeeAppointments,
-  useUpdateAppointmentAction,
-} from "../hooks/useEmployee";
+import DropDownComponent from "../../../../components/DropDownComponent";
+import { useGetEmployeeAppointmentByTags, useUpdateAppointmentAction } from "../hooks/useEmployee";
 
 export default function EmployeeAppointmentsPage() {
   const router = useRouter();
 
-  // TESTING PROFILE DELETE THIS ON PRODUCTION
-  const employee = {
-    adminId: "68aea10ba4d0d8f4b37327cc",
-    username: "nakasen",
-    fullName: "นาคเสน พุทธเจริญ",
-    staffId: "OKM011",
-    centralRole: ["admin", "ENGINEER", "REFINANCE"],
-  };
-  // TESTING PROFILE DELETE THIS ON PRODUCTION
-
   const [filterStatus, setFilterStatus] = useState("ALL");
-
-  const {
-    data: appointments = [],
-    isLoading,
-    error,
-    refetch: refetchAppointments,
-  } = useGetEmployeeAppointmentByTags(employee.centralRole);
-
-  const { mutate: updateAppointmentAction, isPending: isUpdating } = useUpdateAppointmentAction();
-
-  const [showDatePicker, setShowDatePicker] = useState(null);
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [loadingActions, setLoadingActions] = useState({}); // Track loading state for each appointment action
 
   const statusFilters = [
     { value: "ALL", label: "ทั้งหมด" },
     { value: "PENDING", label: "รอดำเนินการ" },
     { value: "ACCEPTED_BY_EMPLOYEE", label: "รับทำแล้ว" },
-    { value: "REJECTED_BY_EMPLOYEE", label: "ปฏิเสธแล้ว" },
+    { value: "CONFIRMED", label: "ลูกค้ายืนยันแล้ว" },
     { value: "OFFERED", label: "เสนอเวลาใหม่" },
+    { value: "WAITING_FOR_PAYMENT", label: "รอการชำระเงิน" },
+    { value: "PAYMENT_RECEIVED", label: "ได้รับการชำระเงิน" },
+    { value: "PAYMENT_CONFIRMED", label: "ยืนยันการชำระเงิน" },
+    { value: "PAYMENT_INVALID", label: "การชำระเงินไม่ถูกต้อง" },
+    { value: "COMPLETED", label: "เสร็จสิ้น" },
+    { value: "CANCELLED", label: "ยกเลิก" },
+    { value: "NO_SHOW", label: "ไม่มาตามนัด" },
+    { value: "REJECTED_BY_EMPLOYEE", label: "ปฏิเสธแล้ว" },
   ];
 
-  const handleAppointmentAction = (appointmentId, action, offerDate = null) => {
+  // GET hook
+  const {
+    data: appointments = [],
+    isLoading,
+    error,
+    refetch: refetchAppointments,
+  } = useGetEmployeeAppointmentByTags(null, filterStatus); // Assuming tags can be null for now
+
+  // POST hook
+  const { mutate: updateAppointmentAction } = useUpdateAppointmentAction();
+
+  const [showDatePicker, setShowDatePicker] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [loadingActions, setLoadingActions] = useState({});
+
+  const handleAppointmentAction = (appointmentId, action, offerDate = null, auth = null) => {
     const actionText = {
       ACCEPT: "รับทำ",
       REJECT: "ปฏิเสธ",
       OFFER: "เสนอเวลาใหม่",
     };
 
-    // Set loading state for this specific appointment and action
     const loadingKey = `${appointmentId}-${action}`;
     setLoadingActions((prev) => ({ ...prev, [loadingKey]: true }));
 
     updateAppointmentAction(
-      { appointmentId, action, offerDate, employeeInfo: employee },
+      { appointmentId, action, offerDate, auth },
       {
         onSuccess: () => {
           Swal.fire({
@@ -73,7 +69,6 @@ export default function EmployeeAppointmentsPage() {
             showConfirmButton: false,
           });
           setShowDatePicker(null);
-          // Clear loading state
           setLoadingActions((prev) => {
             const newState = { ...prev };
             delete newState[loadingKey];
@@ -86,7 +81,6 @@ export default function EmployeeAppointmentsPage() {
             text: err.message || "ไม่สามารถอัปเดตนัดหมายได้",
             icon: "error",
           });
-          // Clear loading state
           setLoadingActions((prev) => {
             const newState = { ...prev };
             delete newState[loadingKey];
@@ -97,27 +91,18 @@ export default function EmployeeAppointmentsPage() {
     );
   };
 
-  const handleOfferDateTime = (appointmentId) => {
+  const handleOfferDateTime = (appointmentId, auth) => {
     if (!selectedDate || !selectedTime) {
       Swal.fire({ title: "กรุณาเลือกวันที่และเวลา", icon: "warning" });
       return;
     }
     const offerDate = new Date(`${selectedDate}T${selectedTime}`);
-    handleAppointmentAction(appointmentId, "OFFER", offerDate);
+    handleAppointmentAction(appointmentId, "OFFER", offerDate, auth);
   };
 
-  const filteredAppointments = appointments?.filter((appointment) => {
-    if (filterStatus === "ALL") return true;
-    return appointment.status === filterStatus;
-  });
-
-  const updatedFilters = statusFilters.map((filter) => ({
-    ...filter,
-    count:
-      filter.value === "ALL"
-        ? appointments.length
-        : appointments.filter((apt) => apt.status === filter.value).length,
-  }));
+  const handleStatusChange = (selectedOption) => {
+    setFilterStatus(selectedOption.value);
+  };
 
   if (isLoading) {
     return (
@@ -149,9 +134,8 @@ export default function EmployeeAppointmentsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-2 sm:p-4 md:p-6">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/50 p-4 py-24">
       <div className="mx-auto max-w-7xl">
-        {/* Breadcrumb Navigation */}
         <div className="mb-4">
           <button
             onClick={() => router.push("/queue-management/employee")}
@@ -160,26 +144,12 @@ export default function EmployeeAppointmentsPage() {
             <ArrowLeft className="h-4 w-4" />
             กลับไปแดชบอร์ด
           </button>
-          <nav className="mt-2">
-            <ol className="flex items-center gap-2 text-sm text-slate-500">
-              <li>
-                <button
-                  onClick={() => router.push("/queue-management/employee")}
-                  className="transition-colors hover:text-slate-700"
-                >
-                  แดชบอร์ดพนักงาน
-                </button>
-              </li>
-              <li>/</li>
-              <li className="font-medium text-slate-800">นัดหมายทั้งหมด</li>
-            </ol>
-          </nav>
         </div>
 
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-6 rounded-3xl border border-white/20 bg-white/80 p-4 shadow-xl backdrop-blur-lg sm:p-6 md:mb-8 md:p-8"
+          className="relative z-10 mb-6 rounded-3xl border border-white/20 bg-white/80 p-4 shadow-xl backdrop-blur-lg sm:p-6 md:mb-8 md:p-8"
         >
           <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center md:gap-6">
             <div className="mb-4 md:mb-0">
@@ -193,13 +163,13 @@ export default function EmployeeAppointmentsPage() {
 
             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
               <div className="rounded-2xl bg-gradient-to-r from-blue-500 to-indigo-500 px-4 py-2 text-sm text-white shadow-lg sm:px-6 sm:py-3 sm:text-base">
-                <span className="font-semibold">{filteredAppointments.length} รายการ</span>
+                <span className="font-semibold">{appointments.length} รายการ</span>
               </div>
               <button
                 onClick={() => refetchAppointments()}
                 className="rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-lg transition-all duration-200 hover:bg-slate-50 hover:shadow-xl sm:px-6 sm:py-3 sm:text-base"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex cursor-pointer items-center gap-2">
                   <Clock className="h-5 w-5 text-slate-600" />
                   <span className="font-medium text-slate-700">รีโหลด</span>
                 </div>
@@ -207,35 +177,17 @@ export default function EmployeeAppointmentsPage() {
             </div>
           </div>
 
-          {/* Filter Tabs */}
-          <div className="mt-4 flex flex-wrap gap-2 sm:mt-6">
-            {updatedFilters.map((filter) => (
-              <button
-                key={filter.value}
-                onClick={() => setFilterStatus(filter.value)}
-                className={`rounded-xl px-3 py-1.5 text-xs font-medium transition-all duration-200 sm:px-4 sm:py-2 sm:text-sm ${
-                  filterStatus === filter.value
-                    ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-lg"
-                    : "border border-slate-200 bg-white/70 text-slate-600 hover:bg-white"
-                }`}
-              >
-                {filter.label}
-                <span
-                  className={`ml-2 rounded-full px-2 py-0.5 text-xs ${
-                    filterStatus === filter.value
-                      ? "bg-white/20 text-white"
-                      : "bg-slate-100 text-slate-500"
-                  }`}
-                >
-                  {filter.count}
-                </span>
-              </button>
-            ))}
+          <div className="mt-4 w-full sm:mt-6 md:max-w-xs">
+            <DropDownComponent
+              label="กรองตามสถานะ"
+              options={statusFilters}
+              selectedOption={statusFilters.find((f) => f.value === filterStatus)}
+              onSelect={handleStatusChange}
+            />
           </div>
         </motion.div>
 
-        {/* Appointments Grid */}
-        {filteredAppointments.length === 0 ? (
+        {appointments.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -251,14 +203,14 @@ export default function EmployeeAppointmentsPage() {
               <p className="text-base text-slate-600 sm:text-lg">
                 {filterStatus === "ALL"
                   ? "ยังไม่มีนัดหมายที่เกี่ยวข้องในขณะนี้"
-                  : `ไม่มีนัดหมายที่มีสถานะ "${updatedFilters.find((f) => f.value === filterStatus)?.label}"`}
+                  : `ไม่มีนัดหมายที่มีสถานะ "${statusFilters.find((f) => f.value === filterStatus)?.label}"`}
               </p>
             </div>
           </motion.div>
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 xl:grid-cols-3">
             <AnimatePresence>
-              {filteredAppointments.map((appointment, index) => (
+              {appointments.map((appointment, index) => (
                 <AppointmentCard
                   key={appointment.id}
                   appointment={appointment}

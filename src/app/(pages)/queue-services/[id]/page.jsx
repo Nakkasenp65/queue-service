@@ -24,7 +24,7 @@ export default function HomePage() {
   // ------------------ INITIAL DATA ------------------
   const { liffProfile } = useLiff();
   const { data: customerData, isLoading: customerLoading } = useGetCustomer(
-    liffProfile?.userId || null,
+    liffProfile?.sub || null,
   );
 
   // ------------------ DATE AND AVAILABILITY STATE ------------------
@@ -51,7 +51,7 @@ export default function HomePage() {
     customerName: "",
     customerPhone: "",
     appointmentAt: "",
-    lineUserId: liffProfile?.userId || "",
+    lineUserId: liffProfile?.sub || "",
     lineDisplayName: liffProfile?.displayName || "",
     lineProfilePicUrl: liffProfile?.pictureUrl || "",
     email: liffProfile?.email || "",

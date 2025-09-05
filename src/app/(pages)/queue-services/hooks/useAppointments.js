@@ -1,78 +1,58 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
-// Best Practice: Store your API base URL in an environment variable
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api/v1";
-const API_BASE_URL = "http://localhost:3000/api/v1";
 
-const buildUrl = (startAt, endAt, query, lineUserId) => {
-  const params = new URLSearchParams();
+// HOOK สำหรับ APPOINTMENT ใช้บนหน้า queue-services
 
-  // Use provided dates or default to a 7-day range from now
-  const startDate = startAt ? new Date(startAt) : new Date();
-  const endDate = endAt ? new Date(endAt) : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-
-  params.set("startAt", startDate.toISOString());
-  params.set("endAt", endDate.toISOString());
-
-  if (query) {
-    params.set("query", query);
-  }
-  if (lineUserId) {
-    params.set("lineUserId", lineUserId);
-  }
-
-  // FIXED: Added a '?' to correctly separate the path from the query string.
-  return `${API_BASE_URL}/appointments?${params.toString()}`;
-};
-
+// GET ดึง appointment
 export function useGetAppointments(params = {}) {
   const { startAt, endAt, query, lineUserId } = params;
 
   return useQuery({
     queryKey: ["appointments", startAt, endAt, query, lineUserId],
     queryFn: async () => {
-      const url = buildUrl(startAt, endAt, query, lineUserId);
-      const response = await fetch(url);
+      const { data } = await axios.get("/v1/appointments", {
+        params: {
+          startAt,
+          endAt,
+          query,
+          lineUserId,
+        },
+      });
 
-      if (!response.ok) {
+      if (!data) {
         const errText = await response.text();
         console.error("useGetAppointments fetch failed:", response.status, errText);
         throw new Error("Failed to fetch appointments");
       }
-      return response.json();
+      return data;
     },
   });
 }
 
+// GET ดึงคิวว่างตามวันที่ที่เลือก
 export function useGetAvailability(date) {
   return useQuery({
     queryKey: ["availability", date?.toISOString().split("T")[0]],
     queryFn: async () => {
-      const { data } = await axios.get(
-        `${API_BASE_URL}/appointments/availability?date=${date.toISOString()}`,
-      );
+      const { data } = await axios.get(`/v1/appointments/availability?date=${date.toISOString()}`);
       return data;
     },
     enabled: !!date, // รัน query ต่อเมื่อมี `date` เท่านั้น
   });
 }
 
+// GET คิวปัจจุบันของเรา แสดงบนหน้าตอนเลือก Service (คิวล่าสุด)
 export function useGetDisplayAppointment(id) {
   return useQuery({
     queryKey: ["display-appointment", id],
     queryFn: async () => {
       try {
-        console.log("Fetching display appointment:", id);
-        const response = await fetch(`${API_BASE_URL}/appointments/display/${id}`);
-        if (!response.ok) {
+        const { data } = await axios.get(`/v1/appointments/display/${id}`);
+        if (!data) {
           throw new Error({ status: response.status, statusText: response.statusText });
         }
-        console.log("Display appointment response:", response);
-        const data = await response.json();
-        console.log("Display appointment data:", data);
         return data;
       } catch (error) {
-        console.log("Error fetching display appointment:", error);
         if (error.status === 404) {
           return null;
         } else {
@@ -84,6 +64,7 @@ export function useGetDisplayAppointment(id) {
   });
 }
 
+// GET ดึง notificationลูกค้า
 export function useGetCustomerNotification(line_user_id) {
   return useQuery({
     queryKey: ["notification", line_user_id],
@@ -97,6 +78,7 @@ export function useGetCustomerNotification(line_user_id) {
   });
 }
 
+// POST สร้าง Appointment
 export function useCreateAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -109,12 +91,15 @@ export function useCreateAppointment() {
       throw new Error(error.response?.data?.error || "Failed to create appointment");
     },
     onSuccess: () => {
+      // สั่งรีข้อมูลตามข้อมูลที่เคย query ไว้ KEY ต้องตรงกับ queryKey
+      // รีข้อมูลตาม key
       queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
     },
   });
 }
 
+// POST สร้้าง Cusutomer + Appointment (user ที่ไม่เคยสมัครสมาชิก)
 export function useCreateNewUserAppointment() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -124,6 +109,7 @@ export function useCreateNewUserAppointment() {
       return data;
     },
     onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["appointments"] });
       queryClient.invalidateQueries({ queryKey: ["my-appointments"] });
     },
   });

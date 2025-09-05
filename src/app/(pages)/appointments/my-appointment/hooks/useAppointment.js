@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "../../../../../lib/axios";
 import Swal from "sweetalert2";
 
+// GET ใช้ดึงข้อมูลการนัดหมายของลูกค้าจาก line_user_id
 export function useGetCustomerAppointmentDetails(line_user_id) {
   return useQuery({
     queryKey: ["my-appointments", line_user_id],
@@ -14,6 +15,7 @@ export function useGetCustomerAppointmentDetails(line_user_id) {
   });
 }
 
+// POST ใช้สำหรับยกเลิกการนัดหมายโดยลูกค้า
 export function useCancelAppointment() {
   const queryClient = useQueryClient();
 
@@ -46,6 +48,7 @@ export function useCancelAppointment() {
   });
 }
 
+// PATCH ใช้สำหรับลูกค้ายืนยันเวลานัดหมายที่พนักงานเสนอ
 export function useAcceptOffer() {
   const queryClient = useQueryClient();
 
@@ -78,15 +81,15 @@ export function useAcceptOffer() {
   });
 }
 
+// PATCH ใช้สำหรับลูกค้าปฏิเสธเวลานัดหมายที่พนักงานเสนอ
 export function useRejectOffer() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ appointmentId, reason }) => {
-      const response = await axios.patch(
-        `http://localhost:3000${API_BASE}/appointments/offer/${appointmentId}/reject`,
-        { reason: reason || "" },
-      );
+      const response = await axios.patch(`/v1/appointments/offer/${appointmentId}/reject`, {
+        reason: reason || "",
+      });
       return response.data;
     },
     onSuccess: () => {
@@ -113,6 +116,7 @@ export function useRejectOffer() {
   });
 }
 
+// PATCH ใช้สำหรับส่ง URL ของสลิปการชำระเงินสำหรับค่ามัดจำ
 export function useSubmitPaymentSlip() {
   const queryClient = useQueryClient();
   return useMutation({

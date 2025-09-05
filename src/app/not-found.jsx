@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { SearchX, ArrowLeft, Home, ListChecks } from 'lucide-react';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { SearchX, ArrowLeft, Home, ListChecks } from "lucide-react";
 
 export default function NotFound() {
   const router = useRouter();
 
   return (
-    <main className="flex min-h-dvh items-center justify-center px-6 py-12">
+    <main className="flex min-h-dvh items-center justify-center px-6 py-24">
       <div className="mx-auto w-full max-w-md text-center">
         <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-b from-blue-950 via-indigo-700 to-purple-500 text-white shadow-lg">
           <SearchX size={28} />

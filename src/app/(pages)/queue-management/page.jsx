@@ -104,7 +104,7 @@ export default function QueueManagementPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <main className="min-h-screen bg-slate-50 p-4 py-24 sm:p-6 lg:p-8">
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <header className="mb-8 flex items-center justify-between">

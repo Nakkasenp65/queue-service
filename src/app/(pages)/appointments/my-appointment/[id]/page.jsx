@@ -11,12 +11,14 @@ import {
   Info,
   AlertTriangle,
   SearchX,
-  UserCircle, // Added for Customer Info
+  UserCircle,
+  Phone,
+  Mail,
+  MapPin,
+  Tag,
+  FileText,
 } from "lucide-react";
 import BottomNavbar from "../../../queue-services/components/BottomNavbar";
-
-// This is a placeholder hook. You will need to create this file.
-// Example path: src/(pages)/appointments/hooks/useAppointments.js
 import { useGetAppointmentDetails } from "./hooks/useAppointment";
 
 const statusThai = (status) => {
@@ -44,22 +46,50 @@ const statusThai = (status) => {
 
 const statusColor = (status) => {
   switch (status) {
+    case "PENDING":
+      return "bg-amber-100 text-amber-800 border-amber-200";
     case "CONFIRMED":
-      return "from-green-500 to-emerald-600 text-white";
+      return "bg-blue-100 text-blue-800 border-blue-200";
     case "COMPLETED":
-      return "from-slate-400 to-slate-500 text-white";
+      return "bg-emerald-100 text-emerald-800 border-emerald-200";
     case "CANCELLED":
-      return "from-rose-500 to-red-600 text-white";
+      return "bg-rose-100 text-rose-800 border-rose-200";
     case "NO_SHOW":
-      return "from-amber-400 to-yellow-500 text-black";
+      return "bg-amber-100 text-amber-800 border-amber-200";
     case "OFFERED":
-      return "from-indigo-500 to-violet-600 text-white";
+      return "bg-indigo-100 text-indigo-800 border-indigo-200";
     case "ACCEPTED_BY_EMPLOYEE":
-      return "from-emerald-400 to-teal-500 text-white";
+      return "bg-teal-100 text-teal-800 border-teal-200";
     case "REJECTED_BY_EMPLOYEE":
-      return "from-rose-400 to-fuchsia-500 text-white";
+      return "bg-rose-100 text-rose-800 border-rose-200";
     default:
-      return "from-blue-500 to-cyan-500 text-white";
+      return "bg-slate-100 text-slate-800 border-slate-200";
+  }
+};
+
+const typeColor = (type) => {
+  switch (type) {
+    case "ONSITE":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "ONLINE":
+      return "bg-green-100 text-green-800 border-green-200";
+    case "OFFSITE":
+      return "bg-purple-100 text-purple-800 border-purple-200";
+    default:
+      return "bg-slate-100 text-slate-800 border-slate-200";
+  }
+};
+
+const typeThai = (type) => {
+  switch (type) {
+    case "ONSITE":
+      return "หน้าร้าน";
+    case "ONLINE":
+      return "ออนไลน์";
+    case "OFFSITE":
+      return "นอกสถานที่";
+    default:
+      return type || "-";
   }
 };
 
@@ -81,11 +111,11 @@ export default function AppointmentDetailsPage() {
 
   if (isLoading) {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-white p-6 font-sans text-gray-800">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-6 font-sans text-slate-800">
         <div className="mx-auto w-full max-w-sm text-center">
           <div className="relative mx-auto h-24 w-24">
-            <div className="absolute inset-0 animate-spin" style={{ animationDuration: "3s" }}>
-              <div className="h-full w-full rounded-full border-4 border-t-indigo-500 border-r-slate-200 border-b-slate-200 border-l-indigo-500" />
+            <div className="absolute inset-0 animate-spin" style={{ animationDuration: "2s" }}>
+              <div className="h-full w-full rounded-full border-4 border-t-indigo-500 border-r-indigo-100 border-b-indigo-100 border-l-indigo-500" />
             </div>
             <Wrench
               size={32}
@@ -103,14 +133,16 @@ export default function AppointmentDetailsPage() {
 
   if (error) {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-slate-50 p-6 text-center">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-6 text-center">
         <div className="mx-auto max-w-sm">
-          <AlertTriangle className="mx-auto h-12 w-12 text-rose-500" />
+          <div className="inline-flex items-center justify-center rounded-full bg-rose-100 p-3">
+            <AlertTriangle className="h-8 w-8 text-rose-600" />
+          </div>
           <h1 className="mt-4 text-xl font-bold text-slate-800">เกิดข้อผิดพลาด</h1>
           <p className="mt-2 text-slate-600">{error.message}</p>
           <Link
             href="/appointments/history"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-indigo-700"
           >
             <ChevronLeft size={16} /> กลับไปที่ประวัติ
           </Link>
@@ -121,14 +153,16 @@ export default function AppointmentDetailsPage() {
 
   if (!appointmentDetails) {
     return (
-      <main className="relative flex min-h-dvh items-center justify-center bg-slate-50 p-6 text-center">
+      <main className="relative flex min-h-dvh items-center justify-center bg-gradient-to-b from-slate-50 to-slate-100 p-6 text-center">
         <div className="mx-auto max-w-sm">
-          <SearchX className="mx-auto h-12 w-12 text-slate-400" />
+          <div className="inline-flex items-center justify-center rounded-full bg-slate-100 p-3">
+            <SearchX className="h-8 w-8 text-slate-500" />
+          </div>
           <h1 className="mt-4 text-xl font-bold text-slate-800">ไม่พบข้อมูลการจอง</h1>
           <p className="mt-2 text-slate-600">ไม่พบข้อมูลสำหรับการจองนี้ หรืออาจถูกลบไปแล้ว</p>
           <Link
             href="/appointments/history"
-            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="mt-6 inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-3 text-sm font-semibold text-white shadow-md transition-colors hover:bg-indigo-700"
           >
             <ChevronLeft size={16} /> กลับไปที่ประวัติ
           </Link>
@@ -139,126 +173,159 @@ export default function AppointmentDetailsPage() {
   }
 
   const translatedStatus = statusThai(appointmentDetails.status);
-  const statusGradientClass = statusColor(appointmentDetails.status);
+  const statusClass = statusColor(appointmentDetails.status);
+  const typeClass = typeColor(appointmentDetails.type);
+  const translatedType = typeThai(appointmentDetails.type);
 
   return (
-    <main className="relative min-h-screen bg-slate-50 p-4 pb-24 text-gray-800">
+    <main className="relative min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 p-4 py-24 pb-24 text-slate-800">
       <div className="mx-auto max-w-3xl">
-        <header className="mb-4 flex items-center justify-between">
+        <header className="mb-6 flex items-center justify-between">
           <Link
             href="/queue-history"
-            className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
           >
             <ChevronLeft size={16} /> กลับ
           </Link>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-slate-500">
             อัปเดตล่าสุด: {new Date(appointmentDetails.updatedAt).toLocaleString("th-TH")}
           </div>
         </header>
 
-        <article className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-          <div className="space-y-4 p-4">
-            <div>
+        <article className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="space-y-6 p-6">
+            {/* Header with status and type */}
+            <div className="flex flex-wrap gap-2">
               <div
-                className={`inline-flex items-center gap-2 rounded-full bg-gradient-to-r ${statusGradientClass} px-3 py-1 text-sm font-semibold`}
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${statusClass}`}
               >
-                <span className="inline-block h-2 w-2 rounded-full bg-white/80" />
+                <span className="h-2 w-2 rounded-full bg-current opacity-70" />
                 {translatedStatus}
+              </div>
+              <div
+                className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${typeClass}`}
+              >
+                <MapPin size={12} />
+                {translatedType}
               </div>
             </div>
 
+            {/* Service Type */}
             <div>
-              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                <Wrench size={16} /> บริการ
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-slate-800">
+                <Wrench size={18} className="text-indigo-500" /> บริการ
               </h2>
-              <div className="mt-2 inline-block rounded-lg bg-gradient-to-r from-indigo-600 to-pink-500 px-3 py-1.5 text-sm font-semibold text-white">
+              <div className="inline-block rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold text-white">
                 {appointmentDetails.serviceType}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 p-3 text-white">
-                <Calendar size={18} />
+            {/* Date & Time */}
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                  <Calendar size={18} />
+                </div>
                 <div>
-                  <div className="text-[11px] opacity-90">วันที่นัด</div>
-                  <div className="text-base font-semibold">
+                  <div className="text-xs font-medium text-slate-500">วันที่นัด</div>
+                  <div className="text-sm font-semibold text-slate-800">
                     {formatDate(appointmentDetails.date)}
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-rose-400 to-orange-400 p-3 text-white">
-                <Clock size={18} />
+              <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-rose-100 text-rose-600">
+                  <Clock size={18} />
+                </div>
                 <div>
-                  <div className="text-[11px] opacity-90">เวลานัด</div>
-                  <div className="text-base font-semibold">
+                  <div className="text-xs font-medium text-slate-500">เวลานัด</div>
+                  <div className="text-sm font-semibold text-slate-800">
                     {formatTime(appointmentDetails.section)}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* --- NEW SECTION FOR CUSTOMER INFO --- */}
+            {/* Customer Info */}
             {appointmentDetails.customer && (
               <div>
-                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                  <UserCircle size={16} /> ข้อมูลลูกค้า
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-slate-800">
+                  <UserCircle size={18} className="text-blue-500" /> ข้อมูลลูกค้า
                 </h2>
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  {appointmentDetails.customer.picture_url ? (
-                    <img
-                      src={appointmentDetails.customer.picture_url}
-                      alt="Profile"
-                      className="h-10 w-10 rounded-full bg-slate-200"
-                    />
-                  ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200 text-slate-500">
-                      <UserCircle size={24} />
-                    </div>
-                  )}
-                  <div>
-                    <div className="font-semibold text-slate-800">
-                      {appointmentDetails.customer.fullname ||
-                        appointmentDetails.customer.line_display_name ||
-                        "-"}
-                    </div>
-                    <div className="text-sm text-slate-500">
-                      เบอร์โทร: {appointmentDetails.customer.phone || "-"}
+                <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                  <div className="flex items-center gap-3">
+                    {appointmentDetails.customer.picture_url ? (
+                      <img
+                        src={appointmentDetails.customer.picture_url}
+                        alt="Profile"
+                        className="h-12 w-12 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 text-slate-500">
+                        <UserCircle size={24} />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="font-semibold text-slate-800">
+                        {appointmentDetails.customer.fullname ||
+                          appointmentDetails.customer.line_display_name ||
+                          "-"}
+                      </div>
+                      <div className="mt-1 grid grid-cols-1 gap-2 text-sm text-slate-600">
+                        {appointmentDetails.customer.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone size={14} />
+                            <span>{appointmentDetails.customer.phone}</span>
+                          </div>
+                        )}
+                        {appointmentDetails.customer.email && (
+                          <div className="flex items-center gap-2">
+                            <Mail size={14} />
+                            <span>{appointmentDetails.customer.email}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* --- SECTION FOR ASSIGNED STAFF --- */}
-            {appointmentDetails.adminInfo && (
+            {/* Required Tags */}
+            {/* {appointmentDetails.requiredTags?.length > 0 && (
               <div>
-                <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                  <User size={16} /> ผู้รับผิดชอบ
+                <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-slate-800">
+                  <Tag size={18} className="text-emerald-500" /> ประเภทงาน
                 </h2>
-                <div className="mt-2 flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 font-bold text-indigo-600">
-                    {appointmentDetails.adminInfo.fullName?.charAt(0) || "N/A"}
-                  </div>
-                  <div>
-                    <div className="font-semibold text-slate-800">
-                      {appointmentDetails.adminInfo.fullName || "-"}
-                    </div>
-                    <div className="text-sm text-slate-500">
-                      รหัสพนักงาน: {appointmentDetails.adminInfo.staffId || "-"}
-                    </div>
-                  </div>
+                <div className="flex flex-wrap gap-2">
+                  {appointmentDetails.requiredTags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="rounded-full bg-emerald-100 px-3 py-1.5 text-xs font-medium text-emerald-800"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
-            )}
+            )} */}
 
-            {/* --- SECTION FOR NOTES --- */}
+            {/* Notes */}
             <div>
-              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-                <Info size={16} /> รายละเอียดเพิ่มเติม
+              <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold text-slate-800">
+                <FileText size={18} className="text-slate-500" /> รายละเอียดเพิ่มเติม
               </h2>
-              <p className="mt-2 min-h-[60px] rounded-lg border border-slate-200 bg-slate-50 p-3 text-sm text-gray-600">
-                {appointmentDetails.note || "ไม่มีข้อมูลเพิ่มเติม"}
-              </p>
+              <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <p className="text-sm text-slate-700">
+                  {appointmentDetails.note || "ไม่มีข้อมูลเพิ่มเติม"}
+                </p>
+              </div>
+            </div>
+
+            {/* Appointment ID */}
+            <div className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+              <div className="text-xs font-medium text-slate-500">รหัสการนัดหมาย</div>
+              <div className="mt-1 font-mono text-sm text-slate-700">{appointmentDetails.id}</div>
             </div>
           </div>
         </article>

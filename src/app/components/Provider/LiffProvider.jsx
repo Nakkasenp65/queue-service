@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, useContext } from "react";
 import liff from "@line/liff";
 
+// context ที่จะเอาไปใช้ทั้งไฟล์
 const LiffContext = createContext({
   liffProfile: null,
   isLoggedIn: false,
@@ -15,8 +16,9 @@ const LiffContext = createContext({
 });
 
 const liffenvId = process.env.NEXT_PUBLIC_LIFF_ID;
-const server = process.env.NEXT_PUBLIC_SERVER_OPTION; // "dev" | "prod" etc.
+const server = process.env.NEXT_PUBLIC_SERVER_OPTION;
 
+// Liff Provider ครอบใช้่ทั้งตอน development และ production
 export function LiffProvider({ children }) {
   const [liffProfile, setLiffProfile] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,79 +26,78 @@ export function LiffProvider({ children }) {
   const [liffReady, setLiffReady] = useState(false);
 
   useEffect(() => {
+    // ตรวจสอบว่าเป็น Browser liff ไหม
     const isInClient = liff.isInClient();
     const longProfile = {
-      userId: "U006fb519ba07650932c6981af95d0620",
-      displayName: "Long👁️‍🗨️",
-      pictureUrl:
+      sub: "U006fb519ba07650932c6981af95d0620",
+      name: "Long👁️‍🗨️",
+      picture:
         "https://profile.line-scdn.net/0hPsTql5LvD1x5CB7EtsVxYglYDDZaeVZOVjxHahgOUGhMPU9ZVDxIORwJAj5BOhxZAWxBakoIV21bTUB3DWgHYz9BU24mUxsKPhhEezdwJwJNQTdDFRZGXRB2BRAsbhxKUDFHXDVTUDIMbD5jU2oBcTpMFWpFQCxrN19jCnw6Yd8WCngJVG9GOE4BU2_M",
-      email: "long@example.com",
+      email: "nakkasenputtacharoen@gmail.com",
     };
-    const thirdProfile = {
-      userId: "U87dc3cebcbaecb31cf42e2efd55af2cc",
-      displayName: "PINTO🍊",
-      pictureUrl:
-        "https://profile.line-scdn.net/0h33pF1d5RbBxdP30rE1ASYy1vb3Z-TjUOJV4kfWloNihoD35KIVklcmA9YHkwXysZJlogf2xqZShRLBt6Q2mQKFoPMS1hCSlIeFsg8g",
-    };
+
     const testProfile = {
-      userId: "U669f6092308023f227aa435c803b2e74",
-      displayName: "Zzz59🧚🏻♀️🌈",
-      pictureUrl: "https://lh3.googleusercontent.com/d/1eXgDln7TvPQGiMpzaUdo7l2hKmsh8Kvc",
+      sub: "U669f6092308023f227aa435c803b2e74",
+      name: "Zzz59🧚🏻♀️🌈",
+      picture: "https://lh3.googleusercontent.com/d/1eXgDln7TvPQGiMpzaUdo7l2hKmsh8Kvc",
     };
+
     const lineAccessTokenDev = process.env.NEXT_PUBLIC_ACCESS_TOKEN || "";
+
+    // ฟังก์ชัน init รวม line function ที่ใช้
     const init = async () => {
       // DEV MODE
       if (server === "dev") {
         setIsLoggedIn(true);
-        setLiffProfile(longProfile); // or longProfile
-        setLineAccessToken(lineAccessTokenDev);
-        setLiffReady(true); // no real LIFF in dev
-        return;
-      }
-
-      if (!isInClient) {
-        // TESTING PURPOSE DELETE THIS IN PRODUCTION
         setLiffProfile(longProfile);
-        setLineAccessToken(lineAccessTokenDev);
         setLiffReady(true);
-        // TESTING PURPOSE DELETE THIS IN PRODUCTION
         return;
       }
 
       // PRODUCTIONS MODE
       try {
         await liff.init({ liffId: liffenvId });
+
+        // ตรวจสอบ browser (ไม่เปิดผ่าน line)
+        if (!isInClient) {
+          // TESTING PURPOSE DELETE THIS IN PRODUCTION
+          // setLiffProfile(longProfile);
+          // setLineAccessToken(lineAccessTokenDev);
+          // setLiffReady(true);
+          // TESTING PURPOSE DELETE THIS IN PRODUCTION
+
+          return; // จบการทำงานไปเลย คือไม่ต้อง login หรือ getProfile
+        }
+
         if (!liff.isLoggedIn()) {
           liff.login();
           setIsLoggedIn(true);
         }
         setLiffReady(true);
-        const profile = await liff.getProfile();
+        // ใช้โปรไฟล์จาก getDecodedIDToken แทน getProfile (ได้ email)
+        const profile = liff.getDecodedIDToken();
         setLiffProfile(profile);
         const accessToken = liff.getAccessToken();
-        console.log("Access token liff provider: ", accessToken);
         setLineAccessToken(accessToken || "");
       } catch (error) {
         console.error("[LIFF init error]", error);
       }
     };
 
+    // สั่งรัน init ตั้งแต่เริ้่ม
     init();
   }, []);
 
-  // Safe wrappers so components can call without worrying about environment
   const actions = {
     closeWindow: () => {
       try {
         if (server === "dev") {
           console.warn("[LIFF] closeWindow noop in dev");
-          // As a dev fallback, just navigate away or no-op.
           return;
         }
         if (inClient()) {
           liff.closeWindow();
         } else {
-          // Fallback when opened in external browser
           window.close();
         }
       } catch (e) {
@@ -154,4 +155,6 @@ export function LiffProvider({ children }) {
   );
 }
 
+// export useLiff ไปใช้ได้ทั้งไฟล์
+// const { liffProfile } = useLiff()
 export const useLiff = () => useContext(LiffContext);

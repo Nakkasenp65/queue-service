@@ -16,7 +16,7 @@ export default function Navbar({ onProfileOpen = () => {} }) {
   const { liffProfile } = useLiff();
   // 2. Use the hook to get REAL notifications
   const { data: notifications, isLoading: notificationsLoading } = useGetCustomerNotification(
-    liffProfile?.userId,
+    liffProfile?.sub,
   );
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);

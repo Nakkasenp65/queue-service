@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import DPOConsent from './DPOConsent';
-import { Asterisk, Circle, CircleCheckBig } from 'lucide-react';
+import { useState, useEffect } from "react";
+import DPOConsent from "./DPOConsent";
+import { Asterisk, Circle, CircleCheckBig } from "lucide-react";
 
 export default function UserDetailsForm({
   formData,
@@ -27,22 +27,11 @@ export default function UserDetailsForm({
     if (customer) {
       setFormData((prev) => ({
         ...prev,
-        customerName: customer.fullname || '',
-        customerPhone: customer.phone || '',
-        lineUserId: customer.line_user_id,
+        customerName: customer.fullname || "",
+        customerPhone: customer.phone || "",
       }));
     }
-
-    // Always attach LINE profile data to formData
-    if (liffProfile) {
-      setFormData((prev) => ({
-        ...prev,
-        lineUserId: liffProfile.userId,
-        lineDisplayName: liffProfile.displayName,
-        lineProfilePicUrl: liffProfile.pictureUrl,
-      }));
-    }
-  }, [customer, liffProfile, setFormData]);
+  }, [customer, setFormData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,8 +62,8 @@ export default function UserDetailsForm({
         <button
           type="button"
           onClick={() =>
-            typeof window !== 'undefined' &&
-            window.dispatchEvent(new CustomEvent('go-back-to-datetime'))
+            typeof window !== "undefined" &&
+            window.dispatchEvent(new CustomEvent("go-back-to-datetime"))
           }
           className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
         >
@@ -94,7 +83,7 @@ export default function UserDetailsForm({
             <input
               type="text"
               name="customerName"
-              value={formData.customerName || ''}
+              value={formData.customerName || ""}
               onChange={handleChange}
               className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
               placeholder="กรอกชื่อ-นามสกุล"
@@ -110,7 +99,7 @@ export default function UserDetailsForm({
             <input
               type="tel"
               name="customerPhone"
-              value={formData.customerPhone || ''}
+              value={formData.customerPhone || ""}
               onChange={handleChange}
               className="w-full rounded-lg border border-slate-300 px-4 py-2 focus:border-blue-500 focus:outline-none"
               placeholder="กรอกเบอร์โทรศัพท์"
@@ -127,7 +116,7 @@ export default function UserDetailsForm({
               id="note"
               name="note"
               rows={4}
-              value={formData.note || ''}
+              value={formData.note || ""}
               onChange={(e) => setFormData({ ...formData, note: e.target.value })}
               placeholder="กรุณาระบุรายละเอียดเพิ่มเติมเกี่ยวกับบริการที่ต้องการ (เช่น สภาพเครื่อง, อาการ, ความต้องการพิเศษ)"
               className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-blue-500"
@@ -152,13 +141,13 @@ export default function UserDetailsForm({
                   setShowDPOContent(true);
                 }
               }}
-              className={`inline-flex h-6 w-6 items-center justify-center ${acceptDPO ? 'text-green-500' : 'text-slate-400'}`}
+              className={`inline-flex h-6 w-6 items-center justify-center ${acceptDPO ? "text-green-500" : "text-slate-400"}`}
             >
               {acceptDPO ? <CircleCheckBig /> : <Circle />}
             </button>
 
             <div className="text-sm text-slate-700">
-              ฉันยอมรับ{' '}
+              ฉันยอมรับ{" "}
               <button
                 type="button"
                 onClick={() => setShowDPOContent(true)}
@@ -174,17 +163,17 @@ export default function UserDetailsForm({
             aria-busy={isCreating || isSubmitting || pressed}
             className={`flex w-full transform items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold transition active:scale-95 ${
               isValid && acceptDPO && !isLoading && !isCreating && !isSubmitting
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'cursor-not-allowed bg-slate-100 text-slate-400'
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "cursor-not-allowed bg-slate-100 text-slate-400"
             }`}
           >
             {isCreating || isSubmitting || pressed ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
-                <span>{isCreating || isSubmitting ? 'กำลังดำเนินการ...' : 'กำลังส่ง...'}</span>
+                <span>{isCreating || isSubmitting ? "กำลังดำเนินการ..." : "กำลังส่ง..."}</span>
               </>
             ) : (
-              'ดำเนินการต่อ'
+              "ดำเนินการต่อ"
             )}
           </button>
         </div>

@@ -125,7 +125,7 @@ export default function QueueHistoryPage() {
     data: appointmentHistory,
     isLoading: appointmentHistoryLoading,
     isError: appointmentHistoryError,
-  } = useGetHistoryAppointments(liffProfile?.userId);
+  } = useGetHistoryAppointments(liffProfile?.sub);
   console.log("Appointment History: ", appointmentHistory);
 
   const [filter, setFilter] = useState("ALL");

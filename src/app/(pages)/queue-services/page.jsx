@@ -21,9 +21,7 @@ import BottomNavbar from "./components/BottomNavbar";
 export default function HomePage() {
   // ------------------ INITIAL DATA ------------------
   const { liffProfile } = useLiff();
-  const { data: customerData, isLoading: customerLoading } = useGetCustomer(
-    liffProfile?.userId || null,
-  );
+  const { data: customerData, isLoading: customerLoading } = useGetCustomer(liffProfile?.sub);
 
   // ------------------ DATE AND AVAILABILITY STATE ------------------
   const today = new Date();
@@ -45,20 +43,36 @@ export default function HomePage() {
   const [acceptDPO, setAcceptDPO] = useState(false);
   const [showDPOContent, setShowDPOContent] = useState(false);
   const [pressed, setPressed] = useState(false);
+
   const [formData, setFormData] = useState({
     appointmentType: "onsite",
     serviceType: "",
     customerName: "",
     customerPhone: "",
     appointmentAt: "",
-    lineUserId: liffProfile?.userId || "",
-    lineDisplayName: liffProfile?.displayName || "",
-    lineProfilePicUrl: liffProfile?.pictureUrl || "",
-    email: liffProfile?.email || "",
+    lineUserId: "",
+    lineDisplayName: "",
+    lineProfilePicUrl: "",
+    email: "",
     note: "",
-    locationCategory: null, // <-- ADDED: To store location category { label, value }
-    locationDetail: null, // <-- ADDED: To store specific location { label, value }
+    locationCategory: null,
+    locationDetail: null,
   });
+
+  useEffect(() => {
+    if (liffProfile) {
+      setFormData((prev) => ({
+        ...prev,
+        lineUserId: liffProfile.sub,
+        lineDisplayName: liffProfile.name,
+        lineProfilePicUrl: liffProfile.picture,
+        email: liffProfile.email,
+      }));
+    }
+  }, [liffProfile]);
+
+  console.log("LIFFPROFILE : ", liffProfile);
+  console.log("FORMDATA : ", formData);
 
   const handleServiceSelect = (service) => {
     setFormData((prev) => ({
@@ -74,14 +88,16 @@ export default function HomePage() {
   };
 
   const handleCreateAppointment = async () => {
-    console.log("Creating appointment with data:", formData);
+    console.log("Form Data in the handleCreateClicked", formData);
     if (!formData.appointmentAt || !formData.lineUserId) {
-      console.error("Missing required data: appointmentAt or lineUserId");
-      Swal.fire("ข้อมูลไม่ครบ", "กรุณาเลือกวันและเวลาที่ต้องการนัดหมาย", "warning");
+      console.error("Missing required data:", {
+        appointmentAt: formData.appointmentAt,
+        lineUserId: formData.lineUserId,
+      });
+      Swal.fire("ข้อมูลไม่ครบ", "กรุณาเลือกวันและเวลา หรือรอข้อมูลผู้ใช้สักครู่", "warning");
       return;
     }
 
-    // For offsite refinance, ensure location is selected
     if (
       formData.serviceType === "รีไฟแนนซ์" &&
       formData.appointmentType === "offsite" &&
@@ -113,7 +129,6 @@ export default function HomePage() {
       picture_url: formData.lineProfilePicUrl,
     };
 
-    // Append location details to the note if available
     let finalNote = formData.note || `Service: ${formData.serviceType}`;
     if (
       formData.appointmentType === "offsite" &&
@@ -133,54 +148,31 @@ export default function HomePage() {
       requiredTags: getRequiredTags(formData.serviceType),
     };
 
+    const mutationConfig = {
+      onSuccess: () => {
+        Swal.fire({
+          title: "จองคิวสำเร็จ!",
+          text: "การนัดหมายของคุณได้รับการบันทึกแล้ว",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+        router.push("/appointments/my-appointment");
+      },
+      onError: (error) => {
+        console.error("Failed to create appointment:", error);
+        Swal.fire({
+          title: "เกิดข้อผิดพลาด",
+          text: error.message || "ไม่สามารถสร้างนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
+          icon: "error",
+        });
+      },
+    };
+
     if (!customerData) {
-      createNewUserAppointment(
-        { customer, appointment },
-        {
-          onSuccess: (newAppointment) => {
-            Swal.fire({
-              title: "จองคิวสำเร็จ!",
-              text: "การนัดหมายของคุณได้รับการบันทึกแล้ว",
-              icon: "success",
-              timer: 2000,
-              showConfirmButton: false,
-            });
-            router.push("/appointments/my-appointment");
-          },
-          onError: (error) => {
-            console.error("Failed to create appointment:", error);
-            Swal.fire({
-              title: "เกิดข้อผิดพลาด",
-              text: error.message || "ไม่สามารถสร้างนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
-              icon: "error",
-            });
-          },
-        },
-      );
+      createNewUserAppointment({ customer, appointment }, mutationConfig);
     } else {
-      createAppointment(
-        { appointment, customerId: customerData.id },
-        {
-          onSuccess: (newAppointment) => {
-            Swal.fire({
-              title: "จองคิวสำเร็จ!",
-              text: "การนัดหมายของคุณได้รับการบันทึกแล้ว",
-              icon: "success",
-              timer: 2000,
-              showConfirmButton: false,
-            });
-            router.push("/appointments/my-appointment");
-          },
-          onError: (error) => {
-            console.error("Failed to create appointment:", error);
-            Swal.fire({
-              title: "เกิดข้อผิดพลาด",
-              text: error.message || "ไม่สามารถสร้างนัดหมายได้ กรุณาลองใหม่อีกครั้ง",
-              icon: "error",
-            });
-          },
-        },
-      );
+      createAppointment({ appointment, customerId: customerData.id }, mutationConfig);
     }
   };
 

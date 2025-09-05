@@ -1,7 +1,7 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Home as HomeIcon, ListChecks, Clock, UserCircle } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import { Home as HomeIcon, ListChecks, Clock, UserCircle } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export default function BottomNavbar({ liffProfile }) {
   const pathname = usePathname();
@@ -18,7 +18,7 @@ export default function BottomNavbar({ liffProfile }) {
           <Link
             href="/queue-services"
             className={`flex flex-col items-center gap-1 py-2 text-xs ${
-              pathname === '/queue-services' ? 'text-blue-600' : 'text-slate-500'
+              pathname === "/queue-services" ? "text-blue-600" : "text-slate-500"
             }`}
           >
             <HomeIcon size={24} />
@@ -30,9 +30,9 @@ export default function BottomNavbar({ liffProfile }) {
           <Link
             href="/appointments/my-appointment"
             className={`flex flex-col items-center gap-1 py-2 text-xs ${
-              pathname?.startsWith('/appointments/my-appointment')
-                ? 'text-blue-600'
-                : 'text-slate-500'
+              pathname?.startsWith("/appointments/my-appointment")
+                ? "text-blue-600"
+                : "text-slate-500"
             }`}
           >
             <ListChecks size={24} />
@@ -44,7 +44,7 @@ export default function BottomNavbar({ liffProfile }) {
           <Link
             href="/queue-history"
             className={`flex flex-col items-center gap-1 py-2 text-xs ${
-              pathname?.startsWith('/appointments/history') ? 'text-blue-600' : 'text-slate-500'
+              pathname?.startsWith("/appointments/history") ? "text-blue-600" : "text-slate-500"
             }`}
           >
             <Clock size={24} />
@@ -56,12 +56,12 @@ export default function BottomNavbar({ liffProfile }) {
           <Link
             href="/profile"
             className={`flex flex-col items-center gap-1 py-2 text-xs ${
-              pathname?.startsWith('/profile') ? 'text-blue-600' : 'text-slate-500'
+              pathname?.startsWith("/profile") ? "text-blue-600" : "text-slate-500"
             }`}
           >
-            {liffProfile?.pictureUrl ? (
+            {liffProfile?.picture ? (
               <Image
-                src={liffProfile.pictureUrl}
+                src={liffProfile?.picture}
                 alt="Profile"
                 width={24}
                 height={24}

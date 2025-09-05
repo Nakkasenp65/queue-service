@@ -54,7 +54,7 @@ export default function DropDownComponent({
 
   return (
     // 6. ผูก ref ที่สร้างไว้เข้ากับ element หลักของ component
-    <div className="relative w-full" ref={dropdownRef}>
+    <div className="relative z-10 w-full" ref={dropdownRef}>
       {label && <label className="mb-2 block text-sm font-semibold text-slate-700">{label}</label>}
       <button
         type="button"
@@ -77,7 +77,7 @@ export default function DropDownComponent({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="absolute z-10 mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
+            className="absolute z-[9999] mt-1 max-h-60 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white py-1 shadow-lg"
           >
             {options.map((option) => (
               <motion.li

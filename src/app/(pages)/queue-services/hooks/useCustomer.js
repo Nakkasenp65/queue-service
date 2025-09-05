@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { isAxiosError } from "axios";
 
+// GET ดึงข้อมูลูกค้า
 export function useGetCustomer(lineUserId) {
   return useQuery({
     queryKey: ["customer", lineUserId],
