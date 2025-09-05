@@ -18,16 +18,13 @@ export default function Navbar({ onProfileOpen = () => {} }) {
   const { data: notifications, isLoading: notificationsLoading } = useGetCustomerNotification(
     liffProfile?.sub,
   );
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const notificationRef = useRef(null);
   const router = useRouter();
   const pathname = usePathname();
   const isEmployee = (pathname || "").startsWith("/queue-management");
-
   const customerNotifications = notifications || [];
-
   const unreadCount = customerNotifications.filter((n) => !n.isRead).length;
 
   useEffect(() => {
