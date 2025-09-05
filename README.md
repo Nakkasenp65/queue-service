@@ -19,7 +19,7 @@ Prisma เป็น ORM สำหรับจัดการฐานข้อ�
 
 ## ⚙️ การตั้งค่า Environment Variables
 
-ก่อนรันโปรเจกต์, ให้สร้างไฟล์ `.env.local` ที่ Root Directory
+ก่อนรันโปรเจกต์, ให้สร้างไฟล์ `.env` ที่ Root Directory
 และเพิ่มค่าตัวแปรต่อไปนี้:
 
 1.  **`NEXT_PUBLIC_LIFF_ID`**: LIFF ID สำหรับการเชื่อมต่อกับ LINE Front-end
