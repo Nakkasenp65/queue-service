@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
-export default function AudioPlayer({ announcementText, trigger, channel }) {
+export default function AudioPlayer({
+  announcementText,
+  trigger,
+  channel,
+  firstTime = true,
+}) {
   const [audioQueue, setAudioQueue] = useState([]);
   const [currentAudioIndex, setCurrentAudioIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null); // useRef สำหรับเก็บ Audio object เพียงตัวเดียว
 
   // Object ที่จับคู่ตัวอักษรกับไฟล์เสียง
   const audioMap = {
-    notification: "/audio/notify-queue-2.wav",
+    notification: "/audio/notify-queue-2.mp3",
     G: "/audio/G.wav",
     F: "/audio/F.wav",
     R: "/audio/R.wav",
@@ -26,37 +31,61 @@ export default function AudioPlayer({ announcementText, trigger, channel }) {
     serviceCounter: "/audio/ที่ช่องบริการ.wav",
     ka: "/audio/ค่ะ (1).wav",
     pleaseWelcome: "/audio/ขอเชิญหมายเลข.wav",
+    again: "/audio/ประกาศอีกครั้งนะคะ (1).wav",
   };
 
-  // Effect 1: สร้างคิวเสียงเมื่อได้รับ 'announcement' ใหม่
+  // Effect 1: สร้าง Audio object เพียงครั้งเดียวเมื่อ component โหลด
   useEffect(() => {
-    if (trigger === 0) {
-      return;
-    }
+    // สร้าง instance ของ Audio และเก็บไว้ใน ref
+    audioRef.current = new Audio();
 
-    if (!announcementText) {
+    // Event listener เมื่อเสียงเล่นจบ
+    const handleAudioEnded = () => {
+      // เล่นเสียงถัดไปในคิว
+      setCurrentAudioIndex((prevIndex) => prevIndex + 1);
+    };
+
+    audioRef.current.addEventListener("ended", handleAudioEnded);
+
+    // Cleanup function: จะถูกเรียกเมื่อ component unmount
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("ended", handleAudioEnded);
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []); // dependency array ว่าง [] เพื่อให้ effect นี้ทำงานแค่ครั้งเดียว
+
+  // Effect 2: สร้างคิวเสียงเมื่อ 'trigger' เปลี่ยน
+  useEffect(() => {
+    if (trigger === 0 || !announcementText) {
       setAudioQueue([]);
+      setCurrentAudioIndex(0);
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
       return;
     }
 
     const announcementParts = announcementText.split("-");
-    if (announcementParts.length < 2) return; // ป้องกัน error ถ้า format ผิด
-
-    const prefix = announcementParts[0]; // เช่น G
-    const number = announcementParts[1]; // เช่น 1105
+    const prefix = announcementParts[0];
+    const number = announcementParts[1] || "";
 
     let queue = [];
-    queue.push(audioMap.notification);
+    if (!firstTime) {
+      queue.push(audioMap.again);
+    } else {
+      queue.push(audioMap.notification);
+    }
     queue.push(audioMap.pleaseWelcome);
 
-    // เพิ่มเสียงตัวอักษรนำหน้า
     for (const char of prefix) {
       if (audioMap[char.toUpperCase()]) {
         queue.push(audioMap[char.toUpperCase()]);
       }
     }
 
-    // เพิ่มเสียงตัวเลข
     for (const char of number) {
       if (audioMap[char]) {
         queue.push(audioMap[char]);
@@ -64,49 +93,52 @@ export default function AudioPlayer({ announcementText, trigger, channel }) {
     }
 
     queue.push(audioMap.serviceCounter);
-    queue.push(audioMap[String(channel)]);
+    if (audioMap[String(channel)]) {
+      queue.push(audioMap[String(channel)]);
+    }
     queue.push(audioMap.ka);
 
     setAudioQueue(queue);
-    setCurrentAudioIndex(0); // รีเซ็ตลำดับการเล่นทุกครั้งที่มีคิวใหม่
-    console.log("เล่นเสียง-------------------------------");
-  }, [trigger]);
+    setCurrentAudioIndex(0); // เริ่มเล่นจาก index แรกเสมอ
+    console.log("สร้างคิวเสียงใหม่:", queue);
+  }, [trigger, announcementText, channel, firstTime]); // เพิ่ม dependencies ให้ครบ
 
-  // Effect 2: เริ่มเล่นเสียงอัตโนมัติเมื่อ 'audioQueue' พร้อม
+  // Effect 3: จัดการการเล่นเสียงตามคิว
   useEffect(() => {
-    if (audioQueue.length > 0) {
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(false);
-    }
-  }, [audioQueue]);
+    // ตรวจสอบว่ามีคิวเสียงให้เล่นหรือไม่ และ index ไม่เกินความยาวของคิว
+    if (
+      audioRef.current &&
+      audioQueue.length > 0 &&
+      currentAudioIndex < audioQueue.length
+    ) {
+      const audioSrc = audioQueue[currentAudioIndex];
+      audioRef.current.src = audioSrc;
 
-  const playNextAudio = () => {
-    if (currentAudioIndex < audioQueue.length - 1) {
-      setCurrentAudioIndex((prevIndex) => prevIndex + 1);
-    } else {
-      setIsPlaying(false); // หยุดเล่นเมื่อหมดคิว
-    }
-  };
+      // การเรียก .play() จะคืนค่า Promise
+      const playPromise = audioRef.current.play();
 
-  // ไม่ต้องมีปุ่มใน Component นี้แล้ว
-  // การเล่นจะถูกควบคุมจาก props ที่ส่งเข้ามา
-  return (
-    <>
-      {isPlaying && audioQueue.length > 0 && (
-        <audio
-          key={currentAudioIndex}
-          src={audioQueue[currentAudioIndex]}
-          autoPlay
-          onEnded={playNextAudio}
-          onError={(e) =>
-            console.error(
-              `ไม่สามารถเล่นไฟล์เสียง: ${audioQueue[currentAudioIndex]}`,
-              e,
-            )
-          }
-        />
-      )}
-    </>
-  );
+      if (playPromise !== undefined) {
+        playPromise
+          .then((_) => {
+            // เล่นเสียงสำเร็จ
+            console.log(`กำลังเล่น: ${audioSrc}`);
+          })
+          .catch((error) => {
+            // ส่วนนี้สำคัญมากสำหรับการดีบัก
+            console.error(`ไม่สามารถเล่นเสียงได้: ${audioSrc}`, error);
+            // กรณีนี้มักเกิดจาก Autoplay Policy, ลองให้ผู้ใช้คลิกเพื่อเริ่ม
+          });
+      }
+    } else if (
+      audioQueue.length > 0 &&
+      currentAudioIndex >= audioQueue.length
+    ) {
+      // เมื่อเล่นจนจบครบทุกคิวแล้ว
+      console.log("เล่นเสียงประกาศครบแล้ว");
+      setAudioQueue([]); // ล้างคิวเพื่อหยุดการทำงาน
+    }
+  }, [audioQueue, currentAudioIndex]);
+
+  // Component นี้ไม่จำเป็นต้อง render element ใดๆ ออกมา
+  return null;
 }

@@ -4,16 +4,22 @@ import axios from "axios";
 export const useGetMock = () => {
   return useQuery({
     queryKey: ["mock"],
-    queryFn: () =>
-      new Promise((resolve) => {
-        setTimeout(async () => {
-          console.log("เรียกข้อมูลหลังบ้าน: คิว");
-          resolve({
-            mockQueue,
-          });
-        }, 500);
-      }),
-    refetchInterval: 1 * 30,
+    queryFn: async () => {
+      const supabaseToken = process.env.NEXT_PUBLIC_SUPABASE_TOKEN;
+      const { data } = await axios.get(
+        "https://zdnaqynqrwgffvknfpwj.supabase.co/functions/v1/mock-queue-display/queue-display",
+        {
+          headers: {
+            Authorization: `Bearer ${supabaseToken}`,
+            "Content-Type": "application/json",
+          },
+        },
+      );
+      console.log("Supabase data: ", data);
+      console.log("เรียกข้อมูลหลังบ้าน: คิว");
+      return data;
+    },
+    refetchInterval: 30 * 1000,
     refetchOnWindowFocus: false,
   });
 };
@@ -61,32 +67,32 @@ let mockQueue = {
   appointments: [
     {
       id: "q001",
-      queueNumber: "F1105",
+      queueNumber: "F-1105",
       customerName: "นายสมชาย ใจดี",
       customerImage: "https://placehold.co/100x100/orange/white?text=SJ",
       serviceName: "ซ่อมโทรศัพท์",
       channel: "1",
-      status: "Calling",
+      status: "Skip",
       timestamp: "2025-09-06T10:30:05Z", // เวลาที่เริ่มเรียก
     },
     {
       id: "q002",
-      queueNumber: "G1106",
+      queueNumber: "G-1106",
       customerName: "คุณสิริพร งามวงศ์",
       customerImage: "https://placehold.co/100x100/blue/white?text=SN",
       serviceName: "บริการทั่วไป",
       channel: "3",
-      status: "Skip",
+      status: "Calling",
       timestamp: "2025-09-06T10:29:58Z", // เวลาที่เริ่มเรียก
     },
     {
       id: "q003",
-      queueNumber: "R1107",
+      queueNumber: "R-1107",
       customerName: "David Beckham",
       customerImage: "https://placehold.co/100x100/green/white?text=DB",
       serviceName: "รับของคืน",
-      channel: null, // ยังไม่มีช่องบริการเพราะยังไม่ถูกเรียก
-      status: "Pending", // <-- สถานะ: รอเรียก
+      channel: 2, // ยังไม่มีช่องบริการเพราะยังไม่ถูกเรียก
+      status: "Calling", // <-- สถานะ: รอเรียก
       timestamp: "2025-09-06T10:25:10Z", // เวลาที่กดรับคิว
     },
     {
@@ -99,7 +105,6 @@ let mockQueue = {
       status: "Pending", // <-- สถานะ: รอเรียก
       timestamp: "2025-09-06T10:24:30Z", // เวลาที่กดรับคิว
     },
-
     {
       id: "q005",
       queueNumber: "R1104",
@@ -110,7 +115,6 @@ let mockQueue = {
       status: "Finished", // <-- สถานะ: บริการเสร็จสิ้น
       timestamp: "2025-09-06T10:28:15Z", // เวลาที่เรียกและจบไปแล้ว
     },
-
     {
       id: "q006",
       queueNumber: "G1103",
@@ -122,8 +126,4 @@ let mockQueue = {
       timestamp: "2025-09-06T10:27:40Z", // เวลาที่กดข้ามคิว
     },
   ],
-  mockConfigDisplayPage: {
-    isDisplay: true,
-    isRunning: false,
-  },
 };

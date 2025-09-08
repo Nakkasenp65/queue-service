@@ -26,19 +26,25 @@ export default function QueueListItem({ appointment, isRecent = false }) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.4 }}
-      className={`flex items-center justify-between rounded-3xl border p-10 backdrop-blur-sm ${currentConfig.border} ${currentConfig.bg} transition-colors duration-300`}
+      className={`flex items-center justify-between rounded-2xl border p-3 py-6 backdrop-blur-sm ${currentConfig.border} ${currentConfig.bg} transition-colors duration-300`}
     >
-      <div className="flex items-center gap-10">
+      <div className="flex items-center gap-8">
         <QueueNumberBadge queueNumber={appointment?.queueNumber} size="sm" />
         <div className="flex flex-col">
-          <h4 className="text-6xl font-semibold text-white">{appointment?.customerName}</h4>
-          <p className="text-[72px] text-white/80">{appointment?.serviceName}</p>
+          <h4 className="text-[48px] font-semibold text-white">
+            {appointment?.customerName}
+          </h4>
+          <p className="text-[32px] text-white/80">
+            {appointment?.serviceName}
+          </p>
         </div>
       </div>
       <div
-        className={`flex w-[420px] items-center justify-center gap-4 rounded-2xl px-8 py-5 ${currentConfig.channelBg}`}
+        className={`flex w-[250px] items-center justify-center rounded-xl ${currentConfig.channelBg}`}
       >
-        <span className="text-[108px] font-bold text-white">ช่อง {appointment?.channel}</span>
+        <span className="text-[64px] font-bold text-white">
+          ช่อง {appointment?.channel}
+        </span>
       </div>
     </motion.div>
   );

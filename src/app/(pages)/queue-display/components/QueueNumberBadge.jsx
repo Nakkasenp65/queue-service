@@ -2,7 +2,11 @@
 
 import { motion } from "framer-motion";
 
-export default function QueueNumberBadge({ queueNumber, size = "lg", animate = false }) {
+export default function QueueNumberBadge({
+  queueNumber,
+  size = "lg",
+  animate = false,
+}) {
   const firstLetter = queueNumber?.charAt(0);
   const restOfNumber = queueNumber?.substring(1);
   const getColorConfig = (letter) => {
@@ -35,8 +39,12 @@ export default function QueueNumberBadge({ queueNumber, size = "lg", animate = f
   };
   const colorConfig = getColorConfig(firstLetter);
   const sizeClasses = {
-    lg: { container: "w-full h-auto", number: "text-[360px]", label: "text-4xl" },
-    sm: { container: " h-56 p-8", number: "text-7xl", label: "text-2xl" },
+    lg: {
+      container: "w-full h-auto rounded-[48px]",
+      number: "text-[320px]",
+      label: "text-4xl",
+    },
+    sm: { container: " h-16 p-2 w-[250px] rounded-xl", number: "text-[64px]" },
   };
   const currentSize = sizeClasses[size] || sizeClasses.lg;
   return (
@@ -44,13 +52,17 @@ export default function QueueNumberBadge({ queueNumber, size = "lg", animate = f
       initial={animate ? { scale: 1.3 } : false}
       animate={{ scale: 1 }}
       transition={{ duration: 0.8, delay: 0.2 }}
-      className={`flex h-full flex-col items-center justify-center rounded-3xl border-2 ${currentSize.container} ${colorConfig.bg}`}
+      className={`flex h-full flex-col items-center justify-center border-2 ${currentSize.container} ${colorConfig.bg}`}
     >
       <div className="flex items-baseline">
-        <span className={`${colorConfig.text} ${currentSize.number} font-black`}>
+        <span
+          className={`${colorConfig.text} ${currentSize.number} font-black`}
+        >
           {firstLetter}
         </span>
-        <span className={`text-white ${currentSize.number} font-black`}>-{restOfNumber}</span>
+        <span className={`text-white ${currentSize.number} font-black`}>
+          {restOfNumber}
+        </span>
       </div>
     </motion.div>
   );
