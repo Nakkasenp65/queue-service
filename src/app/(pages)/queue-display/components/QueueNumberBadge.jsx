@@ -40,11 +40,10 @@ export default function QueueNumberBadge({
   const colorConfig = getColorConfig(firstLetter);
   const sizeClasses = {
     lg: {
-      container: "w-full h-auto rounded-[48px]",
-      number: "text-[320px]",
-      label: "text-4xl",
+      container: "w-full h-auto rounded-[16px]",
+      number: "text-[96px]",
     },
-    sm: { container: " h-16 p-2 w-[250px] rounded-xl", number: "text-[64px]" },
+    sm: { container: " h-16 p-1 w-[100px] rounded-lg", number: "text-2xl" },
   };
   const currentSize = sizeClasses[size] || sizeClasses.lg;
   return (

@@ -19,7 +19,7 @@ export const useGetMock = () => {
       console.log("เรียกข้อมูลหลังบ้าน: คิว");
       return data;
     },
-    refetchInterval: 30 * 1000,
+    refetchInterval: 2 * 1000,
     refetchOnWindowFocus: false,
   });
 };
