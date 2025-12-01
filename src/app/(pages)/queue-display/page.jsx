@@ -19,9 +19,8 @@ export default function QueueDisplayPage() {
     channel: "",
     firstTime: true,
   });
-  const { data: mockData, isLoading, isError } = useGetMock();
+  const { data: appointments, isLoading, isError } = useGetMock();
   const { mutate: updateAppointmentStatus } = useUpdateMock();
-  const { appointments } = mockData || {};
 
   const callingAppointments = useMemo(() => {
     return appointments
@@ -32,7 +31,8 @@ export default function QueueDisplayPage() {
   const recentAppointments = useMemo(() => {
     return appointments
       ?.filter((apt) => apt.status === "Finished" || apt.status === "Skip")
-      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+      .slice(0, 4);
   }, [appointments]);
 
   const currentCallingId = callingAppointments?.[0]?.id ?? null;
@@ -47,7 +47,11 @@ export default function QueueDisplayPage() {
     console.log(
       `[ACTION] Sending update for ID: ${appointmentId} to status: ${newStatus}`,
     );
-    // updateAppointmentStatus({ id: appointmentId, status: newStatus });
+    // updateAppointmentStatus({
+    //   id: appointmentId,
+    //   status: newStatus,
+    //   channel: callingAppointments?.[0]?.channel,
+    // });
   };
 
   const triggerAudioAnnouncement = (appointment) => {

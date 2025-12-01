@@ -3,11 +3,11 @@ import axios from "axios";
 
 export const useGetMock = () => {
   return useQuery({
-    queryKey: ["mock"],
+    queryKey: ["queues"],
     queryFn: async () => {
       const supabaseToken = process.env.NEXT_PUBLIC_SUPABASE_TOKEN;
       const { data } = await axios.get(
-        "https://zdnaqynqrwgffvknfpwj.supabase.co/functions/v1/mock-queue-display/queue-display",
+        "https://dtqpahvitdfjutgqfkud.supabase.co/functions/v1/get-all-queues",
         {
           headers: {
             Authorization: `Bearer ${supabaseToken}`,
@@ -17,9 +17,9 @@ export const useGetMock = () => {
       );
       console.log("Supabase data: ", data);
       console.log("เรียกข้อมูลหลังบ้าน: คิว");
-      return data;
+      return data.queues;
     },
-    refetchInterval: 2 * 1000,
+    refetchInterval: 1 * 1000,
     refetchOnWindowFocus: false,
   });
 };
@@ -27,39 +27,25 @@ export const useGetMock = () => {
 export const useUpdateMock = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, status }) => {
+    mutationFn: async ({ id, status, channel }) => {
       // เราจะไม่แก้ไข mockQueue โดยตรงในนี้แล้ว
       // เราจะจำลองว่าส่ง request ไป backend และรอผลลัพธ์
+      const queueUpdateUrl = NEXT_PUBLIC_QUEUE_UPDATE;
+      if (!queueUpdateUrl) console.error("Queue update url is not provided");
+      const { data } = await axios.patch(process.env.NEXT_PUBLIC_QUEUE_UPDATE, {
+        id: id,
+        status: "Skip",
+        channel: channel,
+      });
+
       console.log(
         `🚀 [Mutation] จำลองการส่งคำสั่งอัพเดท ID: ${id} เป็น: ${status}`,
       );
 
-      await new Promise((resolve) => setTimeout(resolve, 300)); // จำลอง network delay
-      // คืนค่าข้อมูลที่ต้องการนำไปอัพเดท
       return { id, status };
     },
-
     // เราจะใช้ onMutate + onError + onSettled เพื่อทำ Optimistic Update
     // ซึ่งเป็นวิธีที่ Advance และดีที่สุด แต่สำหรับตอนนี้ใช้ onSuccess ก็เพียงพอ
-
-    onSuccess: (updatedData) => {
-      queryClient.setQueryData(["mock"], (oldData) => {
-        if (!oldData) return;
-        const newAppointments = oldData.mockQueue.appointments.map((apt) => {
-          if (apt.id === updatedData.id) {
-            return { ...apt, status: updatedData.status };
-          }
-          return apt;
-        });
-        return {
-          ...oldData,
-          mockQueue: {
-            ...oldData.mockQueue,
-            appointments: newAppointments,
-          },
-        };
-      });
-    },
   });
 };
 
